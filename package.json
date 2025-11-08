@@ -1,0 +1,22 @@
+{
+  "name": "svijet-zdravlja-fe",
+  "version": "1.0.0",
+  "description": "Svijet Zdravlja Frontend Project",
+  "main": "index.js",
+  "scripts": {
+    "sass": "sass styles/sass/main.scss styles/style.css",
+    "sass:watch": "sass --watch styles/sass/main.scss:styles/style.css",
+    "sass:build": "sass styles/sass/main.scss styles/style.css --style compressed",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "sass",
+    "frontend",
+    "zdravlje"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "sass": "^1.93.3"
+  }
+}
