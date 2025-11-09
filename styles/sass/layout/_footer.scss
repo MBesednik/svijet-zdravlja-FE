@@ -1,0 +1,154 @@
+.footer {
+  background-color: $color-primary;
+  color: $color-white;
+  padding: $spacing-3xl 0 $spacing-lg;
+
+  &__container {
+    max-width: $container-max-width;
+    margin: 0 auto;
+    padding: 0 $container-padding;
+  }
+
+  &__content {
+    display: grid;
+    gap: $spacing-2xl;
+    margin-bottom: $spacing-2xl;
+
+    @include respond-to(tablet) {
+      grid-template-columns: 1fr 2fr;
+    }
+
+    @include respond-to(desktop) {
+      gap: $spacing-3xl;
+    }
+  }
+
+  &__brand {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+  }
+
+  &__logo {
+    display: inline-block;
+    transition: transform $transition-base;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+
+  &__logo-img {
+    height: 60px;
+    width: auto;
+    filter: brightness(0) invert(1);
+
+    @include respond-to(tablet) {
+      height: 75px;
+    }
+
+    @include respond-to(desktop) {
+      height: 80px;
+    }
+  }
+
+  &__description {
+    color: $color-primary-lighter;
+    font-size: $font-size-sm;
+    line-height: $line-height-relaxed;
+    max-width: 300px;
+  }
+
+  &__links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: $spacing-xl;
+
+    @include respond-to(tablet) {
+      grid-template-columns: repeat(3, 1fr);
+      gap: $spacing-2xl;
+    }
+  }
+
+  &__column {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+  }
+
+  &__title {
+    font-size: $font-size-md;
+    font-weight: $font-weight-semibold;
+    color: $color-white;
+    margin-bottom: $spacing-sm;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+
+  &__list-item {
+    // BEM item
+  }
+
+  &__link {
+    display: inline-block;
+    color: $color-primary-lighter;
+    font-size: $font-size-sm;
+    transition: color $transition-fast, transform $transition-fast;
+
+    &:hover {
+      color: $color-white;
+      transform: translateX(4px);
+    }
+  }
+
+  &__text {
+    color: $color-primary-lighter;
+    font-size: $font-size-sm;
+  }
+
+  &__social {
+    display: flex;
+    gap: $spacing-md;
+  }
+
+  &__social-item {
+    // BEM item
+  }
+
+  &__social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background-color: rgba($color-white, 0.1);
+    border-radius: $border-radius-md;
+    color: $color-white;
+    transition: background-color $transition-fast, transform $transition-fast;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    &:hover {
+      background-color: rgba($color-white, 0.2);
+      transform: translateY(-2px);
+    }
+  }
+
+  &__bottom {
+    padding-top: $spacing-xl;
+    border-top: 1px solid rgba($color-white, 0.1);
+    text-align: center;
+  }
+
+  &__copyright {
+    color: $color-primary-lighter;
+    font-size: $font-size-sm;
+  }
+}

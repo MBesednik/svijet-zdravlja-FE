@@ -1,0 +1,82 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  padding: $spacing-md $spacing-xl;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  text-decoration: none;
+  border-radius: $border-radius-md;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all $transition-base;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width $transition-base, height $transition-base;
+  }
+
+  &:hover::before {
+    width: 300px;
+    height: 300px;
+  }
+
+  &__icon {
+    position: relative;
+    z-index: 1;
+    transition: transform $transition-base;
+  }
+
+  &:hover &__icon {
+    transform: translateX(4px);
+  }
+
+  &--primary {
+    background-color: $color-primary;
+    color: $color-white;
+    box-shadow: $shadow-md;
+
+    &:hover {
+      background-color: $color-primary-dark;
+      box-shadow: $shadow-lg;
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  &--secondary {
+    background-color: transparent;
+    color: $color-primary;
+    border-color: $color-primary;
+
+    &:hover {
+      background-color: $color-primary;
+      color: $color-white;
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  @include respond-to(tablet) {
+    padding: $spacing-lg $spacing-2xl;
+    font-size: $font-size-md;
+  }
+}

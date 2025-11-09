@@ -1,0 +1,107 @@
+// === COLORS ===
+$color-primary: #3d4a2c;
+$color-primary-light: #9db88d;
+$color-primary-lighter: #c8d7be;
+$color-primary-dark: #2a331f;
+
+$color-accent: #7a9b6e;
+$color-accent-light: #b8d4aa;
+
+$color-white: #ffffff;
+$color-off-white: #f9faf8;
+$color-gray-lightest: #f4f6f2;
+$color-gray-light: #e8ebe6;
+$color-gray: #9ca39a;
+$color-gray-dark: #5a5f56;
+$color-black: #1f2420;
+
+$color-text-primary: $color-primary;
+$color-text-secondary: $color-gray-dark;
+$color-text-light: $color-gray;
+
+$color-success: #6bb36b;
+$color-warning: #e8a854;
+$color-error: #d96c6c;
+$color-info: #6b9bd9;
+
+// === TYPOGRAPHY ===
+$font-primary: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont,
+  sans-serif;
+$font-heading: "Poppins", sans-serif;
+
+$font-size-xs: 0.75rem;
+$font-size-sm: 0.875rem;
+$font-size-base: 1rem;
+$font-size-md: 1.125rem;
+$font-size-lg: 1.25rem;
+$font-size-xl: 1.5rem;
+
+$font-size-h1: 2.5rem;
+$font-size-h2: 2rem;
+$font-size-h3: 1.75rem;
+$font-size-h4: 1.5rem;
+$font-size-h5: 1.25rem;
+$font-size-h6: 1.125rem;
+
+$font-weight-light: 300;
+$font-weight-regular: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+$line-height-tight: 1.2;
+$line-height-base: 1.6;
+$line-height-relaxed: 1.8;
+
+// === SPACING ===
+$spacing-xs: 0.25rem;
+$spacing-sm: 0.5rem;
+$spacing-md: 1rem;
+$spacing-lg: 1.5rem;
+$spacing-xl: 2rem;
+$spacing-2xl: 3rem;
+$spacing-3xl: 4rem;
+$spacing-4xl: 5rem;
+
+// === LAYOUT ===
+$container-max-width: 1200px;
+$container-padding: $spacing-lg;
+$section-padding: $spacing-3xl;
+
+// === BREAKPOINTS ===
+$breakpoint-mobile: 480px;
+$breakpoint-tablet: 768px;
+$breakpoint-desktop: 1024px;
+$breakpoint-wide: 1440px;
+
+// === TRANSITIONS ===
+$transition-fast: 0.15s ease;
+$transition-base: 0.3s ease;
+$transition-slow: 0.5s ease;
+
+// === BORDERS ===
+$border-radius-sm: 4px;
+$border-radius-md: 8px;
+$border-radius-lg: 12px;
+$border-radius-xl: 16px;
+$border-radius-full: 9999px;
+
+$border-width-thin: 1px;
+$border-width-base: 2px;
+$border-width-thick: 3px;
+
+// === SHADOWS ===
+$shadow-sm: 0 1px 2px 0 rgba(61, 74, 44, 0.05);
+$shadow-base: 0 2px 4px 0 rgba(61, 74, 44, 0.08);
+$shadow-md: 0 4px 6px -1px rgba(61, 74, 44, 0.1);
+$shadow-lg: 0 10px 15px -3px rgba(61, 74, 44, 0.1);
+$shadow-xl: 0 20px 25px -5px rgba(61, 74, 44, 0.1);
+
+// === Z-INDEX ===
+$z-index-dropdown: 100;
+$z-index-sticky: 200;
+$z-index-fixed: 300;
+$z-index-modal-backdrop: 400;
+$z-index-modal: 500;
+$z-index-popover: 600;
+$z-index-tooltip: 700;
