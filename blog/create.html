@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Svijet Zdravlja</title>
-    <link rel="stylesheet" href="styles/style.css" />
+    <title>Svijet Zdravlja | Nova objava</title>
+    <link rel="stylesheet" href="../styles/style.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -13,12 +13,11 @@
     />
   </head>
   <body>
-    <!-- HEADER -->
     <header class="header">
       <div class="header__container container">
-        <a href="/" class="header__logo">
+        <a href="../index.html" class="header__logo">
           <img
-            src="images/logo/SZ_cijelilogo_transparent.png"
+            src="../images/logo/SZ_cijelilogo_transparent.png"
             alt="Svijet Zdravlja logo"
             class="header__logo-img"
           />
@@ -27,7 +26,7 @@
         <nav class="header__nav">
           <ul class="header__nav-list">
             <li class="header__nav-item">
-              <a href="#" class="header__nav-link">Početna</a>
+              <a href="../index.html" class="header__nav-link">Početna</a>
             </li>
             <li class="header__nav-item">
               <a href="#" class="header__nav-link">O nama</a>
@@ -36,7 +35,7 @@
               <a href="#" class="header__nav-link">Usluge</a>
             </li>
             <li class="header__nav-item">
-              <a href="blog/index.html" class="header__nav-link">Blog</a>
+              <a href="index.html" class="header__nav-link">Blog</a>
             </li>
             <li class="header__nav-item">
               <a href="#" class="header__nav-link">Kontakt</a>
@@ -56,151 +55,152 @@
       </div>
     </header>
 
-    <!-- MAIN CONTENT -->
-    <main class="main">
-      <!-- HERO SECTION -->
-      <section class="hero">
-        <div class="hero__background">
-          <div class="hero__shape hero__shape--1"></div>
-          <div class="hero__shape hero__shape--2"></div>
-          <div class="hero__shape hero__shape--3"></div>
-        </div>
-
-        <div class="hero__container container">
-          <div class="hero__content">
-            <span class="hero__label">Nutricionizam i zdrava prehrana</span>
-            <h1 class="hero__title">
-              Vaš put do zdravih
-              <span class="hero__highlight">prehrambenih navika</span>
-            </h1>
-            <p class="hero__description">
-              Stvorite personalizirani plan prehrane koji odgovara vašem
-              životnom stilu i ciljevima. Profesionalna podrška na svakom koraku
-              vaše transformacije.
+    <main class="blog-create">
+      <div class="blog-create__container container">
+        <header class="blog-create__header">
+          <div>
+            <p class="blog__eyebrow">Upravljanje sadržajem</p>
+            <h1 id="post-form-heading">Nova objava</h1>
+            <p>
+              Popunite obrazac i pripremite novu priču za objavu ili spremite
+              skicu za kasnije.
             </p>
-            <div class="hero__buttons">
-              <a href="#kontakt" class="btn btn--primary">
-                Zakaži besplatnu konzultaciju
-                <svg
-                  class="btn__icon"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                >
-                  <path
-                    d="M7.5 15L12.5 10L7.5 5"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </a>
-              <a href="#usluge" class="btn btn--secondary"> Saznaj više </a>
-            </div>
-
-            <div class="hero__features">
-              <div class="hero__feature">
-                <svg
-                  class="hero__feature-icon"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                >
-                  <path
-                    d="M22 11.08V12a10 10 0 1 1-5.93-9.14"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                  <polyline
-                    points="22 4 12 14.01 9 11.01"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-                <span class="hero__feature-text">Personalizirani pristup</span>
-              </div>
-              <div class="hero__feature">
-                <svg
-                  class="hero__feature-icon"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                >
-                  <path
-                    d="M22 11.08V12a10 10 0 1 1-5.93-9.14"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                  <polyline
-                    points="22 4 12 14.01 9 11.01"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-                <span class="hero__feature-text">Online konzultacije</span>
-              </div>
-              <div class="hero__feature">
-                <svg
-                  class="hero__feature-icon"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                >
-                  <path
-                    d="M22 11.08V12a10 10 0 1 1-5.93-9.14"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                  <polyline
-                    points="22 4 12 14.01 9 11.01"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-                <span class="hero__feature-text">Dugotrajni rezultati</span>
-              </div>
-            </div>
           </div>
+          <a href="index.html" class="btn btn--secondary">Natrag na popis</a>
+        </header>
 
-          <div class="hero__image">
-            <div class="hero__image-wrapper">
-              <!-- Logo simbol sa animacijom - bez krugova -->
+        <form id="post-form" novalidate>
+          <div
+            id="post-form-status"
+            class="form-status"
+            role="status"
+            aria-live="polite"
+            hidden
+          ></div>
+
+          <div class="form__grid">
+            <div class="form__group form__group--full">
+              <label for="post-title">Naslov objave *</label>
+              <input
+                type="text"
+                id="post-title"
+                name="title"
+                required
+                minlength="3"
+                placeholder="Npr. 5 brzih ideja za zdrav doručak"
+              />
+              <span class="form__hint">Minimalno 3 znaka.</span>
+            </div>
+
+            <div class="form__group">
+              <label for="post-slug">Slug</label>
+              <input
+                type="text"
+                id="post-slug"
+                name="slug"
+                placeholder="npr. zdravi-dorucak"
+                pattern="^[a-z0-9]+(?:-[a-z0-9]+)*$"
+              />
+              <span class="form__hint"
+                >Ako ga ostavite prazno, generiramo ga iz naslova.</span
+              >
+            </div>
+
+            <div class="form__group">
+              <label for="post-categories">Kategorije</label>
+              <input
+                type="text"
+                id="post-categories"
+                name="categories"
+                placeholder="npr. prehrana, savjeti"
+              />
+              <span class="form__hint">Odvojite vrijednosti zarezom.</span>
+            </div>
+
+            <div class="form__group">
+              <label for="post-tags">Oznake</label>
+              <input
+                type="text"
+                id="post-tags"
+                name="tags"
+                placeholder="npr. vegansko, doručak"
+              />
+              <span class="form__hint"
+                >Opcionalno za preciznije pretraživanje.</span
+              >
+            </div>
+
+            <div class="form__group form__group--full">
+              <label for="post-image">Naslovna slika</label>
+              <input
+                type="file"
+                id="post-image"
+                name="image"
+                accept="image/jpeg,image/png,image/webp"
+              />
+              <span class="form__hint"
+                >Podržani formati: JPG, PNG, WEBP (max 2 MB).</span
+              >
               <img
-                src="images/logo/SZ_simbol_transparent.png"
-                alt="Svijet Zdravlja simbol"
-                class="hero__logo-symbol"
+                id="post-image-preview"
+                alt="Pretpregled objave"
+                class="form__image-preview"
+                hidden
               />
             </div>
+
+            <div class="form__group form__group--full">
+              <label for="post-content">Sadržaj objave *</label>
+              <textarea
+                id="post-content"
+                name="content"
+                required
+                minlength="50"
+                placeholder="Glavni tekst objave..."
+              ></textarea>
+              <span class="form__hint"
+                >Minimalno 50 znakova; podržan je obični tekst.</span
+              >
+            </div>
+
+            <div class="form__group form__group--full">
+              <label for="post-excerpt">Sažetak</label>
+              <textarea
+                id="post-excerpt"
+                name="excerpt"
+                placeholder="Kratki opis koji će se prikazivati na listi."
+              ></textarea>
+              <span class="form__hint"
+                >Ako ostavite prazno, automatski generiramo prvih nekoliko
+                rečenica.</span
+              >
+            </div>
+
+            <div class="form__group form__group--full form__checkbox">
+              <input type="checkbox" id="post-published" name="published" />
+              <label for="post-published">Objavi nakon spremanja</label>
+            </div>
           </div>
-        </div>
-      </section>
+
+          <div class="form__actions">
+            <button type="submit" id="post-save" class="btn btn--primary">
+              Spremi objavu
+            </button>
+            <a href="index.html" id="post-cancel" class="btn btn--secondary"
+              >Odustani</a
+            >
+          </div>
+        </form>
+      </div>
     </main>
 
-    <!-- FOOTER -->
     <footer class="footer">
       <div class="footer__container container">
         <div class="footer__content">
           <div class="footer__brand">
-            <a href="/" class="footer__logo">
+            <a href="../index.html" class="footer__logo">
               <img
-                src="images/logo/SZ_cijelilogo_transparent.png"
+                src="../images/logo/SZ_cijelilogo_transparent.png"
                 alt="Svijet Zdravlja logo"
                 class="footer__logo-img"
               />
@@ -215,7 +215,7 @@
               <h4 class="footer__title">Navigacija</h4>
               <ul class="footer__list">
                 <li class="footer__list-item">
-                  <a href="#" class="footer__link">Početna</a>
+                  <a href="../index.html" class="footer__link">Početna</a>
                 </li>
                 <li class="footer__list-item">
                   <a href="#" class="footer__link">O nama</a>
@@ -224,7 +224,7 @@
                   <a href="#" class="footer__link">Usluge</a>
                 </li>
                 <li class="footer__list-item">
-                  <a href="#" class="footer__link">Blog</a>
+                  <a href="index.html" class="footer__link">Blog</a>
                 </li>
               </ul>
             </div>
@@ -325,6 +325,7 @@
       </div>
     </footer>
 
-    <script src="scripts/main.js"></script>
+    <script src="../scripts/main.js"></script>
+    <script src="../scripts/blog.js"></script>
   </body>
 </html>
