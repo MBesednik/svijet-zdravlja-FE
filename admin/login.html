@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="hr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Admin prijava — Svijet Zdravlja</title>
+    <link rel="stylesheet" href="../styles/main.css" />
+    <link rel="stylesheet" href="../styles/admin.css" />
+    <style>
+      :root {
+        --accent: #3d5a2a;
+        --muted: #6b6b6b;
+        --card-bg: #ffffff;
+      }
+      body {
+        background: linear-gradient(180deg, #f6fbf4 0%, #ffffff 100%);
+        font-family: Inter, "Helvetica Neue", Helvetica, Arial, sans-serif;
+        color: #21321e;
+      }
+      /* center container vertically and horizontally */
+      .admin-login-wrap {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 24px;
+        display: flex;
+        gap: 28px;
+        align-items: center;
+        min-height: calc(100vh - 48px);
+      }
+      .brand {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 20px;
+      }
+      .brand .logo {
+        width: 78px;
+        height: 78px;
+        border-radius: 12px;
+        background: var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-weight: 700;
+        font-size: 18px;
+        box-shadow: 0 6px 18px rgba(61, 90, 42, 0.08);
+      }
+      .brand h1 {
+        margin: 8px 0 0;
+        font-size: 30px;
+        color: var(--accent);
+        line-height: 1;
+      }
+      .brand p {
+        margin: 8px 0 0;
+        color: var(--muted);
+        max-width: 320px;
+      }
+      .login-card {
+        flex: 1;
+        max-width: 520px;
+        margin: 0;
+        padding: 28px;
+        background: var(--card-bg);
+        box-shadow: 0 12px 40px rgba(33, 50, 30, 0.07);
+        border-radius: 12px;
+      }
+      .login-card h2 {
+        margin: 0 0 8px;
+        color: #2a4326;
+      }
+      .login-card p.lead {
+        margin: 0 0 18px;
+        color: #546a4a;
+      }
+      .form-row {
+        margin-bottom: 14px;
+        display: flex;
+        flex-direction: column;
+      }
+      label {
+        font-size: 0.95rem;
+        margin-bottom: 6px;
+        color: #314a33;
+      }
+      input[type="email"],
+      input[type="password"] {
+        padding: 12px 14px;
+        border: 1px solid #e2eadf;
+        border-radius: 10px;
+        font-size: 1rem;
+        background: #fbfff9;
+      }
+      input[type="email"]:focus,
+      input[type="password"]:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(61, 90, 42, 0.08);
+      }
+      .actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        justify-content: flex-start;
+        margin-top: 8px;
+      }
+      .login-card button {
+        display: inline-block;
+        width: auto;
+      }
+      .actions button {
+        min-width: 120px;
+      }
+      button {
+        background: var(--accent);
+        color: #fff;
+        border: 0;
+        padding: 10px 14px;
+        border-radius: 8px;
+        cursor: pointer;
+        box-shadow: 0 6px 14px rgba(61, 90, 42, 0.08);
+      }
+      button.secondary {
+        background: #f5f9f2;
+        color: var(--accent);
+        border: 1px solid #e6efe0;
+      }
+      .msg {
+        margin-top: 12px;
+        color: #9b1c1c;
+        min-height: 1.2em;
+      }
+      .test-cred {
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin-top: 18px;
+      }
+      @media (max-width: 840px) {
+        .admin-login-wrap {
+          flex-direction: column;
+          padding: 18px;
+        }
+        .brand {
+          align-items: center;
+          text-align: center;
+        }
+        .brand p {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="admin-login-wrap">
+        <div class="brand">
+          <div class="logo">SZ</div>
+          <h1>Svijet Zdravlja</h1>
+          <p>Administratorsko sučelje za uređivanje članaka i medija.</p>
+        </div>
+
+        <section class="login-card" aria-labelledby="login-title">
+          <h2 id="login-title">Prijava administratora</h2>
+          <p class="lead">
+            Prijavite se koristeći administratorske podatke da biste pristupili
+            sučelju za uređivanje članaka.
+          </p>
+
+          <form id="admin-login-form" autocomplete="on">
+            <div class="form-row">
+              <label for="email">Email</label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                placeholder="admin@admin.com"
+              />
+            </div>
+
+            <div class="form-row">
+              <label for="password">Lozinka</label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                placeholder="1234"
+              />
+            </div>
+
+            <div class="form-row actions">
+              <button id="login-btn" type="submit">Prijavi se</button>
+              <button id="demo-btn" type="button" class="secondary">
+                Auto-fill demo
+              </button>
+            </div>
+
+            <div class="msg" id="login-msg" aria-live="polite"></div>
+            <div class="test-cred">
+              Test credentials: <strong>admin@admin.com</strong> /
+              <strong>1234</strong>
+            </div>
+          </form>
+        </section>
+      </div>
+    </main>
+
+    <!-- Ensure admin-auth uses correct backend URL for local testing -->
+    <script>
+      window.__SVZ_BASE_URL__ = "http://localhost:5000";
+    </script>
+    <script src="../scripts/admin-auth.js"></script>
+  </body>
+</html>

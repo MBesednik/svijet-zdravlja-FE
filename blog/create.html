@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Svijet Zdravlja | Nova objava</title>
     <link rel="stylesheet" href="../styles/style.css" />
+    <link rel="stylesheet" href="../styles/admin.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -62,14 +63,14 @@
             <p class="blog__eyebrow">Upravljanje sadržajem</p>
             <h1 id="post-form-heading">Nova objava</h1>
             <p>
-              Popunite obrazac i pripremite novu priču za objavu ili spremite
-              skicu za kasnije.
+              Popunite sve potrebne informacije i kreirajte novu blog objavu.
+              Možete je objaviti odmah ili je spremiti kao skicu.
             </p>
           </div>
           <a href="index.html" class="btn btn--secondary">Natrag na popis</a>
         </header>
 
-        <form id="post-form" novalidate>
+        <form id="post-form" novalidate enctype="multipart/form-data">
           <div
             id="post-form-status"
             class="form-status"
@@ -78,117 +79,250 @@
             hidden
           ></div>
 
-          <div class="form__grid">
+          <!-- OSNOVNE INFORMACIJE -->
+          <section class="form__section">
+            <h2 class="form__section-title">Osnovne informacije</h2>
+
+            <div class="form__grid">
+              <div class="form__group form__group--full">
+                <label for="post-title">Naslov objave *</label>
+                <input
+                  type="text"
+                  id="post-title"
+                  name="title"
+                  required
+                  minlength="3"
+                  maxlength="255"
+                  placeholder="Npr. 5 brzih ideja za zdrav doručak"
+                />
+                <span class="form__hint"
+                  >Minimalno 3 znaka, maksimalno 255.</span
+                >
+              </div>
+
+              <div class="form__group form__group--full">
+                <label for="post-slug">URL slug *</label>
+                <input
+                  type="text"
+                  id="post-slug"
+                  name="slug"
+                  required
+                  placeholder="npr. zdravi-dorucak"
+                  pattern="^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                />
+                <span class="form__hint">
+                  Samo mala slova, brojeve i crtice. Mora biti jedinstvena.
+                </span>
+              </div>
+
+              <div class="form__group form__group--full">
+                <label for="post-summary">Sažetak *</label>
+                <textarea
+                  id="post-summary"
+                  name="summary"
+                  required
+                  minlength="10"
+                  maxlength="500"
+                  rows="3"
+                  placeholder="Kraći opis koji će se prikazati u pregledima..."
+                ></textarea>
+                <span class="form__hint"
+                  >Prikazuje se kao pretpregled objave.</span
+                >
+              </div>
+            </div>
+          </section>
+
+          <!-- META PODACI ZA SEO -->
+          <section class="form__section">
+            <h2 class="form__section-title">SEO optimizacija</h2>
+
+            <div class="form__grid">
+              <div class="form__group form__group--full">
+                <label for="post-meta-title">Meta naslov</label>
+                <input
+                  type="text"
+                  id="post-meta-title"
+                  name="meta_title"
+                  maxlength="60"
+                  placeholder="Naslov za pretraživače (do 60 znakova)"
+                />
+                <span class="form__hint"
+                  >Ako je prazno, koristi se glavni naslov.</span
+                >
+              </div>
+
+              <div class="form__group form__group--full">
+                <label for="post-meta-description">Meta opis</label>
+                <textarea
+                  id="post-meta-description"
+                  name="meta_description"
+                  maxlength="160"
+                  rows="2"
+                  placeholder="Opis za pretraživače (do 160 znakova)"
+                ></textarea>
+                <span class="form__hint"
+                  >Koristi se u rezultatima pretraživanja.</span
+                >
+              </div>
+            </div>
+          </section>
+
+          <!-- SADRŽAJ -->
+          <section class="form__section">
+            <h2 class="form__section-title">Sadržaj objave</h2>
+
             <div class="form__group form__group--full">
-              <label for="post-title">Naslov objave *</label>
-              <input
-                type="text"
-                id="post-title"
-                name="title"
-                required
-                minlength="3"
-                placeholder="Npr. 5 brzih ideja za zdrav doručak"
-              />
-              <span class="form__hint">Minimalno 3 znaka.</span>
-            </div>
-
-            <div class="form__group">
-              <label for="post-slug">Slug</label>
-              <input
-                type="text"
-                id="post-slug"
-                name="slug"
-                placeholder="npr. zdravi-dorucak"
-                pattern="^[a-z0-9]+(?:-[a-z0-9]+)*$"
-              />
-              <span class="form__hint"
-                >Ako ga ostavite prazno, generiramo ga iz naslova.</span
-              >
-            </div>
-
-            <div class="form__group">
-              <label for="post-categories">Kategorije</label>
-              <input
-                type="text"
-                id="post-categories"
-                name="categories"
-                placeholder="npr. prehrana, savjeti"
-              />
-              <span class="form__hint">Odvojite vrijednosti zarezom.</span>
-            </div>
-
-            <div class="form__group">
-              <label for="post-tags">Oznake</label>
-              <input
-                type="text"
-                id="post-tags"
-                name="tags"
-                placeholder="npr. vegansko, doručak"
-              />
-              <span class="form__hint"
-                >Opcionalno za preciznije pretraživanje.</span
-              >
-            </div>
-
-            <div class="form__group form__group--full">
-              <label for="post-image">Naslovna slika</label>
-              <input
-                type="file"
-                id="post-image"
-                name="image"
-                accept="image/jpeg,image/png,image/webp"
-              />
-              <span class="form__hint"
-                >Podržani formati: JPG, PNG, WEBP (max 2 MB).</span
-              >
-              <img
-                id="post-image-preview"
-                alt="Pretpregled objave"
-                class="form__image-preview"
-                hidden
-              />
-            </div>
-
-            <div class="form__group form__group--full">
-              <label for="post-content">Sadržaj objave *</label>
+              <label for="post-content">Tekst objave *</label>
               <textarea
                 id="post-content"
                 name="content"
                 required
                 minlength="50"
-                placeholder="Glavni tekst objave..."
+                rows="8"
+                placeholder="Unesite glavni tekst objave..."
               ></textarea>
               <span class="form__hint"
-                >Minimalno 50 znakova; podržan je obični tekst.</span
+                >Minimalno 50 znakova. Tekst će se obraditi u poglavlja.</span
               >
             </div>
+
+            <div id="chapters-container" class="chapters">
+              <h3 class="chapters__title">Poglavlja objave</h3>
+              <div id="chapters-list" class="chapters__list"></div>
+              <button
+                type="button"
+                id="add-chapter-btn"
+                class="btn btn--secondary btn--small"
+              >
+                + Dodaj poglavlje
+              </button>
+            </div>
+          </section>
+
+          <!--媒IJSKI SADRŽAJ -->
+          <section class="form__section">
+            <h2 class="form__section-title">Naslovna slika</h2>
 
             <div class="form__group form__group--full">
-              <label for="post-excerpt">Sažetak</label>
-              <textarea
-                id="post-excerpt"
-                name="excerpt"
-                placeholder="Kratki opis koji će se prikazivati na listi."
-              ></textarea>
+              <label for="post-hero-image">Naslovna slika *</label>
+              <div class="file-upload">
+                <input
+                  type="file"
+                  id="post-hero-image"
+                  name="hero_image"
+                  required
+                  accept="image/jpeg,image/png,image/webp"
+                />
+                <div class="file-upload__dropzone">
+                  <svg
+                    class="file-upload__icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                  </svg>
+                  <p class="file-upload__text">
+                    Prevucite sliku ili <strong>kliknite za odabir</strong>
+                  </p>
+                  <p class="file-upload__hint">JPG, PNG ili WEBP (max 2 MB)</p>
+                </div>
+              </div>
+              <img
+                id="post-hero-preview"
+                alt="Pretpregled naslove slike"
+                class="form__image-preview"
+                hidden
+              />
+            </div>
+          </section>
+
+          <!-- KATEGORIJE -->
+          <section class="form__section">
+            <h2 class="form__section-title">Kategorije</h2>
+
+            <div class="form__group form__group--full">
+              <label for="post-categories">Odaberite kategorije</label>
+              <div id="post-categories" class="categories-select">
+                <div class="categories-input">
+                  <input
+                    type="text"
+                    id="categories-search"
+                    placeholder="Pretraži ili dodaj novu kategoriju..."
+                    class="categories-input__field"
+                  />
+                </div>
+                <div id="categories-list" class="categories-list"></div>
+              </div>
               <span class="form__hint"
-                >Ako ostavite prazno, automatski generiramo prvih nekoliko
-                rečenica.</span
+                >Odaberite jednu ili više kategorija za blaži
+                pronalaženja.</span
               >
             </div>
+          </section>
 
-            <div class="form__group form__group--full form__checkbox">
-              <input type="checkbox" id="post-published" name="published" />
-              <label for="post-published">Objavi nakon spremanja</label>
+          <!-- STATUS I OBJAVA -->
+          <section class="form__section">
+            <h2 class="form__section-title">Status objave</h2>
+
+            <div class="form__grid">
+              <div class="form__group">
+                <label for="post-status">Status *</label>
+                <select id="post-status" name="status" required>
+                  <option value="">-- Odaberite status --</option>
+                  <option value="DRAFT">Skica (Draft)</option>
+                  <option value="PUBLISHED">Objavljena</option>
+                  <option value="SCHEDULED">Zakazana</option>
+                  <option value="HIDDEN">Skrivena</option>
+                  <option value="ARCHIVED">Arhivirana</option>
+                </select>
+                <span class="form__hint">Odaberite status objave.</span>
+              </div>
+
+              <div class="form__group" id="scheduled-date-group" hidden>
+                <label for="post-scheduled-for">Zakazano za *</label>
+                <input
+                  type="datetime-local"
+                  id="post-scheduled-for"
+                  name="scheduled_for"
+                />
+                <span class="form__hint">Datum i vrijeme objavljivanja.</span>
+              </div>
+
+              <div class="form__group">
+                <label for="post-lang">Jezik *</label>
+                <select id="post-lang" name="lang" required>
+                  <option value="hr" selected>Hrvatski (HR)</option>
+                  <option value="en">Engleski (EN)</option>
+                </select>
+              </div>
+
+              <div class="form__group form__checkbox">
+                <input type="checkbox" id="post-featured" name="is_featured" />
+                <label for="post-featured">Istaknut post (Featured)</label>
+              </div>
             </div>
-          </div>
+          </section>
 
+          <!-- AKCIJE -->
           <div class="form__actions">
             <button type="submit" id="post-save" class="btn btn--primary">
-              Spremi objavu
+              Kreiraj objavu
             </button>
-            <a href="index.html" id="post-cancel" class="btn btn--secondary"
-              >Odustani</a
+            <button
+              type="button"
+              id="post-save-draft"
+              class="btn btn--secondary"
             >
+              Spremi kao skicu
+            </button>
+            <a href="index.html" id="post-cancel" class="btn btn--outline">
+              Odustani
+            </a>
           </div>
         </form>
       </div>
@@ -326,6 +460,12 @@
     </footer>
 
     <script src="../scripts/main.js"></script>
-    <script src="../scripts/blog.js"></script>
+    <script>
+      // Explicit backend and test admin token for local testing only
+      window.__SVZ_BASE_URL__ = "http://localhost:5000";
+      window.__SVZ_ADMIN_TOKEN__ =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NjM1MDkwMzAsImV4cCI6MTc2MzUxMjYzMH0.BHNZMG0KBDOsvhwfC6hvrWGNJNkzqHF7hViTBy13IN4";
+    </script>
+    <script src="../scripts/admin-form.js"></script>
   </body>
 </html>

@@ -1,12 +1,13 @@
 (function () {
-  'use strict';
+  "use strict";
 
-  const SVZ_STORAGE_KEY = 'svz_blog_posts';
+  const SVZ_STORAGE_KEY = "svz_blog_posts";
   const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2MB
-  const SUPPORTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-  const FALLBACK_IMAGE = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="600" height="400" fill="%23f4f6f2"/><text x="50%" y="50%" fill="%235a5f56" font-size="24" font-family="Inter,Arial,sans-serif" text-anchor="middle">Svijet Zdravlja</text></svg>';
-  const WINDOW_STATE_PREFIX = 'SVZ_BLOG::';
-  const SESSION_CACHE_KEY = 'svz_blog_posts_cache';
+  const SUPPORTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+  const FALLBACK_IMAGE =
+    'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="600" height="400" fill="%23f4f6f2"/><text x="50%" y="50%" fill="%235a5f56" font-size="24" font-family="Inter,Arial,sans-serif" text-anchor="middle">Svijet Zdravlja</text></svg>';
+  const WINDOW_STATE_PREFIX = "SVZ_BLOG::";
+  const SESSION_CACHE_KEY = "svz_blog_posts_cache";
 
   function readSessionCache() {
     try {
@@ -17,21 +18,24 @@
       const parsed = JSON.parse(raw);
       return Array.isArray(parsed) ? parsed : null;
     } catch (error) {
-      console.warn('Ne možemo pročitati sessionStorage cache.', error);
+      console.warn("Ne možemo pročitati sessionStorage cache.", error);
       return null;
     }
   }
 
   function writeSessionCache(posts) {
     try {
-      window.sessionStorage.setItem(SESSION_CACHE_KEY, JSON.stringify(posts || []));
+      window.sessionStorage.setItem(
+        SESSION_CACHE_KEY,
+        JSON.stringify(posts || [])
+      );
     } catch (error) {
-      console.warn('Ne možemo spremiti sessionStorage cache.', error);
+      console.warn("Ne možemo spremiti sessionStorage cache.", error);
     }
   }
 
   function readFromWindowState() {
-    const raw = window.name || '';
+    const raw = window.name || "";
     if (!raw.startsWith(WINDOW_STATE_PREFIX)) {
       return null;
     }
@@ -39,7 +43,7 @@
       const parsed = JSON.parse(raw.slice(WINDOW_STATE_PREFIX.length));
       return Array.isArray(parsed) ? parsed : null;
     } catch (error) {
-      console.warn('Ne možemo pročitati window.name stanje.', error);
+      console.warn("Ne možemo pročitati window.name stanje.", error);
       return null;
     }
   }
@@ -48,7 +52,7 @@
     try {
       window.name = WINDOW_STATE_PREFIX + JSON.stringify(posts || []);
     } catch (error) {
-      console.warn('Ne možemo spremiti stanje u window.name.', error);
+      console.warn("Ne možemo spremiti stanje u window.name.", error);
     }
   }
 
@@ -63,7 +67,7 @@
         }
       }
     } catch (error) {
-      console.error('Ne možemo učitati objave', error);
+      console.error("Ne možemo učitati objave", error);
     }
     if (!posts.length) {
       const cached = readSessionCache();
@@ -90,7 +94,7 @@
     try {
       window.localStorage.setItem(SVZ_STORAGE_KEY, JSON.stringify(posts));
     } catch (error) {
-      console.error('Ne možemo spremiti objave.', error);
+      console.error("Ne možemo spremiti objave.", error);
     }
     writeSessionCache(posts);
     writeToWindowState(posts);
@@ -98,27 +102,25 @@
 
   function generateId() {
     return (
-      Date.now().toString(36) +
-      '-' +
-      Math.random().toString(36).slice(2, 8)
+      Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8)
     );
   }
 
   function slugify(value) {
-    return (value || '')
+    return (value || "")
       .toString()
-      .normalize('NFD')
-      .replace(/[^\w\s-]/g, '')
-      .replace(/[\u0300-\u036f]/g, '')
+      .normalize("NFD")
+      .replace(/[^\w\s-]/g, "")
+      .replace(/[\u0300-\u036f]/g, "")
       .trim()
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
   }
 
   function ensureUniqueSlug(baseSlug, posts, currentId) {
     if (!baseSlug) {
-      return '';
+      return "";
     }
     const exists = function (slug) {
       return posts.some(function (post) {
@@ -129,10 +131,10 @@
       return baseSlug;
     }
     let suffix = 1;
-    let slug = baseSlug + '-' + suffix;
+    let slug = baseSlug + "-" + suffix;
     while (exists(slug)) {
       suffix += 1;
-      slug = baseSlug + '-' + suffix;
+      slug = baseSlug + "-" + suffix;
     }
     return slug;
   }
@@ -141,7 +143,7 @@
     if (!value) {
       return [];
     }
-    const items = Array.isArray(value) ? value : value.split(',');
+    const items = Array.isArray(value) ? value : value.split(",");
     const trimmed = items
       .map(function (item) {
         return item.toString().trim();
@@ -150,42 +152,94 @@
     return Array.from(new Set(trimmed));
   }
 
+  // Public API base (allow override from pages that set it)
+  const API_BASE =
+    (window.__SVZ_BASE_URL__ || "http://localhost:5000") + "/api";
+
+  async function fetchPostsFromApi() {
+    try {
+      const resp = await fetch(API_BASE + "/posts", {
+        headers: { Accept: "application/json" },
+      });
+      if (!resp.ok) {
+        console.warn("API posts fetch failed", resp.status);
+        return null;
+      }
+      const data = await resp.json();
+      if (!Array.isArray(data)) return null;
+      // normalize to local storage shape
+      const normalized = data.map(function (p) {
+        return {
+          id: p.id || p._id || generateId(),
+          slug: p.slug || (p.title && slugify(p.title)) || "",
+          title: p.title || "",
+          excerpt: p.summary || p.excerpt || "",
+          content: p.content || "",
+          author:
+            (p.author && p.author.display_name) ||
+            p.author ||
+            "Svijet Zdravlja",
+          createdAt: p.published_at || p.created_at || new Date().toISOString(),
+          updatedAt: p.updated_at || p.updatedAt || p.created_at,
+          categories: Array.isArray(p.categories)
+            ? p.categories.map(function (c) {
+                return c.name || c;
+              })
+            : p.categories || [],
+          tags: p.tags || [],
+          featuredImage:
+            (p.hero_media && p.hero_media.storage_path) ||
+            p.featuredImage ||
+            "",
+          published: p.status === "PUBLISHED" || p.published === true,
+          readTime: p.read_time || p.readTime || null,
+          is_featured: p.is_featured || p.isFeatured || false,
+          lang: p.lang || p.language || undefined,
+          chapters: p.chapters || [],
+        };
+      });
+      return normalized;
+    } catch (err) {
+      console.warn("Failed to fetch posts from API", err);
+      return null;
+    }
+  }
+
   function createExcerpt(content, manual) {
     if (manual && manual.trim()) {
       return manual.trim();
     }
-    const normalized = (content || '').replace(/\s+/g, ' ').trim();
+    const normalized = (content || "").replace(/\s+/g, " ").trim();
     if (normalized.length <= 180) {
       return normalized;
     }
-    return normalized.slice(0, 177).trim() + '...';
+    return normalized.slice(0, 177).trim() + "...";
   }
 
   function calculateReadTime(content) {
-    const words = (content || '')
-      .trim()
-      .split(/\s+/)
-      .filter(Boolean).length;
+    const words = (content || "").trim().split(/\s+/).filter(Boolean).length;
     const minutes = Math.round(words / 200) || 1;
     return Math.max(1, minutes);
   }
 
   function normalizePostInput(raw, posts, currentId) {
-    const title = (raw.title || '').trim();
+    const title = (raw.title || "").trim();
     if (title.length < 3) {
-      throw new Error('Naslov mora imati najmanje 3 znaka.');
+      throw new Error("Naslov mora imati najmanje 3 znaka.");
     }
 
-    const content = (raw.content || '').trim();
+    const content = (raw.content || "").trim();
     if (content.length < 50) {
-      throw new Error('Sadržaj mora imati najmanje 50 znakova.');
+      throw new Error("Sadržaj mora imati najmanje 50 znakova.");
     }
 
     const slugInput = (raw.slug || title).trim();
     const slug = slugify(slugInput);
     const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
     if (!slugPattern.test(slug)) {
-      throw new Error('Slug mora sadržavati samo mala slova, brojeve i crtice.');
+      throw new Error(
+        "Slug mora sadržavati samo mala slova, brojeve i crtice."
+      );
     }
 
     const postsSnapshot = posts || getPosts();
@@ -197,12 +251,12 @@
       title: title,
       excerpt: createExcerpt(content, raw.excerpt),
       content: content,
-      author: (raw.author && raw.author.trim()) || 'Svijet Zdravlja',
+      author: (raw.author && raw.author.trim()) || "Svijet Zdravlja",
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,
       categories: parseDelimited(raw.categories),
       tags: parseDelimited(raw.tags),
-      featuredImage: raw.featuredImage || '',
+      featuredImage: raw.featuredImage || "",
       published: Boolean(raw.published),
       readTime: raw.readTime || calculateReadTime(content),
       metaDescription:
@@ -213,15 +267,15 @@
 
   function fileToDataURL(file) {
     if (!file) {
-      return Promise.resolve('');
+      return Promise.resolve("");
     }
     if (!SUPPORTED_IMAGE_TYPES.includes(file.type)) {
       return Promise.reject(
-        new Error('Podržani su samo JPG, PNG ili WEBP formati.')
+        new Error("Podržani su samo JPG, PNG ili WEBP formati.")
       );
     }
     if (file.size > MAX_IMAGE_SIZE) {
-      return Promise.reject(new Error('Slika mora biti manja od 2 MB.'));
+      return Promise.reject(new Error("Slika mora biti manja od 2 MB."));
     }
     return new Promise(function (resolve, reject) {
       const reader = new FileReader();
@@ -229,7 +283,7 @@
         resolve(reader.result);
       };
       reader.onerror = function () {
-        reject(new Error('Učitavanje slike nije uspjelo. Pokušajte ponovno.'));
+        reject(new Error("Učitavanje slike nije uspjelo. Pokušajte ponovno."));
       };
       reader.readAsDataURL(file);
     });
@@ -255,7 +309,7 @@
       return post.id === id;
     });
     if (index === -1) {
-      throw new Error('Tražena objava ne postoji.');
+      throw new Error("Tražena objava ne postoji.");
     }
     const normalized = normalizePostInput(
       Object.assign({}, posts[index], updates, { id: id }),
@@ -279,7 +333,7 @@
       return false;
     }
     const confirmed = window.confirm(
-      'Jeste li sigurni da želite izbrisati ovu objavu?'
+      "Jeste li sigurni da želite izbrisati ovu objavu?"
     );
     if (!confirmed) {
       return false;
@@ -290,26 +344,30 @@
   }
 
   function getPostById(id) {
-    return getPosts().find(function (post) {
-      return post.id === id;
-    }) || null;
+    return (
+      getPosts().find(function (post) {
+        return post.id === id;
+      }) || null
+    );
   }
 
   function getPostBySlug(slug) {
-    return getPosts().find(function (post) {
-      return post.slug === slug;
-    }) || null;
+    return (
+      getPosts().find(function (post) {
+        return post.slug === slug;
+      }) || null
+    );
   }
 
   function formatDate(value) {
     if (!value) {
-      return '';
+      return "";
     }
     try {
-      return new Date(value).toLocaleDateString('hr-HR', {
-        year: 'numeric',
-        month: 'long',
-        day: '2-digit',
+      return new Date(value).toLocaleDateString("hr-HR", {
+        year: "numeric",
+        month: "long",
+        day: "2-digit",
       });
     } catch (error) {
       return value;
@@ -327,27 +385,27 @@
         })
       )
     ).sort(function (a, b) {
-      return a.localeCompare(b, 'hr');
+      return a.localeCompare(b, "hr");
     });
 
-    selectEl.innerHTML = '';
-    const defaultOption = document.createElement('option');
-    defaultOption.value = 'all';
-    defaultOption.textContent = 'Sve kategorije';
+    selectEl.innerHTML = "";
+    const defaultOption = document.createElement("option");
+    defaultOption.value = "all";
+    defaultOption.textContent = "Sve kategorije";
     selectEl.appendChild(defaultOption);
 
     categories.forEach(function (category) {
-      const option = document.createElement('option');
+      const option = document.createElement("option");
       option.value = category;
       option.textContent = category;
       selectEl.appendChild(option);
     });
 
-    const target = currentValue || 'all';
+    const target = currentValue || "all";
     if (selectEl.querySelector('[value="' + target + '"]')) {
       selectEl.value = target;
     } else {
-      selectEl.value = 'all';
+      selectEl.value = "all";
     }
   }
 
@@ -357,33 +415,33 @@
     const updatedA = new Date(a.updatedAt || createdA).getTime();
     const updatedB = new Date(b.updatedAt || createdB).getTime();
 
-    if (mode === 'oldest') {
+    if (mode === "oldest") {
       return createdA - createdB;
     }
-    if (mode === 'recently-updated') {
+    if (mode === "recently-updated") {
       return updatedB - updatedA;
     }
     return createdB - createdA;
   }
 
   function renderList(filters) {
-    const listEl = document.getElementById('posts-list');
+    const listEl = document.getElementById("posts-list");
     if (!listEl) {
       return [];
     }
     const posts = getPosts();
     populateCategoryFilter(
       posts,
-      document.getElementById('posts-filter-category'),
+      document.getElementById("posts-filter-category"),
       filters && filters.category
     );
 
-    const searchTerm = filters && filters.q ? filters.q.toLowerCase() : '';
+    const searchTerm = filters && filters.q ? filters.q.toLowerCase() : "";
     const categoryFilter =
-      filters && filters.category && filters.category !== 'all'
+      filters && filters.category && filters.category !== "all"
         ? filters.category.toLowerCase()
-        : '';
-    const sortValue = (filters && filters.sort) || 'newest';
+        : "";
+    const sortValue = (filters && filters.sort) || "newest";
 
     const filtered = posts
       .filter(function (post) {
@@ -402,9 +460,9 @@
 
         const haystack = categories.concat(
           (Array.isArray(post.tags) ? post.tags : []).concat([
-            post.title || '',
-            post.excerpt || '',
-            post.content || '',
+            post.title || "",
+            post.excerpt || "",
+            post.content || "",
           ])
         );
 
@@ -418,72 +476,72 @@
         return sortPosts(a, b, sortValue);
       });
 
-    listEl.setAttribute('aria-busy', 'true');
-    listEl.innerHTML = '';
+    listEl.setAttribute("aria-busy", "true");
+    listEl.innerHTML = "";
 
     if (!filtered.length) {
-      const empty = document.createElement('p');
-      empty.className = 'blog__empty';
+      const empty = document.createElement("p");
+      empty.className = "blog__empty";
       empty.textContent =
-        'Još nema objava koje odgovaraju filterima. Kreirajte novu priču!';
+        "Još nema objava koje odgovaraju filterima. Kreirajte novu priču!";
       listEl.appendChild(empty);
-      listEl.setAttribute('aria-busy', 'false');
+      listEl.setAttribute("aria-busy", "false");
       return filtered;
     }
 
     const fragment = document.createDocumentFragment();
     filtered.forEach(function (post) {
-      const article = document.createElement('article');
-      article.className = 'post-card';
+      const article = document.createElement("article");
+      article.className = "post-card";
       article.dataset.id = post.id;
 
-      const image = document.createElement('img');
-      image.className = 'post-card__image';
+      const image = document.createElement("img");
+      image.className = "post-card__image";
       image.src = post.featuredImage || FALLBACK_IMAGE;
-      image.alt = post.title || 'Naslovna slika objave';
+      image.alt = post.title || "Naslovna slika objave";
       article.appendChild(image);
 
-      const title = document.createElement('h3');
-      title.className = 'post-card__title';
+      const title = document.createElement("h3");
+      title.className = "post-card__title";
       title.textContent = post.title;
       article.appendChild(title);
 
-      const excerpt = document.createElement('p');
-      excerpt.className = 'post-card__excerpt';
+      const excerpt = document.createElement("p");
+      excerpt.className = "post-card__excerpt";
       excerpt.textContent = post.excerpt;
       article.appendChild(excerpt);
 
-      const meta = document.createElement('div');
-      meta.className = 'post-card__meta';
-      const date = document.createElement('span');
+      const meta = document.createElement("div");
+      meta.className = "post-card__meta";
+      const date = document.createElement("span");
       date.textContent = formatDate(post.createdAt);
       meta.appendChild(date);
 
       if (post.categories && post.categories.length) {
-        const categoriesSpan = document.createElement('span');
-        categoriesSpan.textContent = ' • ' + post.categories.join(', ');
+        const categoriesSpan = document.createElement("span");
+        categoriesSpan.textContent = " • " + post.categories.join(", ");
         meta.appendChild(categoriesSpan);
       }
 
       if (!post.published) {
-        const draft = document.createElement('span');
-        draft.textContent = ' • Skica';
+        const draft = document.createElement("span");
+        draft.textContent = " • Skica";
         meta.appendChild(draft);
       }
 
       article.appendChild(meta);
 
-      const link = document.createElement('a');
-      link.className = 'post-card__read';
-      link.href = 'post.html?id=' + encodeURIComponent(post.id);
-      link.textContent = 'Pročitaj više';
+      const link = document.createElement("a");
+      link.className = "post-card__read";
+      link.href = "post.html?id=" + encodeURIComponent(post.id);
+      link.textContent = "Pročitaj više";
       article.appendChild(link);
 
       fragment.appendChild(article);
     });
 
     listEl.appendChild(fragment);
-    listEl.setAttribute('aria-busy', 'false');
+    listEl.setAttribute("aria-busy", "false");
     return filtered;
   }
 
@@ -491,8 +549,8 @@
     if (!container) {
       return;
     }
-    container.innerHTML = '';
-    const blocks = (content || '')
+    container.innerHTML = "";
+    const blocks = (content || "")
       .split(/\n{2,}/)
       .map(function (block) {
         return block.trim();
@@ -500,30 +558,30 @@
       .filter(Boolean);
 
     if (!blocks.length) {
-      const paragraph = document.createElement('p');
-      paragraph.textContent = content || '';
+      const paragraph = document.createElement("p");
+      paragraph.textContent = content || "";
       container.appendChild(paragraph);
       return;
     }
 
     blocks.forEach(function (block) {
-      const paragraph = document.createElement('p');
+      const paragraph = document.createElement("p");
       paragraph.textContent = block;
       container.appendChild(paragraph);
     });
   }
 
   function renderPost(identifier) {
-    const article = document.getElementById('post-article');
+    const article = document.getElementById("post-article");
     if (!article) {
       return null;
     }
-    const titleEl = document.getElementById('post-title');
-    const hero = document.getElementById('post-hero');
-    const meta = document.getElementById('post-meta');
-    const content = document.getElementById('post-content');
-    const editLink = document.getElementById('post-edit');
-    const deleteButton = document.getElementById('post-delete');
+    const titleEl = document.getElementById("post-title");
+    const hero = document.getElementById("post-hero");
+    const meta = document.getElementById("post-meta");
+    const content = document.getElementById("post-content");
+    const editLink = document.getElementById("post-edit");
+    const deleteButton = document.getElementById("post-delete");
 
     const post = identifier
       ? getPostById(identifier) || getPostBySlug(identifier)
@@ -531,43 +589,62 @@
 
     if (!post) {
       if (titleEl) {
-        titleEl.textContent = 'Objava nije pronađena';
+        titleEl.textContent = "Objava nije pronađena";
       }
       if (meta) {
-        meta.textContent = '';
+        meta.textContent = "";
       }
       if (content) {
-        content.innerHTML = '';
-        const message = document.createElement('p');
-        message.className = 'post-detail__empty';
+        content.innerHTML = "";
+        const message = document.createElement("p");
+        message.className = "post-detail__empty";
         message.textContent =
-          'Nismo mogli pronaći traženu objavu. Vratite se na popis i pokušajte ponovno.';
+          "Nismo mogli pronaći traženu objavu. Vratite se na popis i pokušajte ponovno.";
         content.appendChild(message);
       }
       if (deleteButton) {
         deleteButton.disabled = true;
       }
-      document.title = 'Objava nije pronađena | Svijet Zdravlja';
+      document.title = "Objava nije pronađena | Svijet Zdravlja";
       return null;
     }
 
     article.dataset.id = post.id;
     if (titleEl) {
       titleEl.textContent = post.title;
+      // featured badge
+      if (post.is_featured) {
+        if (!titleEl.querySelector(".post-featured")) {
+          const badge = document.createElement("span");
+          badge.className = "post-featured";
+          badge.textContent = "Istaknuto";
+          badge.style.marginLeft = "0.75rem";
+          badge.style.fontSize = "0.6rem";
+          badge.style.background = "#3d4a2c";
+          badge.style.color = "#fff";
+          badge.style.padding = "0.25rem 0.5rem";
+          badge.style.borderRadius = "6px";
+          titleEl.appendChild(badge);
+        }
+      }
     }
-    document.title = post.title + ' | Svijet Zdravlja';
+    document.title = post.title + " | Svijet Zdravlja";
 
     if (hero) {
-      if (post.featuredImage) {
-        hero.src = post.featuredImage;
-        hero.alt = post.title;
+      // prefer hero_media.storage_path (backend), fallback to featuredImage (local storage)
+      const heroSrc =
+        (post.hero_media && post.hero_media.storage_path) ||
+        post.featuredImage ||
+        "";
+      if (heroSrc) {
+        hero.src = heroSrc;
+        hero.alt = post.title || "Naslovna slika objave";
         hero.hidden = false;
       } else {
         hero.hidden = true;
-        hero.removeAttribute('src');
+        hero.removeAttribute("src");
       }
     }
-
     if (meta) {
       const bits = [];
       const dateValue = formatDate(post.createdAt);
@@ -575,18 +652,89 @@
         bits.push(dateValue);
       }
       if (post.readTime) {
-        bits.push(post.readTime + ' min čitanja');
+        bits.push(post.readTime + " min čitanja");
       }
       if (post.categories && post.categories.length) {
-        bits.push(post.categories.join(', '));
+        bits.push(post.categories.join(", "));
       }
-      meta.textContent = bits.join(' • ');
+      if (post.author) {
+        bits.push(post.author);
+      }
+      if (post.lang) {
+        bits.push(post.lang.toUpperCase());
+      }
+      meta.textContent = bits.join(" • ");
     }
 
-    buildContentNodes(content, post.content);
+    // Render content: if chapters exist, render them in order, otherwise use single content field
+    if (content) {
+      content.innerHTML = "";
+      if (Array.isArray(post.chapters) && post.chapters.length) {
+        const sorted = post.chapters.slice().sort(function (a, b) {
+          return (a.position || 0) - (b.position || 0);
+        });
+        sorted.forEach(function (ch) {
+          if (ch.type === "TEXT") {
+            const p = document.createElement("p");
+            p.textContent = ch.text_content || "";
+            content.appendChild(p);
+          } else if (ch.type === "IMAGE") {
+            const figure = document.createElement("figure");
+            const img = document.createElement("img");
+            img.src =
+              (ch.media && ch.media.storage_path) ||
+              ch.image ||
+              ch.chapter_image ||
+              ch.featuredImage ||
+              "";
+            img.alt = ch.alt_text || ch.title || post.title || "";
+            img.style.maxWidth = "100%";
+            figure.appendChild(img);
+            if (ch.caption) {
+              const figcap = document.createElement("figcaption");
+              figcap.textContent = ch.caption;
+              figure.appendChild(figcap);
+            }
+            content.appendChild(figure);
+          } else if (ch.type === "VIDEO") {
+            if (ch.external_video_url) {
+              // try to embed YouTube links
+              const youtubeMatch = ch.external_video_url.match(
+                /(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})/i
+              );
+              if (youtubeMatch) {
+                const iframe = document.createElement("iframe");
+                iframe.width = "100%";
+                iframe.height = "480";
+                iframe.src = "https://www.youtube.com/embed/" + youtubeMatch[1];
+                iframe.frameBorder = "0";
+                iframe.allow =
+                  "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+                iframe.allowFullscreen = true;
+                content.appendChild(iframe);
+              } else {
+                const link = document.createElement("a");
+                link.href = ch.external_video_url;
+                link.textContent = ch.external_video_url;
+                link.target = "_blank";
+                content.appendChild(link);
+              }
+              if (ch.caption) {
+                const cap = document.createElement("p");
+                cap.className = "post-chapter__caption";
+                cap.textContent = ch.caption;
+                content.appendChild(cap);
+              }
+            }
+          }
+        });
+      } else {
+        buildContentNodes(content, post.content);
+      }
+    }
 
     if (editLink) {
-      editLink.href = 'create.html?id=' + encodeURIComponent(post.id);
+      editLink.href = "create.html?id=" + encodeURIComponent(post.id);
     }
     if (deleteButton) {
       deleteButton.disabled = false;
@@ -598,9 +746,9 @@
   function getFilterStateFromUrl() {
     const params = new URLSearchParams(window.location.search);
     return {
-      q: params.get('q') || '',
-      category: params.get('category') || 'all',
-      sort: params.get('sort') || 'newest',
+      q: params.get("q") || "",
+      category: params.get("category") || "all",
+      sort: params.get("sort") || "newest",
     };
   }
 
@@ -611,26 +759,26 @@
     const params = new URLSearchParams(window.location.search);
 
     if (filters.q) {
-      params.set('q', filters.q);
+      params.set("q", filters.q);
     } else {
-      params.delete('q');
+      params.delete("q");
     }
 
-    if (filters.category && filters.category !== 'all') {
-      params.set('category', filters.category);
+    if (filters.category && filters.category !== "all") {
+      params.set("category", filters.category);
     } else {
-      params.delete('category');
+      params.delete("category");
     }
 
-    if (filters.sort && filters.sort !== 'newest') {
-      params.set('sort', filters.sort);
+    if (filters.sort && filters.sort !== "newest") {
+      params.set("sort", filters.sort);
     } else {
-      params.delete('sort');
+      params.delete("sort");
     }
 
     const query = params.toString();
-    const url = window.location.pathname + (query ? '?' + query : '');
-    window.history.replaceState({}, '', url);
+    const url = window.location.pathname + (query ? "?" + query : "");
+    window.history.replaceState({}, "", url);
   }
 
   function updateImagePreview(preview, src) {
@@ -642,7 +790,7 @@
       preview.hidden = false;
     } else {
       preview.hidden = true;
-      preview.removeAttribute('src');
+      preview.removeAttribute("src");
     }
   }
 
@@ -652,14 +800,14 @@
     }
     target.textContent = message;
     target.hidden = !message;
-    target.className = 'form-status form-status--' + type;
+    target.className = "form-status form-status--" + type;
   }
 
   function highlightPostCardFromParams(params) {
     if (!params) {
       return false;
     }
-    const id = params.get('id');
+    const id = params.get("id");
     if (!id) {
       return false;
     }
@@ -667,9 +815,9 @@
     if (!card) {
       return false;
     }
-    card.classList.add('post-card--highlight');
+    card.classList.add("post-card--highlight");
     window.setTimeout(function () {
-      card.classList.remove('post-card--highlight');
+      card.classList.remove("post-card--highlight");
     }, 3000);
     return true;
   }
@@ -678,26 +826,26 @@
     if (!params) {
       return false;
     }
-    const status = params.get('status');
+    const status = params.get("status");
     if (!status) {
       return false;
     }
-    const container = document.querySelector('.blog__container');
+    const container = document.querySelector(".blog__container");
     if (!container) {
       return false;
     }
     var messageMap = {
-      created: 'Objava je uspješno spremljena.',
-      updated: 'Objava je ažurirana.',
-      deleted: 'Objava je izbrisana.',
+      created: "Objava je uspješno spremljena.",
+      updated: "Objava je ažurirana.",
+      deleted: "Objava je izbrisana.",
     };
     const message = messageMap[status];
     if (!message) {
       return false;
     }
-    const banner = document.createElement('div');
-    const variant = status === 'deleted' ? 'warning' : 'success';
-    banner.className = 'blog__status blog__status--' + variant;
+    const banner = document.createElement("div");
+    const variant = status === "deleted" ? "warning" : "success";
+    banner.className = "blog__status blog__status--" + variant;
     banner.textContent = message;
     container.insertBefore(banner, container.firstChild);
     return true;
@@ -708,7 +856,7 @@
       return;
     }
     let mutated = false;
-    ['status', 'id'].forEach(function (key) {
+    ["status", "id"].forEach(function (key) {
       if (params.has(key)) {
         params.delete(key);
         mutated = true;
@@ -718,33 +866,34 @@
       return;
     }
     const query = params.toString();
-    const url = window.location.pathname + (query ? '?' + query : '');
-    window.history.replaceState({}, '', url);
+    const url = window.location.pathname + (query ? "?" + query : "");
+    window.history.replaceState({}, "", url);
   }
 
   function fillFormFields(form, post, state) {
     if (!form || !post) {
       return;
     }
-    form.querySelector('#post-title').value = post.title || '';
-    form.querySelector('#post-slug').value = post.slug || '';
-    form.querySelector('#post-categories').value =
-      (post.categories || []).join(', ');
-    form.querySelector('#post-tags').value = (post.tags || []).join(', ');
-    form.querySelector('#post-content').value = post.content || '';
-    form.querySelector('#post-excerpt').value = post.excerpt || '';
-    form.querySelector('#post-published').checked = Boolean(post.published);
-    state.currentImage = post.featuredImage || '';
+    form.querySelector("#post-title").value = post.title || "";
+    form.querySelector("#post-slug").value = post.slug || "";
+    form.querySelector("#post-categories").value = (post.categories || []).join(
+      ", "
+    );
+    form.querySelector("#post-tags").value = (post.tags || []).join(", ");
+    form.querySelector("#post-content").value = post.content || "";
+    form.querySelector("#post-excerpt").value = post.excerpt || "";
+    form.querySelector("#post-published").checked = Boolean(post.published);
+    state.currentImage = post.featuredImage || "";
   }
 
   function initListPage() {
-    const listEl = document.getElementById('posts-list');
+    const listEl = document.getElementById("posts-list");
     if (!listEl) {
       return;
     }
-    const searchInput = document.getElementById('posts-search');
-    const categorySelect = document.getElementById('posts-filter-category');
-    const sortSelect = document.getElementById('posts-sort');
+    const searchInput = document.getElementById("posts-search");
+    const categorySelect = document.getElementById("posts-filter-category");
+    const sortSelect = document.getElementById("posts-sort");
     const filters = getFilterStateFromUrl();
     const urlParams = new URLSearchParams(window.location.search);
 
@@ -760,15 +909,29 @@
 
     const handleChange = function () {
       const updatedFilters = {
-        q: searchInput ? searchInput.value.trim() : '',
-        category: categorySelect ? categorySelect.value : 'all',
-        sort: sortSelect ? sortSelect.value : 'newest',
+        q: searchInput ? searchInput.value.trim() : "",
+        category: categorySelect ? categorySelect.value : "all",
+        sort: sortSelect ? sortSelect.value : "newest",
       };
       persistFilterState(updatedFilters);
       renderList(updatedFilters);
     };
 
-    renderList(filters);
+    // Try to refresh posts from backend API, fall back to local storage
+    fetchPostsFromApi()
+      .then(function (apiPosts) {
+        if (Array.isArray(apiPosts) && apiPosts.length) {
+          try {
+            savePosts(apiPosts);
+          } catch (e) {
+            console.warn("Could not save API posts to local storage", e);
+          }
+        }
+        renderList(filters);
+      })
+      .catch(function () {
+        renderList(filters);
+      });
     const highlightApplied = highlightPostCardFromParams(urlParams);
     const bannerShown = showListStatusBanner(urlParams);
     if (highlightApplied || bannerShown) {
@@ -776,49 +939,49 @@
     }
 
     if (searchInput) {
-      searchInput.addEventListener('input', function () {
+      searchInput.addEventListener("input", function () {
         window.clearTimeout(searchInput._debounceTimeout);
         searchInput._debounceTimeout = window.setTimeout(handleChange, 200);
       });
     }
     if (categorySelect) {
-      categorySelect.addEventListener('change', handleChange);
+      categorySelect.addEventListener("change", handleChange);
     }
     if (sortSelect) {
-      sortSelect.addEventListener('change', handleChange);
+      sortSelect.addEventListener("change", handleChange);
     }
   }
 
   function initCreatePage() {
-    const form = document.getElementById('post-form');
+    const form = document.getElementById("post-form");
     if (!form) {
       return;
     }
-    const status = document.getElementById('post-form-status');
-    const preview = document.getElementById('post-image-preview');
-    const fileInput = document.getElementById('post-image');
-    const heading = document.getElementById('post-form-heading');
+    const status = document.getElementById("post-form-status");
+    const preview = document.getElementById("post-image-preview");
+    const fileInput = document.getElementById("post-image");
+    const heading = document.getElementById("post-form-heading");
     const params = new URLSearchParams(window.location.search);
-    const editId = params.get('id');
-    const state = { currentImage: '' };
-    var mode = 'create';
+    const editId = params.get("id");
+    const state = { currentImage: "" };
+    var mode = "create";
     var editingPost = null;
 
     if (editId) {
       editingPost = getPostById(editId);
       if (editingPost) {
-        mode = 'edit';
+        mode = "edit";
         if (heading) {
-          heading.textContent = 'Uređivanje objave';
+          heading.textContent = "Uređivanje objave";
         }
-        form.querySelector('#post-save').textContent = 'Ažuriraj objavu';
+        form.querySelector("#post-save").textContent = "Ažuriraj objavu";
         fillFormFields(form, editingPost, state);
         updateImagePreview(preview, state.currentImage);
       }
     }
 
     if (fileInput) {
-      fileInput.addEventListener('change', function () {
+      fileInput.addEventListener("change", function () {
         const file = fileInput.files && fileInput.files[0];
         if (!file) {
           updateImagePreview(preview, state.currentImage);
@@ -830,71 +993,72 @@
             updateImagePreview(preview, dataUrl);
           })
           .catch(function (error) {
-            displayFormMessage(status, 'error', error.message);
-            fileInput.value = '';
+            displayFormMessage(status, "error", error.message);
+            fileInput.value = "";
           });
       });
     }
 
-    form.addEventListener('submit', function (event) {
+    form.addEventListener("submit", function (event) {
       event.preventDefault();
-      displayFormMessage(status, 'info', 'Spremamo objavu...');
+      displayFormMessage(status, "info", "Spremamo objavu...");
       const formData = {
         id: editingPost && editingPost.id,
-        title: form.querySelector('#post-title').value,
-        slug: form.querySelector('#post-slug').value,
-        categories: form.querySelector('#post-categories').value,
-        tags: form.querySelector('#post-tags').value,
-        content: form.querySelector('#post-content').value,
-        excerpt: form.querySelector('#post-excerpt').value,
-        published: form.querySelector('#post-published').checked,
+        title: form.querySelector("#post-title").value,
+        slug: form.querySelector("#post-slug").value,
+        categories: form.querySelector("#post-categories").value,
+        tags: form.querySelector("#post-tags").value,
+        content: form.querySelector("#post-content").value,
+        excerpt: form.querySelector("#post-excerpt").value,
+        published: form.querySelector("#post-published").checked,
         featuredImage: state.currentImage,
       };
       try {
-        const post = mode === 'edit'
-          ? updatePost(editingPost.id, formData)
-          : createPost(formData);
-        displayFormMessage(status, 'success', 'Objava je uspješno spremljena.');
+        const post =
+          mode === "edit"
+            ? updatePost(editingPost.id, formData)
+            : createPost(formData);
+        displayFormMessage(status, "success", "Objava je uspješno spremljena.");
         window.setTimeout(function () {
-          const redirectStatus = mode === 'edit' ? 'updated' : 'created';
+          const redirectStatus = mode === "edit" ? "updated" : "created";
           const target =
-            'index.html?status=' +
+            "index.html?status=" +
             redirectStatus +
-            '&id=' +
+            "&id=" +
             encodeURIComponent(post.id);
           window.location.href = target;
         }, 600);
       } catch (error) {
-        displayFormMessage(status, 'error', error.message);
+        displayFormMessage(status, "error", error.message);
       }
     });
   }
 
   function initPostPage() {
-    const article = document.getElementById('post-article');
+    const article = document.getElementById("post-article");
     if (!article) {
       return;
     }
     const params = new URLSearchParams(window.location.search);
-    const identifier = params.get('id') || params.get('slug');
-    const deleteBtn = document.getElementById('post-delete');
+    const identifier = params.get("id") || params.get("slug");
+    const deleteBtn = document.getElementById("post-delete");
     renderPost(identifier);
 
     if (deleteBtn) {
-      deleteBtn.addEventListener('click', function () {
+      deleteBtn.addEventListener("click", function () {
         const id = article.dataset.id;
         if (!id) {
           return;
         }
         const deleted = deletePost(id);
         if (deleted) {
-          window.location.href = 'index.html?status=deleted';
+          window.location.href = "index.html?status=deleted";
         }
       });
     }
   }
 
-  document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener("DOMContentLoaded", function () {
     initListPage();
     initCreatePage();
     initPostPage();
