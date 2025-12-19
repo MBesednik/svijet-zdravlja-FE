@@ -7,8 +7,7 @@
 (function () {
   "use strict";
 
-  const API_BASE_URL =
-    (window.__SVZ_BASE_URL__ || "http://localhost:5000") + "/api/admin";
+  const API_BASE_URL = window.getSVZAdminApiBase();
   const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2MB
   const SUPPORTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
@@ -37,6 +36,8 @@
     null;
   let currentPost = null;
   let selectedCategories = [];
+  let availableCategories = [];
+  let pendingCategorySelection = null;
   let chapters = [];
 
   /**
@@ -107,9 +108,57 @@
       if (!response.ok) throw new Error("Učitavanje kategorija nije uspjelo");
 
       const categories = await response.json();
-      renderCategoriesList(categories);
+      availableCategories = Array.isArray(categories) ? categories : [];
+      renderCategoriesList(availableCategories);
+      if (pendingCategorySelection) {
+        applyPostCategories(pendingCategorySelection);
+        pendingCategorySelection = null;
+      }
     } catch (error) {
       console.warn("Greška pri učitavanju kategorija:", error);
+    }
+  }
+
+  function normalizeSelectedCategories(raw) {
+    const list = Array.isArray(raw) ? raw : [];
+    return list
+      .map((item) => {
+        if (item && typeof item === "object") {
+          if (item.id != null) {
+            return {
+              id: item.id,
+              name: item.name || item.slug || "",
+              slug: item.slug || item.name || "",
+            };
+          }
+          if (item.slug || item.name) {
+            const slug = item.slug || item.name;
+            const match = availableCategories.find((cat) => cat.slug === slug);
+            if (match) {
+              return { id: match.id, name: match.name, slug: match.slug };
+            }
+            return { id: null, name: slug, slug: slug };
+          }
+        }
+        if (typeof item === "string") {
+          const match = availableCategories.find((cat) => cat.slug === item);
+          if (match) {
+            return { id: match.id, name: match.name, slug: match.slug };
+          }
+          return { id: null, name: item, slug: item };
+        }
+        return null;
+      })
+      .filter(Boolean);
+  }
+
+  function applyPostCategories(categories) {
+    if (availableCategories.length) {
+      selectedCategories = normalizeSelectedCategories(categories);
+      updateSelectedCategories();
+      renderCategoriesList(availableCategories);
+    } else {
+      pendingCategorySelection = categories;
     }
   }
 
@@ -131,7 +180,12 @@
       checkbox.value = category.id;
       checkbox.dataset.slug = category.slug;
       checkbox.dataset.name = category.name;
-      checkbox.checked = selectedCategories.some((c) => c.id === category.id);
+      checkbox.checked = selectedCategories.some(
+        (c) =>
+          (c && c.id === category.id) ||
+          (c && c.slug === category.slug) ||
+          c === category.slug
+      );
 
       const label = document.createElement("label");
       label.textContent = category.name;
@@ -179,8 +233,10 @@
       .map(
         (cat) => `
       <div class="category-badge">
-        <span>${cat.name}</span>
-        <button type="button" class="category-badge__remove" data-id="${cat.id}">×</button>
+        <span>${cat.name || cat.slug || ""}</span>
+        <button type="button" class="category-badge__remove" data-key="${
+          cat.id != null ? cat.id : cat.slug || ""
+        }">×</button>
       </div>
     `
       )
@@ -189,8 +245,15 @@
     selected.querySelectorAll(".category-badge__remove").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         e.preventDefault();
-        const id = parseInt(btn.dataset.id);
-        selectedCategories = selectedCategories.filter((c) => c.id !== id);
+        const rawKey = btn.dataset.key;
+        const id = parseInt(rawKey);
+        if (!Number.isNaN(id)) {
+          selectedCategories = selectedCategories.filter((c) => c.id !== id);
+        } else {
+          selectedCategories = selectedCategories.filter(
+            (c) => c.slug !== rawKey && c !== rawKey
+          );
+        }
 
         const checkbox = document.querySelector(`input[value="${id}"]`);
         if (checkbox) checkbox.checked = false;
@@ -384,11 +447,9 @@
   /**
    * Sprema sliku kao skicu i vraća FormData
    */
-  async function getFormDataForSubmit() {
-    const form = document.getElementById("post-form");
-    const formData = new FormData();
-
-    // Osnovno polje payload
+  function buildPayload(options) {
+    const includeChapterImageField =
+      options && options.includeChapterImageField;
     const payload = {
       slug: slugify(document.getElementById("post-slug").value.trim()),
       title: document.getElementById("post-title").value.trim(),
@@ -400,22 +461,40 @@
       meta_description:
         document.getElementById("post-meta-description").value.trim() || null,
       lang: document.getElementById("post-lang").value,
-      category_ids: selectedCategories.map((c) => c.id),
-      chapters: chapters.map((ch, idx) => ({
-        position: idx,
-        type: ch.type,
-        title: ch.title || null,
-        text_content: ch.type === "TEXT" ? ch.text_content : null,
-        caption: ch.caption || null,
-        alt_text: ch.alt_text || null,
-        external_video_url: ch.type === "VIDEO" ? ch.external_video_url : null,
-      })),
+      category_ids: selectedCategories
+        .map((c) => c.id)
+        .filter((id) => id != null),
+      chapters: chapters.map((ch, idx) => {
+        const base = {
+          position: idx,
+          type: ch.type,
+          title: ch.title || null,
+          text_content: ch.type === "TEXT" ? ch.text_content : null,
+          caption: ch.caption || null,
+          alt_text: ch.alt_text || null,
+          external_video_url: ch.type === "VIDEO" ? ch.external_video_url : null,
+        };
+        if (includeChapterImageField && ch.type === "IMAGE" && ch.media_file) {
+          base.chapter_image_field = `chapter_${idx}_image`;
+        }
+        return base;
+      }),
     };
 
     if (document.getElementById("post-status").value === "SCHEDULED") {
       payload.scheduled_for =
         document.getElementById("post-scheduled-for").value;
     }
+
+    return payload;
+  }
+
+  async function getFormDataForSubmit() {
+    const form = document.getElementById("post-form");
+    const formData = new FormData();
+
+    // Osnovno polje payload
+    const payload = buildPayload({ includeChapterImageField: true });
 
     formData.append("payload", JSON.stringify(payload));
 
@@ -433,6 +512,34 @@
     });
 
     return formData;
+  }
+
+  async function getJsonPayloadForSubmit() {
+    const payload = buildPayload();
+    const heroInput = document.getElementById("post-hero-image");
+    if (heroInput && heroInput.files[0]) {
+      const dataUrl = await fileToDataURL(heroInput.files[0]);
+      payload.hero_image_data = dataUrl;
+      payload.hero_image_filename = heroInput.files[0].name || null;
+    }
+    if (Array.isArray(payload.chapters)) {
+      const updatedChapters = await Promise.all(
+        payload.chapters.map(async (chapter, idx) => {
+          const source = chapters[idx];
+          if (chapter.type === "IMAGE" && source && source.media_file) {
+            const dataUrl = await fileToDataURL(source.media_file);
+            return {
+              ...chapter,
+              image_data: dataUrl,
+              image_filename: source.media_file.name || null,
+            };
+          }
+          return chapter;
+        })
+      );
+      payload.chapters = updatedChapters;
+    }
+    return payload;
   }
 
   /**
@@ -470,9 +577,6 @@
             break;
           case "post-summary":
             msg = "Sažetak je obavezan (minimalno 10 znakova).";
-            break;
-          case "post-content":
-            msg = "Tekst objave mora imati najmanje 50 znakova.";
             break;
         }
         showError(msg);
@@ -515,19 +619,24 @@
     showFormStatus("Slanje objave...", "info");
 
     try {
-      const formData = await getFormDataForSubmit();
-
       const method = currentPost ? "PUT" : "POST";
       const url = currentPost
         ? `${API_BASE_URL}/posts/${currentPost.id}`
         : `${API_BASE_URL}/posts`;
+      const body = currentPost
+        ? JSON.stringify(await getJsonPayloadForSubmit())
+        : await getFormDataForSubmit();
+      const headers = {
+        Authorization: `Bearer ${authToken}`,
+      };
+      if (currentPost) {
+        headers["Content-Type"] = "application/json";
+      }
 
       const response = await fetch(url, {
         method: method,
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-        body: formData,
+        headers: headers,
+        body: body,
       });
 
       if (!response.ok) {
@@ -617,15 +726,30 @@
 
       // Kategorije
       if (currentPost.categories && Array.isArray(currentPost.categories)) {
-        selectedCategories = currentPost.categories;
-        updateSelectedCategories();
+        applyPostCategories(currentPost.categories);
       }
 
       // Naslovna slika
+      const heroInput = document.getElementById("post-hero-image");
       if (currentPost.hero_media && currentPost.hero_media.storage_path) {
         const preview = document.getElementById("post-hero-preview");
         preview.src = currentPost.hero_media.storage_path;
         preview.hidden = false;
+        if (heroInput) {
+          heroInput.required = false;
+          heroInput.dataset.hasExistingHero = "true";
+        }
+      } else if (currentPost.hero_media_url) {
+        const preview = document.getElementById("post-hero-preview");
+        preview.src = currentPost.hero_media_url;
+        preview.hidden = false;
+        if (heroInput) {
+          heroInput.required = false;
+          heroInput.dataset.hasExistingHero = "true";
+        }
+      } else if (heroInput) {
+        heroInput.required = true;
+        delete heroInput.dataset.hasExistingHero;
       }
 
       document.getElementById("post-form-heading").textContent =

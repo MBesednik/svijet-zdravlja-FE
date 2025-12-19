@@ -172,21 +172,6 @@
           <section class="form__section">
             <h2 class="form__section-title">Sadržaj objave</h2>
 
-            <div class="form__group form__group--full">
-              <label for="post-content">Tekst objave *</label>
-              <textarea
-                id="post-content"
-                name="content"
-                required
-                minlength="50"
-                rows="8"
-                placeholder="Unesite glavni tekst objave..."
-              ></textarea>
-              <span class="form__hint"
-                >Minimalno 50 znakova. Tekst će se obraditi u poglavlja.</span
-              >
-            </div>
-
             <div id="chapters-container" class="chapters">
               <h3 class="chapters__title">Poglavlja objave</h3>
               <div id="chapters-list" class="chapters__list"></div>
@@ -459,10 +444,10 @@
       </div>
     </footer>
 
+    <script src="../scripts/config.js"></script>
     <script src="../scripts/main.js"></script>
     <script>
       // Explicit backend and test admin token for local testing only
-      window.__SVZ_BASE_URL__ = "http://localhost:5000";
       window.__SVZ_ADMIN_TOKEN__ =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NjM1MDkwMzAsImV4cCI6MTc2MzUxMjYzMH0.BHNZMG0KBDOsvhwfC6hvrWGNJNkzqHF7hViTBy13IN4";
     </script>

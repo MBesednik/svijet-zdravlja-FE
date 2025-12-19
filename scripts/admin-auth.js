@@ -28,11 +28,7 @@
       showMessage("Prijava...", false);
 
       // allow explicit backend base URL (useful when frontend is served from different origin)
-      var BASE_URL = (
-        window.__SVZ_BASE_URL__ ||
-        window.SVZ_BASE_URL ||
-        "http://localhost:5000"
-      ).replace(/\/$/, "");
+      var BASE_URL = window.getSVZBaseUrl();
 
       fetch(BASE_URL + "/api/admin/auth/login", {
         method: "POST",

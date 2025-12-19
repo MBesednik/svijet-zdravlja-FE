@@ -1,0 +1,290 @@
+### Environment
+@baseUrl = http://localhost:5000
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJzdmlqZXR6ZHJhdmxqYS5qdWdvQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NjEwNTg1MCwiZXhwIjoxNzY2MTA5NDUwfQ.ym9obXkW6h7oH-t0YzjtQ5j3n684NVdRAIgTrS7sJcU
+@scheduledPublish = {{$datetime iso8601 2 min}}
+
+### Public API ------------------------------------------------------------
+GET {{baseUrl}}/api/posts
+Accept: application/json
+
+### List posts with sorting (newest|updated|oldest|popular) and search/meta filters
+GET {{baseUrl}}/api/posts?sort=newest&search=wellness
+Accept: application/json
+
+### Filter posts by category slug and free-text search
+GET {{baseUrl}}/api/posts?category=wellness&search=prehrana
+Accept: application/json
+
+### Filter posts by publication date window
+GET {{baseUrl}}/api/posts?published_after=2024-01-01T00:00:00&published_before=2024-12-31T23:59:59
+Accept: application/json
+
+### List sorting options exposed by backend
+GET {{baseUrl}}/api/posts/sort-options
+Accept: application/json
+
+### Retrieve a single published post by slug
+GET {{baseUrl}}/api/posts/prvi-post
+Accept: application/json
+X-Session-ID: demo-session-123
+User-Agent: HTTPie/3.2.1
+
+### Retrieve a single published post by numeric id
+GET {{baseUrl}}/api/posts/id/1
+Accept: application/json
+X-Session-ID: demo-session-123
+User-Agent: HTTPie/3.2.1
+
+### Retrieve published posts under a category
+GET {{baseUrl}}/api/categories/wellness/posts?sort=popular
+Accept: application/json
+
+### Featured posts (limited by POST_FEATURED_LIMIT)
+GET {{baseUrl}}/api/posts/featured
+Accept: application/json
+
+### Recently published posts (limited by POST_RECENT_LIMIT)
+GET {{baseUrl}}/api/posts/recent
+Accept: application/json
+
+### Most popular posts ranked by total views
+GET {{baseUrl}}/api/posts/popular
+Accept: application/json
+
+### List all categories
+GET {{baseUrl}}/api/categories
+Accept: application/json
+
+
+### Admin API (requires Authorization: Bearer token) -----------------------
+
+### Register a new admin user and receive JWT token
+POST {{baseUrl}}/api/admin/auth/register
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email": "svijetzdravlja.jugo@gmail.com",
+  "password": "svijetzdravljaJugo01",
+  "display_name": "SZ Admin"
+}
+
+### Login with admin credentials to obtain JWT token
+POST {{baseUrl}}/api/admin/auth/login
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email": "admin@admin.com",
+  "password": "1234"
+}
+
+### Refresh admin token using an existing access token (even if expired)
+POST {{baseUrl}}/api/admin/auth/refresh
+Accept: application/json
+Authorization: Bearer {{adminToken}}
+
+### List all posts (any status)
+GET {{baseUrl}}/api/admin/posts
+Accept: application/json
+Authorization: Bearer {{adminToken}}
+
+### Get a post by id (any status)
+GET {{baseUrl}}/api/admin/posts/1
+Accept: application/json
+Authorization: Bearer {{adminToken}}
+
+### Get a post by slug (any status)
+GET {{baseUrl}}/api/admin/posts/slug/prvi-post
+Accept: application/json
+Authorization: Bearer {{adminToken}}
+
+### Create a post with a hero image upload
+POST {{baseUrl}}/api/admin/posts
+Accept: application/json
+Authorization: Bearer {{adminToken}}
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="payload"
+Content-Type: application/json
+
+{
+  "slug": "form-post",
+  "title": "Post created via multipart form",
+  "summary": "Example summary",
+  "status": "PUBLISHED",
+  "chapters": [
+    {
+      "type": "TEXT",
+      "position": 0,
+      "text_content": "Poglavlje koje je poslato kroz payload polje."
+    }
+  ]
+}
+--WebAppBoundary
+Content-Disposition: form-data; name="hero_image"; filename="erd.png"
+Content-Type: image/png
+
+< ./erd.png
+--WebAppBoundary--
+
+### Upload erd.png
+POST {{baseUrl}}/api/admin/media
+Authorization: Bearer {{adminToken}}
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="erd.png"
+Content-Type: image/png
+
+< ./erd.png
+--WebAppBoundary
+Content-Disposition: form-data; name="kind"
+
+IMAGE
+--WebAppBoundary
+Content-Disposition: form-data; name="uploader_id"
+
+1
+--WebAppBoundary--
+
+### Update an existing post (replace chapters & categories)
+PUT {{baseUrl}}/api/admin/posts/1
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "title": "Azurirani naslov",
+  "status": "SCHEDULED",
+  "scheduled_for": "2024-04-10T08:30:00",
+  "category_ids": [3],
+  "chapters": [
+    {
+      "title": "Novo prvo poglavlje",
+      "type": "TEXT",
+      "position": 0,
+      "text_content": "Azurirani sadrzaj."
+    }
+  ]
+}
+
+### Delete a post by numeric identifier
+DELETE {{baseUrl}}/api/admin/posts/1
+Authorization: Bearer {{adminToken}}
+
+### Create a category
+POST {{baseUrl}}/api/admin/categories
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "name": "Prehrana",
+  "slug": "prehrana",
+  "description": "Savjeti o zdravoj prehrani"
+}
+
+### Update a category
+PUT {{baseUrl}}/api/admin/categories/1
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "name": "Fitness",
+  "slug": "fitness"
+}
+
+### Delete a category
+DELETE {{baseUrl}}/api/admin/categories/1
+Authorization: Bearer {{adminToken}}
+
+### List categories (admin view)
+GET {{baseUrl}}/api/admin/categories
+Accept: application/json
+Authorization: Bearer {{adminToken}}
+
+### Upload a media file (multipart form-data)
+POST {{baseUrl}}/api/admin/media
+Accept: application/json
+Authorization: Bearer {{adminToken}}
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="cover.jpg"
+Content-Type: image/jpeg
+
+< ./sample-data/cover.jpg
+--WebAppBoundary
+Content-Disposition: form-data; name="kind"
+
+IMAGE
+--WebAppBoundary
+Content-Disposition: form-data; name="uploader_id"
+
+1
+--WebAppBoundary--
+
+### Create a post with hero + inline chapter image (same multipart)
+POST {{baseUrl}}/api/admin/posts
+Accept: application/json
+Authorization: Bearer {{adminToken}}
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="payload"
+Content-Type: application/json
+
+{
+  "slug": "form-post-with-chapter-image",
+  "title": "Post with inline chapter image",
+  "summary": "Example summary",
+  "status": "PUBLISHED",
+  "chapters": [
+    {
+      "type": "IMAGE",
+      "position": 0,
+      "chapter_image_field": "chapter0_image",
+      "caption": "Opis slike u poglavlju"
+    },
+    {
+      "type": "TEXT",
+      "position": 1,
+      "text_content": "Normalno tekst poglavlje."
+    }
+  ]
+}
+--WebAppBoundary
+Content-Disposition: form-data; name="chapter0_image"; filename="erd.png"
+Content-Type: image/png
+
+< ./erd.png
+--WebAppBoundary
+Content-Disposition: form-data; name="hero_image"; filename="erd.png"
+Content-Type: image/png
+
+< ./erd.png
+--WebAppBoundary--
+
+### Create a scheduled post that will publish in ~5 minutes
+POST {{baseUrl}}/api/admin/posts
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "slug": "scheduled-demo-try",
+  "title": "Scheduled demo post try",
+  "summary": "Example post scheduled shortly in the future.",
+  "status": "SCHEDULED",
+  "scheduled_for": "{{scheduledPublish}}",
+  "chapters": [
+    {
+      "type": "TEXT",
+      "position": 0,
+      "text_content": "This post is queued to publish roughly five minutes from when you send the request."
+    }
+  ]
+}

@@ -154,11 +154,70 @@
   }
 
   // Public API base (allow override from pages that set it)
-  const API_BASE = (window.__SVZ_BASE_URL__ || "http://127.0.1:5000") + "/api";
+  const API_BASE = window.getSVZApiBase();
+  const DEFAULT_SORT_OPTIONS = [];
+  let sortAliases = {};
 
-  async function fetchPostsFromApi() {
+  function normalizeApiPost(p) {
+    if (!p || typeof p !== "object") {
+      return null;
+    }
+    return {
+      id: p.id || p._id || generateId(),
+      slug: p.slug || (p.title && slugify(p.title)) || "",
+      title: p.title || "",
+      excerpt: p.summary || p.excerpt || "",
+      content: p.content || "",
+      author:
+        (p.author && p.author.display_name) ||
+        p.author ||
+        "Svijet Zdravlja",
+      createdAt: p.published_at || p.created_at || new Date().toISOString(),
+      updatedAt: p.updated_at || p.updatedAt || p.created_at,
+      categories: Array.isArray(p.categories)
+        ? p.categories.map(function (c) {
+            return c.name || c;
+          })
+        : p.categories || [],
+      tags: p.tags || [],
+      featuredImage:
+        (p.hero_media && p.hero_media.storage_path) ||
+        p.featuredImage ||
+        "",
+      published: p.status === "PUBLISHED" || p.published === true,
+      readTime: p.read_time || p.readTime || null,
+      is_featured: p.is_featured || p.isFeatured || false,
+      lang: p.lang || p.language || undefined,
+      chapters: p.chapters || [],
+      hero_media: p.hero_media,
+    };
+  }
+
+  function resolveSortAlias(value) {
+    if (!value) {
+      return value;
+    }
+    return sortAliases[value] || value;
+  }
+
+  function buildPostsQuery(filters) {
+    const params = new URLSearchParams();
+    if (filters && filters.sort && filters.sort !== "newest") {
+      params.set("sort", resolveSortAlias(filters.sort));
+    }
+    if (filters && filters.category && filters.category !== "all") {
+      params.set("category", filters.category);
+    }
+    if (filters && filters.q) {
+      params.set("search", filters.q);
+    }
+    const query = params.toString();
+    return query ? "?" + query : "";
+  }
+
+  async function fetchPostsFromApi(filters) {
     try {
-      const resp = await fetch(API_BASE + "/posts", {
+      const resp = await fetch(API_BASE + "/posts" + buildPostsQuery(filters), {
         headers: { Accept: "application/json" },
       });
       if (!resp.ok) {
@@ -168,41 +227,197 @@
       const data = await resp.json();
       if (!Array.isArray(data)) return null;
       // normalize to local storage shape
-      const normalized = data.map(function (p) {
-        return {
-          id: p.id || p._id || generateId(),
-          slug: p.slug || (p.title && slugify(p.title)) || "",
-          title: p.title || "",
-          excerpt: p.summary || p.excerpt || "",
-          content: p.content || "",
-          author:
-            (p.author && p.author.display_name) ||
-            p.author ||
-            "Svijet Zdravlja",
-          createdAt: p.published_at || p.created_at || new Date().toISOString(),
-          updatedAt: p.updated_at || p.updatedAt || p.created_at,
-          categories: Array.isArray(p.categories)
-            ? p.categories.map(function (c) {
-                return c.name || c;
-              })
-            : p.categories || [],
-          tags: p.tags || [],
-          featuredImage:
-            (p.hero_media && p.hero_media.storage_path) ||
-            p.featuredImage ||
-            "",
-          published: p.status === "PUBLISHED" || p.published === true,
-          readTime: p.read_time || p.readTime || null,
-          is_featured: p.is_featured || p.isFeatured || false,
-          lang: p.lang || p.language || undefined,
-          chapters: p.chapters || [],
-        };
-      });
+      const normalized = data.map(normalizeApiPost).filter(Boolean);
       return normalized;
     } catch (err) {
       console.warn("Failed to fetch posts from API", err);
       return null;
     }
+  }
+
+  async function fetchPostFromApi(identifier, fetchById) {
+    if (!identifier) {
+      return null;
+    }
+    const path = fetchById ? "/posts/id/" : "/posts/";
+    try {
+      const resp = await fetch(
+        API_BASE + path + encodeURIComponent(identifier),
+        {
+          headers: { Accept: "application/json" },
+        }
+      );
+      if (!resp.ok) {
+        return null;
+      }
+      const data = await resp.json();
+      return normalizeApiPost(data);
+    } catch (err) {
+      console.warn("Failed to fetch post from API", err);
+      return null;
+    }
+  }
+
+  function normalizeSortResponse(raw) {
+    const aliases =
+      raw && typeof raw === "object" && raw.aliases ? raw.aliases : {};
+    if (!raw) {
+      return { options: [], aliases: aliases };
+    }
+    const list = Array.isArray(raw)
+      ? raw
+      : Array.isArray(raw.sort_options)
+      ? raw.sort_options
+      : Array.isArray(raw.options)
+      ? raw.options
+      : Array.isArray(raw.data)
+      ? raw.data
+      : [];
+    const options = list
+      .map(function (item) {
+        if (typeof item === "string") {
+          return { value: item, label: item };
+        }
+        if (item && typeof item === "object") {
+          const value = item.value || item.slug || item.id || item.key;
+          const label =
+            item.label ||
+            item.name ||
+            item.title ||
+            value;
+          if (value) {
+            return { value: value, label: label };
+          }
+        }
+        return null;
+      })
+      .filter(Boolean);
+    return { options: options, aliases: aliases };
+  }
+
+  async function fetchSortOptionsFromApi() {
+    try {
+      const resp = await fetch(API_BASE + "/posts/sort-options", {
+        headers: { Accept: "application/json" },
+      });
+      if (!resp.ok) {
+        return null;
+      }
+      const data = await resp.json();
+      const normalized = normalizeSortResponse(data);
+      sortAliases = normalized.aliases || {};
+      return normalized.options.length ? normalized.options : null;
+    } catch (err) {
+      console.warn("Failed to fetch sort options", err);
+      return null;
+    }
+  }
+
+  function normalizeCategoryOptions(raw) {
+    const list = Array.isArray(raw)
+      ? raw
+      : Array.isArray(raw.categories)
+      ? raw.categories
+      : Array.isArray(raw.data)
+      ? raw.data
+      : [];
+    return list
+      .map(function (item) {
+        if (typeof item === "string") {
+          return { slug: item, name: item };
+        }
+        if (item && typeof item === "object") {
+          const slug =
+            item.slug || item.value || item.id || item.key || item.name;
+          const name = item.name || item.label || item.title || slug;
+          if (slug) {
+            return { slug: slug, name: name };
+          }
+        }
+        return null;
+      })
+      .filter(Boolean);
+  }
+
+  async function fetchCategoriesFromApi() {
+    try {
+      const resp = await fetch(API_BASE + "/categories", {
+        headers: { Accept: "application/json" },
+      });
+      if (!resp.ok) {
+        return null;
+      }
+      const data = await resp.json();
+      const normalized = normalizeCategoryOptions(data);
+      return normalized.length ? normalized : null;
+    } catch (err) {
+      console.warn("Failed to fetch categories", err);
+      return null;
+    }
+  }
+
+  function getCategoryOptionsFromPosts(posts) {
+    const items = Array.from(
+      new Set(
+        (posts || []).flatMap(function (post) {
+          return Array.isArray(post.categories) ? post.categories : [];
+        })
+      )
+    ).sort(function (a, b) {
+      return a.localeCompare(b, "hr");
+    });
+    return items.map(function (name) {
+      return { slug: name, name: name };
+    });
+  }
+
+  function populateCategoryFilterOptions(categories, selectEl, currentValue) {
+    if (!selectEl) {
+      return;
+    }
+    const normalized = normalizeCategoryOptions(categories || []);
+    selectEl.innerHTML = "";
+    const defaultOption = document.createElement("option");
+    defaultOption.value = "all";
+    defaultOption.textContent = "Sve kategorije";
+    selectEl.appendChild(defaultOption);
+
+    normalized.forEach(function (category) {
+      const option = document.createElement("option");
+      option.value = category.slug;
+      option.textContent = category.name || category.slug;
+      selectEl.appendChild(option);
+    });
+
+    const target = currentValue || "all";
+    if (selectEl.querySelector('[value="' + target + '"]')) {
+      selectEl.value = target;
+    } else {
+      selectEl.value = "all";
+    }
+  }
+
+  function populateSortFilterOptions(options, selectEl, currentValue) {
+    if (!selectEl) {
+      return;
+    }
+    const normalized = normalizeSortResponse(options || DEFAULT_SORT_OPTIONS)
+      .options;
+    selectEl.innerHTML = "";
+    normalized.forEach(function (optionData) {
+      const option = document.createElement("option");
+      option.value = optionData.value;
+      option.textContent = optionData.label;
+      selectEl.appendChild(option);
+    });
+    const preferred = resolveSortAlias(currentValue);
+    const target =
+      preferred && selectEl.querySelector('[value="' + preferred + '"]')
+        ? preferred
+        : normalized[0]
+        ? normalized[0].value
+        : "newest";
+    selectEl.value = target;
   }
 
   function createExcerpt(content, manual) {
@@ -376,39 +591,15 @@
     }
   }
 
-  function populateCategoryFilter(posts, selectEl, currentValue) {
-    if (!selectEl) {
-      return;
+  function resolveCategoryName(value, categories) {
+    if (!value || value === "all") {
+      return "";
     }
-    const categories = Array.from(
-      new Set(
-        posts.flatMap(function (post) {
-          return Array.isArray(post.categories) ? post.categories : [];
-        })
-      )
-    ).sort(function (a, b) {
-      return a.localeCompare(b, "hr");
+    const normalized = normalizeCategoryOptions(categories || []);
+    const match = normalized.find(function (category) {
+      return category.slug === value;
     });
-
-    selectEl.innerHTML = "";
-    const defaultOption = document.createElement("option");
-    defaultOption.value = "all";
-    defaultOption.textContent = "Sve kategorije";
-    selectEl.appendChild(defaultOption);
-
-    categories.forEach(function (category) {
-      const option = document.createElement("option");
-      option.value = category;
-      option.textContent = category;
-      selectEl.appendChild(option);
-    });
-
-    const target = currentValue || "all";
-    if (selectEl.querySelector('[value="' + target + '"]')) {
-      selectEl.value = target;
-    } else {
-      selectEl.value = "all";
-    }
+    return match ? match.name || match.slug : value;
   }
 
   function sortPosts(a, b, mode) {
@@ -416,36 +607,39 @@
     const createdB = new Date(b.createdAt || 0).getTime();
     const updatedA = new Date(a.updatedAt || createdA).getTime();
     const updatedB = new Date(b.updatedAt || createdB).getTime();
+    const viewsA = a.total_views || a.view_count || a.views || 0;
+    const viewsB = b.total_views || b.view_count || b.views || 0;
 
     if (mode === "oldest") {
       return createdA - createdB;
     }
-    if (mode === "recently-updated") {
+    if (mode === "updated" || mode === "recently-updated") {
       return updatedB - updatedA;
+    }
+    if (mode === "popular") {
+      if (viewsB !== viewsA) {
+        return viewsB - viewsA;
+      }
+      return createdB - createdA;
     }
     return createdB - createdA;
   }
 
-  function renderList(filters) {
-    const listEl = document.getElementById("posts-list");
-    if (!listEl) {
-      return [];
-    }
-    const posts = getPosts();
-    populateCategoryFilter(
-      posts,
-      document.getElementById("posts-filter-category"),
-      filters && filters.category
-    );
-
+  function filterPostsLocally(posts, filters, categoryOptions) {
     const searchTerm = filters && filters.q ? filters.q.toLowerCase() : "";
-    const categoryFilter =
+    const rawCategory =
       filters && filters.category && filters.category !== "all"
         ? filters.category.toLowerCase()
         : "";
-    const sortValue = (filters && filters.sort) || "newest";
+    const categoryName = resolveCategoryName(rawCategory, categoryOptions);
+    const categoryFilter = categoryName
+      ? categoryName.toLowerCase()
+      : rawCategory;
+    const sortValue = resolveSortAlias(
+      (filters && filters.sort) || "newest"
+    );
 
-    const filtered = posts
+    return (posts || [])
       .filter(function (post) {
         const categories = Array.isArray(post.categories)
           ? post.categories
@@ -453,7 +647,8 @@
         const matchesCategory =
           !categoryFilter ||
           categories.some(function (category) {
-            return category.toLowerCase() === categoryFilter;
+            const normalized = category.toString().toLowerCase();
+            return normalized === rawCategory || normalized === categoryFilter;
           });
 
         if (!searchTerm) {
@@ -477,22 +672,30 @@
       .sort(function (a, b) {
         return sortPosts(a, b, sortValue);
       });
+  }
+
+  function renderList(posts) {
+    const listEl = document.getElementById("posts-list");
+    if (!listEl) {
+      return [];
+    }
+    const items = Array.isArray(posts) ? posts : [];
 
     listEl.setAttribute("aria-busy", "true");
     listEl.innerHTML = "";
 
-    if (!filtered.length) {
+    if (!items.length) {
       const empty = document.createElement("p");
       empty.className = "blog__empty";
       empty.textContent =
         "Još nema objava koje odgovaraju filterima. Kreirajte novu priču!";
       listEl.appendChild(empty);
       listEl.setAttribute("aria-busy", "false");
-      return filtered;
+      return items;
     }
 
     const fragment = document.createDocumentFragment();
-    filtered.forEach(function (post) {
+    items.forEach(function (post) {
       const article = document.createElement("article");
       article.className = "post-card";
       article.dataset.id = post.id;
@@ -544,7 +747,7 @@
 
     listEl.appendChild(fragment);
     listEl.setAttribute("aria-busy", "false");
-    return filtered;
+    return items;
   }
 
   function buildContentNodes(container, content) {
@@ -573,7 +776,7 @@
     });
   }
 
-  function renderPost(identifier) {
+  function renderPost(identifier, postOverride) {
     const article = document.getElementById("post-article");
     if (!article) {
       return null;
@@ -585,7 +788,8 @@
     const editLink = document.getElementById("post-edit");
     const deleteButton = document.getElementById("post-delete");
 
-    const post = getPostById(identifier) || getPostBySlug(identifier);
+    const post =
+      postOverride || getPostById(identifier) || getPostBySlug(identifier);
 
     console.log("Rendering post:", identifier, post);
 
@@ -898,16 +1102,67 @@
     const sortSelect = document.getElementById("posts-sort");
     const filters = getFilterStateFromUrl();
     const urlParams = new URLSearchParams(window.location.search);
+    let categoryOptions = null;
+    let sortOptions = null;
 
     if (searchInput) {
       searchInput.value = filters.q;
     }
-    if (categorySelect) {
-      categorySelect.value = filters.category;
-    }
-    if (sortSelect) {
-      sortSelect.value = filters.sort;
-    }
+    const applyOptions = function (targetFilters) {
+      if (categorySelect) {
+        const categoriesToUse =
+          categoryOptions || getCategoryOptionsFromPosts(getPosts());
+        populateCategoryFilterOptions(
+          categoriesToUse,
+          categorySelect,
+          targetFilters && targetFilters.category
+        );
+      }
+      if (sortSelect) {
+        populateSortFilterOptions(
+          sortOptions || DEFAULT_SORT_OPTIONS,
+          sortSelect,
+          targetFilters && targetFilters.sort
+        );
+      }
+    };
+
+    const renderWithFallback = function (targetFilters) {
+      listEl.setAttribute("aria-busy", "true");
+      return fetchPostsFromApi(targetFilters)
+        .then(function (apiPosts) {
+          if (Array.isArray(apiPosts)) {
+            if (apiPosts.length) {
+              try {
+                savePosts(apiPosts);
+              } catch (e) {
+                console.warn("Could not save API posts to local storage", e);
+              }
+            }
+            renderList(apiPosts);
+            return;
+          }
+          renderList(
+            filterPostsLocally(getPosts(), targetFilters, categoryOptions)
+          );
+        })
+        .catch(function () {
+          renderList(
+            filterPostsLocally(getPosts(), targetFilters, categoryOptions)
+          );
+        });
+    };
+
+    applyOptions(filters);
+    Promise.all([fetchCategoriesFromApi(), fetchSortOptionsFromApi()])
+      .then(function (results) {
+        categoryOptions = results[0];
+        sortOptions = results[1];
+        applyOptions(filters);
+      })
+      .catch(function () {
+        applyOptions(filters);
+      });
 
     const handleChange = function () {
       const updatedFilters = {
@@ -916,24 +1171,11 @@
         sort: sortSelect ? sortSelect.value : "newest",
       };
       persistFilterState(updatedFilters);
-      renderList(updatedFilters);
+      renderWithFallback(updatedFilters);
     };
 
     // Try to refresh posts from backend API, fall back to local storage
-    fetchPostsFromApi()
-      .then(function (apiPosts) {
-        if (Array.isArray(apiPosts) && apiPosts.length) {
-          try {
-            savePosts(apiPosts);
-          } catch (e) {
-            console.warn("Could not save API posts to local storage", e);
-          }
-        }
-        renderList(filters);
-      })
-      .catch(function () {
-        renderList(filters);
-      });
+    renderWithFallback(filters);
     const highlightApplied = highlightPostCardFromParams(urlParams);
     const bannerShown = showListStatusBanner(urlParams);
     if (highlightApplied || bannerShown) {
@@ -1042,9 +1284,21 @@
       return;
     }
     const params = new URLSearchParams(window.location.search);
-    const identifier = params.get("id") || params.get("slug");
+    const idParam = params.get("id");
+    const slugParam = params.get("slug");
+    const identifier = idParam || slugParam;
     const deleteBtn = document.getElementById("post-delete");
-    renderPost(identifier);
+    fetchPostFromApi(identifier, Boolean(idParam))
+      .then(function (apiPost) {
+        if (apiPost) {
+          renderPost(identifier, apiPost);
+        } else {
+          renderPost(identifier);
+        }
+      })
+      .catch(function () {
+        renderPost(identifier);
+      });
 
     if (deleteBtn) {
       deleteBtn.addEventListener("click", function () {
