@@ -60,6 +60,7 @@
     let posts = [];
     try {
       const raw = window.localStorage.getItem(SVZ_STORAGE_KEY);
+      console.log("LOLOLO Rendering raw:", raw);
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed)) {
@@ -153,8 +154,7 @@
   }
 
   // Public API base (allow override from pages that set it)
-  const API_BASE =
-    (window.__SVZ_BASE_URL__ || "http://localhost:5000") + "/api";
+  const API_BASE = (window.__SVZ_BASE_URL__ || "http://127.0.1:5000") + "/api";
 
   async function fetchPostsFromApi() {
     try {
@@ -346,7 +346,8 @@
   function getPostById(id) {
     return (
       getPosts().find(function (post) {
-        return post.id === id;
+        console.log("LOLOLO Comparing post id:", post.id, "with", id);
+        return post.id == id;
       }) || null
     );
   }
@@ -354,7 +355,8 @@
   function getPostBySlug(slug) {
     return (
       getPosts().find(function (post) {
-        return post.slug === slug;
+        console.log("LOLOLO Comparing post slug:", post.slug, "with", slug);
+        return post.slug == slug;
       }) || null
     );
   }
@@ -583,9 +585,9 @@
     const editLink = document.getElementById("post-edit");
     const deleteButton = document.getElementById("post-delete");
 
-    const post = identifier
-      ? getPostById(identifier) || getPostBySlug(identifier)
-      : null;
+    const post = getPostById(identifier) || getPostBySlug(identifier);
+
+    console.log("Rendering post:", identifier, post);
 
     if (!post) {
       if (titleEl) {
