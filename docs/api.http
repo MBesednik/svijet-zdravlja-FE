@@ -1,5 +1,5 @@
 ### Environment
-@baseUrl = http://localhost:5000
+@baseUrl = https://smart-guenna-marko2407-b5b90f48.koyeb.app
 @adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJzdmlqZXR6ZHJhdmxqYS5qdWdvQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NjEwNTg1MCwiZXhwIjoxNzY2MTA5NDUwfQ.ym9obXkW6h7oH-t0YzjtQ5j3n684NVdRAIgTrS7sJcU
 @scheduledPublish = {{$datetime iso8601 2 min}}
 

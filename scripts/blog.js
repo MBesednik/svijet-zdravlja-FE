@@ -169,9 +169,7 @@
       excerpt: p.summary || p.excerpt || "",
       content: p.content || "",
       author:
-        (p.author && p.author.display_name) ||
-        p.author ||
-        "Svijet Zdravlja",
+        (p.author && p.author.display_name) || p.author || "Svijet Zdravlja",
       createdAt: p.published_at || p.created_at || new Date().toISOString(),
       updatedAt: p.updated_at || p.updatedAt || p.created_at,
       categories: Array.isArray(p.categories)
@@ -181,9 +179,7 @@
         : p.categories || [],
       tags: p.tags || [],
       featuredImage:
-        (p.hero_media && p.hero_media.storage_path) ||
-        p.featuredImage ||
-        "",
+        (p.hero_media && p.hero_media.storage_path) || p.featuredImage || "",
       published: p.status === "PUBLISHED" || p.published === true,
       readTime: p.read_time || p.readTime || null,
       is_featured: p.is_featured || p.isFeatured || false,
@@ -280,11 +276,7 @@
         }
         if (item && typeof item === "object") {
           const value = item.value || item.slug || item.id || item.key;
-          const label =
-            item.label ||
-            item.name ||
-            item.title ||
-            value;
+          const label = item.label || item.name || item.title || value;
           if (value) {
             return { value: value, label: label };
           }
@@ -401,8 +393,9 @@
     if (!selectEl) {
       return;
     }
-    const normalized = normalizeSortResponse(options || DEFAULT_SORT_OPTIONS)
-      .options;
+    const normalized = normalizeSortResponse(
+      options || DEFAULT_SORT_OPTIONS
+    ).options;
     selectEl.innerHTML = "";
     normalized.forEach(function (optionData) {
       const option = document.createElement("option");
@@ -635,9 +628,7 @@
     const categoryFilter = categoryName
       ? categoryName.toLowerCase()
       : rawCategory;
-    const sortValue = resolveSortAlias(
-      (filters && filters.sort) || "newest"
-    );
+    const sortValue = resolveSortAlias((filters && filters.sort) || "newest");
 
     return (posts || [])
       .filter(function (post) {
@@ -687,8 +678,7 @@
     if (!items.length) {
       const empty = document.createElement("p");
       empty.className = "blog__empty";
-      empty.textContent =
-        "Još nema objava koje odgovaraju filterima. Kreirajte novu priču!";
+      empty.textContent = "Još nema objava...";
       listEl.appendChild(empty);
       listEl.setAttribute("aria-busy", "false");
       return items;
@@ -1255,6 +1245,10 @@
         content: form.querySelector("#post-content").value,
         excerpt: form.querySelector("#post-excerpt").value,
         published: form.querySelector("#post-published").checked,
+        is_featured: !!(
+          form.querySelector("#post-featured") &&
+          form.querySelector("#post-featured").checked
+        ),
         featuredImage: state.currentImage,
       };
       try {

@@ -156,7 +156,7 @@ skrev-zdravlja-FE/
 
 ### Za Korisnike (Pročitaj Post)
 
-1. Otvori `/blog/index.html`
+1. Otvori `/blog/blog.html`
 2. Vidiš listu objavljenih postova
 3. Klikni na post za čitanje
 4. Vidiš kompletan sadržaj s poglavljima

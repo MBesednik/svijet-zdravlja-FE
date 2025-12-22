@@ -11,42 +11,6 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap"
       rel="stylesheet"
     />
-
-    <style>
-      /* Osigurava da footer stoji na dnu i uklanja bijeli razmak ispod */
-      html,
-      body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
-      body {
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-      }
-      main,
-      .site-main,
-      .content {
-        flex: 1;
-      }
-
-      /* Jednostavna centrirana poruka bez kontejnera */
-      .no-blogs {
-        color: #3d4a2c; /* tražena boja fonta */
-        font-size: 1.15rem;
-        text-align: center;
-        padding: 40px 20px;
-        align-items: center;
-        justify-content: center;
-      }
-      .no-blogs {
-        display: none;
-      } /* skriveno dok se ne pokaže */
-      .no-blogs.show {
-        display: flex;
-      } /* prikazuje kao flex da centriranje radi */
-    </style>
   </head>
   <body>
     <header class="header">
@@ -137,18 +101,12 @@
           </label>
         </section>
 
-        <!-- Pretpostavljeni kontejner sa listom blogova -->
-        <div class="blog-list">
-          <div
-            id="posts-list"
-            class="post-list"
-            aria-live="polite"
-            aria-busy="false"
-          ></div>
-        </div>
-
-        <!-- Poruka koja će biti prikazana ako nema postova -->
-        <div class="no-blogs" aria-live="polite">Blogovi dolaze.</div>
+        <div
+          id="posts-list"
+          class="post-list"
+          aria-live="polite"
+          aria-busy="false"
+        ></div>
       </div>
     </main>
 
@@ -283,23 +241,8 @@
       </div>
     </footer>
 
-    <script src="../scripts/loader.js"></script>
     <script src="../scripts/main.js"></script>
     <script src="../scripts/config.js"></script>
     <script src="../scripts/blog.js"></script>
-
-    <!-- Skripta koja kontrolira prikaz poruke -->
-    <script>
-      (function () {
-        const list = document.querySelector(".blog-list");
-        const no = document.querySelector(".no-blogs");
-        if (!list || !no) return;
-        // Provjeri ima li stvarnih objava (traži uobičajene elemente ili bilo koji element-dijete)
-        const hasVisiblePost =
-          !!list.querySelector("article, .post, .blog-item, .card") ||
-          list.children.length > 0;
-        if (!hasVisiblePost) no.classList.add("show");
-      })();
-    </script>
   </body>
 </html>

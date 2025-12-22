@@ -321,7 +321,7 @@ Kliknite "Ukloni" dugme na pogavlju.
 
 // 8. Backend vraća novi post s ID-om
 
-// 9. Korisnik se preusmjerava na /blog/index.html?status=created&id=123
+// 9. Korisnik se preusmjerava na /blog/blog.html?status=created&id=123
 
 // 10. Lista prikazuje novu objavu s statusnom porukom
 ```

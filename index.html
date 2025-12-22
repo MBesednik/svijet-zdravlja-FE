@@ -36,7 +36,7 @@
               <a href="#" class="header__nav-link">Usluge</a>
             </li>
             <li class="header__nav-item">
-              <a href="blog/index.html" class="header__nav-link">Blog</a>
+              <a href="blog/blog.html" class="header__nav-link">Blog</a>
             </li>
             <li class="header__nav-item">
               <a href="#" class="header__nav-link">Kontakt</a>
@@ -191,6 +191,30 @@
           </div>
         </div>
       </section>
+
+      <!-- ISTAKNUTI POSTOVI -->
+      <section class="featured-posts section">
+        <div class="container">
+          <header class="featured-posts__header text-center">
+            <p class="blog__eyebrow">Novosti</p>
+            <h2>Istaknuti postovi</h2>
+            <p class="text-secondary">Najnoviji istaknuti članci s bloga.</p>
+          </header>
+
+          <div
+            id="featured-posts"
+            class="post-list"
+            aria-live="polite"
+            aria-busy="false"
+          ></div>
+
+          <div class="text-center" style="margin-top: 1.5rem">
+            <a href="blog/blog.html" class="btn btn--secondary"
+              >Pogledaj sve objave</a
+            >
+          </div>
+        </div>
+      </section>
     </main>
 
     <!-- FOOTER -->
@@ -326,5 +350,6 @@
     </footer>
 
     <script src="scripts/main.js"></script>
+    <script src="scripts/home-featured.js"></script>
   </body>
 </html>

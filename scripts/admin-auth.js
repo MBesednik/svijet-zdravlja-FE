@@ -60,26 +60,14 @@
         })
         .then(function (data) {
           // expected { access_token: '...', token_type: 'bearer' } or similar
-          const token =
-            data.access_token ||
-            data.token ||
-            data.jwt ||
-            data.token_value ||
-            data; // fallback
-          if (!token) {
+          const token = data.token;
+          if (token) {
             // if server returns object with data.token
-            if (data.token) {
-              localStorage.setItem("svz_admin_token", data.token);
-            } else if (data.access_token) {
-              localStorage.setItem("svz_admin_token", data.access_token);
-            } else if (typeof data === "string") {
-              localStorage.setItem("svz_admin_token", data);
-            } else {
-              showMessage("Uspjela prijava, ali nije pronađen token.", true);
-              return;
-            }
-          } else {
             localStorage.setItem("svz_admin_token", token);
+          } else {
+            localStorage.setItem("svz_admin_token", null);
+            showMessage("Uspjela prijava, ali nije pronađen token.", true);
+            return;
           }
 
           showMessage("Prijava uspješna — preusmjeravam...", false);

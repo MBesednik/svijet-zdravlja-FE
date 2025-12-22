@@ -262,7 +262,7 @@ Featured: ☐
 ### Poslije Objave (PUBLISHED)
 
 ```
-✅ /blog/index.html - vidiš je u listi
+✅ /blog/blog.html - vidiš je u listi
 ✅ /blog/post.html?id=123 - direktan link
 ✅ Na početnoj stranici (ako je featured)
 ```

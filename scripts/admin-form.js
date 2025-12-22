@@ -282,6 +282,43 @@
     renderChapters();
   }
 
+  // helper: dohvat URL-a i pretvorba u Data URL (data:image/...)
+  async function fetchUrlAsDataURL(url) {
+    if (!url) throw new Error("Neispravan URL slike");
+    const res = await fetch(url, { mode: "cors" });
+    if (!res.ok) throw new Error("Ne može dohvatiti sliku: " + res.status);
+    const blob = await res.blob();
+    return await new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result); // full data URL
+      r.onerror = reject;
+      r.readAsDataURL(blob);
+    });
+  }
+
+  function extractFilenameFromUrl(url) {
+    try {
+      const p = new URL(url);
+      const parts = p.pathname.split("/");
+      return parts.pop() || null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function getChapterImagePreviewUrl(ch) {
+    // prihvati razne oblike povratnog polja
+    return (
+      ch &&
+      (ch.storage_path ||
+        (ch.media && ch.media.storage_path) ||
+        (ch.image && ch.image.storage_path) ||
+        ch.image_url ||
+        ch.media_url ||
+        null)
+    );
+  }
+
   /**
    * Prikazuje listu poglavlja
    */
@@ -327,9 +364,18 @@
           <input type="text" placeholder="Tekst naslova poglavlja (opcionalno)" class="chapter-title" data-id="${
             ch.id
           }" value="${ch.title || ""}">
-          <input type="file" accept="image/*" class="chapter-image" data-id="${
-            ch.id
-          }">
+          <div class="chapter-image-wrapper">
+            ${
+              getChapterImagePreviewUrl(ch)
+                ? `<img class="chapter-image-preview" src="${getChapterImagePreviewUrl(
+                    ch
+                  )}">`
+                : `<img class="chapter-image-preview" hidden>`
+            }
+            <input type="file" accept="image/*" class="chapter-image" data-id="${
+              ch.id
+            }">
+          </div>
           <input type="text" placeholder="Opis slike (caption)" class="chapter-caption" data-id="${
             ch.id
           }" value="${ch.caption || ""}">
@@ -423,8 +469,28 @@
       input.addEventListener("change", (e) => {
         const id = parseInt(e.target.dataset.id);
         const chapter = chapters.find((c) => c.id === id);
+        const preview = e.target
+          .closest(".chapter-image-wrapper")
+          ?.querySelector(".chapter-image-preview");
         if (chapter && e.target.files[0]) {
           chapter.media_file = e.target.files[0];
+          // remove references to old storage_path so update logic sends new image_data from file
+          delete chapter.storage_path;
+          if (chapter.media) delete chapter.media;
+          if (chapter.image) delete chapter.image;
+          // show preview of selected file
+          fileToDataURL(e.target.files[0])
+            .then((dataUrl) => {
+              if (preview) {
+                preview.src = dataUrl;
+                preview.hidden = false;
+              }
+            })
+            .catch(() => {
+              if (preview) preview.hidden = true;
+            });
+        } else if (chapter) {
+          chapter.media_file = null;
         }
       });
     });
@@ -472,7 +538,8 @@
           text_content: ch.type === "TEXT" ? ch.text_content : null,
           caption: ch.caption || null,
           alt_text: ch.alt_text || null,
-          external_video_url: ch.type === "VIDEO" ? ch.external_video_url : null,
+          external_video_url:
+            ch.type === "VIDEO" ? ch.external_video_url : null,
         };
         if (includeChapterImageField && ch.type === "IMAGE" && ch.media_file) {
           base.chapter_image_field = `chapter_${idx}_image`;
@@ -517,22 +584,66 @@
   async function getJsonPayloadForSubmit() {
     const payload = buildPayload();
     const heroInput = document.getElementById("post-hero-image");
+    // postojeća logika za novi file
     if (heroInput && heroInput.files[0]) {
       const dataUrl = await fileToDataURL(heroInput.files[0]);
       payload.hero_image_data = dataUrl;
       payload.hero_image_filename = heroInput.files[0].name || null;
+    } else if (
+      !payload.hero_image_data &&
+      currentPost &&
+      currentPost.hero_media &&
+      currentPost.hero_media.storage_path
+    ) {
+      // ako nije uploadan file, pokušaj dohvatiti postojeću sliku s storage_path i ubaciti data
+      try {
+        const url = currentPost.hero_media.storage_path;
+        const dataUrl = await fetchUrlAsDataURL(url);
+        payload.hero_image_data = dataUrl;
+        payload.hero_image_filename = extractFilenameFromUrl(url);
+      } catch (err) {
+        throw new Error(
+          "Ne mogu dohvatiti postojeću naslovnu sliku: " + err.message
+        );
+      }
     }
+
     if (Array.isArray(payload.chapters)) {
       const updatedChapters = await Promise.all(
         payload.chapters.map(async (chapter, idx) => {
           const source = chapters[idx];
-          if (chapter.type === "IMAGE" && source && source.media_file) {
-            const dataUrl = await fileToDataURL(source.media_file);
-            return {
-              ...chapter,
-              image_data: dataUrl,
-              image_filename: source.media_file.name || null,
-            };
+          if (chapter.type === "IMAGE") {
+            // ako korisnik upload-a novi file, koristimo fileToDataURL
+            if (source && source.media_file) {
+              const dataUrl = await fileToDataURL(source.media_file);
+              return {
+                ...chapter,
+                image_data: dataUrl,
+                image_filename: source.media_file.name || null,
+              };
+            }
+
+            // inače pokušaj dohvatiti postojeću sliku (storage_path ili media.storage_path / image.storage_path)
+            const url =
+              (source &&
+                (source.storage_path ||
+                  (source.media && source.media.storage_path) ||
+                  (source.image && source.image.storage_path))) ||
+              null;
+            if (url) {
+              try {
+                const dataUrl = await fetchUrlAsDataURL(url);
+                return {
+                  ...chapter,
+                  image_data: dataUrl,
+                  image_filename: extractFilenameFromUrl(url),
+                };
+              } catch (err) {
+                throw new Error(
+                  `Ne mogu dohvatiti sliku poglavlja ${idx + 1}: ${err.message}`
+                );
+              }
+            }
           }
           return chapter;
         })

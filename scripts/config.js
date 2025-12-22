@@ -4,7 +4,7 @@
   var baseUrl = (
     window.__SVZ_BASE_URL__ ||
     window.SVZ_BASE_URL ||
-    "http://127.0.1:5000"
+    "https://smart-guenna-marko2407-b5b90f48.koyeb.app"
   ).replace(/\/$/, "");
 
   window.SVZ_CONFIG = {

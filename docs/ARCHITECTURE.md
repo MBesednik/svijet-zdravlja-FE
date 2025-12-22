@@ -72,7 +72,7 @@
                     ┌───────────▼──────────┐
                     │  Redirekcija         │
                     │                      │
-                    │ /blog/index.html     │
+                    │ /blog/blog.html     │
                     │ ?status=created      │
                     │ &id=123              │
                     └──────────────────────┘
@@ -264,7 +264,7 @@
 ┌─ PREUSMJERAVANJE ─────────────────────────┐
 │                                            │
 │  window.location.href =                   │
-│    /blog/index.html?status=created&id=123│
+│    /blog/blog.html?status=created&id=123│
 │                                            │
 │  Lista prikazuje statusnu poruku           │
 │                                            │
