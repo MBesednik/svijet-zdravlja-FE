@@ -11,6 +11,51 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap"
       rel="stylesheet"
     />
+
+    <!-- Dodano: CSS za uklanjanje praznog prostora ispod footera -->
+    <style>
+      /* Osiguraj da body puni visinu i footer ostane pri dnu */
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      /* main zauzima preostali prostor */
+      main.blog {
+        flex: 1 0 auto;
+      }
+
+      /* container ne smije imati prisilni min-height */
+      .blog__container {
+        min-height: 0;
+      }
+
+      /* sakrij prazni popis objava (CSS :empty može propasti ako JS ubaci whitespace) */
+      #posts-list:empty {
+        display: none;
+        min-height: 0;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* dodatne klase koje mogu koristiti teme/skripte */
+      .no-posts,
+      .archive-empty,
+      .posts-empty {
+        display: none !important;
+      }
+
+      /* osiguraj footer raspored */
+      footer.footer {
+        margin-top: auto;
+      }
+    </style>
   </head>
   <body>
     <header class="header">
@@ -244,5 +289,28 @@
     <script src="../scripts/main.js"></script>
     <script src="../scripts/config.js"></script>
     <script src="../scripts/blog.js"></script>
+
+    <!-- Dodano: skripta koja sakriva #posts-list ako je stvarno prazan i sluša promjene -->
+    <script>
+      (function () {
+        var postsList = document.getElementById("posts-list");
+        if (!postsList) return;
+        function updateEmptyState() {
+          var isEmpty =
+            postsList.children.length === 0 &&
+            postsList.textContent.trim() === "";
+          postsList.style.display = isEmpty ? "none" : "";
+        }
+        updateEmptyState();
+        if (window.MutationObserver) {
+          var mo = new MutationObserver(updateEmptyState);
+          mo.observe(postsList, {
+            childList: true,
+            subtree: true,
+            characterData: true,
+          });
+        }
+      })();
+    </script>
   </body>
 </html>

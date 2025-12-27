@@ -46,6 +46,42 @@
       .no-blogs.show {
         display: flex;
       } /* prikazuje kao flex da centriranje radi */
+
+      /* --- Loader styles --- */
+      .blog__container {
+        position: relative; /* omogućuje overlay unutar container-a */
+      }
+      .loader-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.9);
+        z-index: 50;
+      }
+      .loader-overlay.hidden {
+        display: none;
+      }
+      .loader-spinner {
+        width: 48px;
+        height: 48px;
+        border: 6px solid #e6e6e6;
+        border-top-color: #3d4a2c; /* tražena boja */
+        border-radius: 50%;
+        animation: loader-spin 1s linear infinite;
+      }
+      .loader-text {
+        margin-top: 12px;
+        color: #3d4a2c;
+        font-size: 0.95rem;
+      }
+      @keyframes loader-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
     </style>
   </head>
   <body>
@@ -95,6 +131,17 @@
 
     <main class="blog">
       <div class="blog__container container">
+        <!-- Loader koji ostaje vidljiv dok se učitava sadržaj -->
+        <div
+          class="loader-overlay"
+          role="status"
+          aria-live="polite"
+          aria-label="Učitavanje sadržaja"
+        >
+          <div class="loader-spinner" aria-hidden="true"></div>
+          <div class="loader-text">Učitavanje objava...</div>
+        </div>
+
         <header class="blog__header">
           <div>
             <p class="blog__eyebrow">Novosti i savjeti</p>
@@ -287,6 +334,59 @@
     <script src="../scripts/main.js"></script>
     <script src="../scripts/config.js"></script>
     <script src="../scripts/blog.js"></script>
+
+    <!-- Skripta koja kontroliše prikaz loader-a dok se ne dođu postovi -->
+    <script>
+      (function () {
+        const loader = document.querySelector(".loader-overlay");
+        const postsList = document.getElementById("posts-list");
+        if (!loader || !postsList) return;
+
+        const hideLoader = () => {
+          loader.classList.add("hidden");
+          loader.setAttribute("aria-hidden", "true");
+        };
+        const showLoader = () => {
+          loader.classList.remove("hidden");
+          loader.setAttribute("aria-hidden", "false");
+        };
+
+        // Počnimo s prikazanim loaderom
+        showLoader();
+
+        // Kada se pojavi barem jedan relevantan element, sakrij loader
+        const checkHasPosts = () => {
+          return (
+            !!postsList.querySelector("article, .post, .blog-item, .card") ||
+            postsList.children.length > 0
+          );
+        };
+
+        const obs = new MutationObserver(() => {
+          if (checkHasPosts()) {
+            obs.disconnect();
+            hideLoader();
+          }
+        });
+        obs.observe(postsList, { childList: true, subtree: true });
+
+        // Slušamo i custom event koji može dispatch-ati vaš backend kod (npr. blog.js)
+        document.addEventListener(
+          "posts:loaded",
+          () => {
+            obs.disconnect();
+            hideLoader();
+          },
+          { once: true }
+        );
+
+        // Fallback - nakon 10s skinemo loader (u slučaju greške ili slabog mrežnog)
+        setTimeout(() => {
+          obs.disconnect();
+          hideLoader();
+        }, 10000);
+      })();
+    </script>
 
     <!-- Skripta koja kontrolira prikaz poruke -->
     <script>
