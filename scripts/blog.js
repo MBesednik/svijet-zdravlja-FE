@@ -1140,7 +1140,8 @@
           renderList(
             filterPostsLocally(getPosts(), targetFilters, categoryOptions)
           );
-        });
+        })
+        .finally(notifyPostsLoaded);
     };
 
     applyOptions(filters);
@@ -1306,6 +1307,20 @@
         }
       });
     }
+  }
+
+  // helper koji obavještava ostale skripte da su postovi učitani
+  function notifyPostsLoaded() {
+    try {
+      // obavijesti index.html skriptu da su postovi gotovi
+      document.dispatchEvent(new Event("posts:loaded"));
+    } catch (e) {
+      // ignore
+    }
+    try {
+      var postsList = document.getElementById("posts-list");
+      if (postsList) postsList.setAttribute("aria-busy", "false");
+    } catch (e) {}
   }
 
   document.addEventListener("DOMContentLoaded", function () {

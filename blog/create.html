@@ -14,6 +14,17 @@
     />
   </head>
   <body>
+    <!-- Ako korisnik nije admin, enforceAdminAccess će ga odmah preusmjeriti -->
+    <script src="../scripts/admin-guard.js"></script>
+    <script>
+      // Pozivemo zaštitu odmah nakon učitavanja
+      document.addEventListener("DOMContentLoaded", function () {
+        if (window.adminGuard) {
+          window.adminGuard.enforceAdminAccess("/blog/blog.html");
+        }
+      });
+    </script>
+
     <header class="header">
       <div class="header__container container">
         <a href="../index.html" class="header__logo">

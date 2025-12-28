@@ -12,48 +12,80 @@
       rel="stylesheet"
     />
 
-    <!-- Dodano: CSS za uklanjanje praznog prostora ispod footera -->
     <style>
-      /* Osiguraj da body puni visinu i footer ostane pri dnu */
+      /* Osigurava da footer stoji na dnu i uklanja bijeli razmak ispod */
       html,
       body {
         height: 100%;
         margin: 0;
+        padding: 0;
       }
       body {
         display: flex;
         flex-direction: column;
         min-height: 100vh;
       }
-
-      /* main zauzima preostali prostor */
-      main.blog {
-        flex: 1 0 auto;
+      main,
+      .site-main,
+      .content {
+        flex: 1;
       }
 
-      /* container ne smije imati prisilni min-height */
-      .blog__container {
-        min-height: 0;
+      /* Jednostavna centrirana poruka bez kontejnera */
+      .no-blogs {
+        color: #3d4a2c; /* tražena boja fonta */
+        font-size: 1.15rem;
+        text-align: center;
+        padding: 40px 20px;
+        align-items: center;
+        justify-content: center;
       }
-
-      /* sakrij prazni popis objava (CSS :empty može propasti ako JS ubaci whitespace) */
-      #posts-list:empty {
+      .no-blogs {
         display: none;
-        min-height: 0;
-        margin: 0;
-        padding: 0;
+      } /* skriveno dok se ne pokaže */
+      .no-blogs.show {
+        display: flex;
+      } /* prikazuje kao flex da centriranje radi */
+
+      /* --- Loader styles --- */
+      .blog__container {
+        position: relative; /* omogućuje overlay unutar container-a */
+      }
+      .loader-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.9);
+        z-index: 50;
+      }
+      .loader-overlay.hidden {
+        display: none;
+      }
+      .loader-spinner {
+        width: 48px;
+        height: 48px;
+        border: 6px solid #e6e6e6;
+        border-top-color: #3d4a2c; /* tražena boja */
+        border-radius: 50%;
+        animation: loader-spin 1s linear infinite;
+      }
+      .loader-text {
+        margin-top: 12px;
+        color: #3d4a2c;
+        font-size: 0.95rem;
+      }
+      @keyframes loader-spin {
+        to {
+          transform: rotate(360deg);
+        }
       }
 
-      /* dodatne klase koje mogu koristiti teme/skripte */
-      .no-posts,
-      .archive-empty,
-      .posts-empty {
+      /* Sakrij administratorske elemente po defaultu */
+      .admin-only {
         display: none !important;
-      }
-
-      /* osiguraj footer raspored */
-      footer.footer {
-        margin-top: auto;
       }
     </style>
   </head>
@@ -80,9 +112,7 @@
               <a href="#" class="header__nav-link">Usluge</a>
             </li>
             <li class="header__nav-item">
-              <a href="index.html" class="header__nav-link" aria-current="page"
-                >Blog</a
-              >
+              <a href="#" class="header__nav-link" aria-current="page">Blog</a>
             </li>
             <li class="header__nav-item">
               <a href="#" class="header__nav-link">Kontakt</a>
@@ -104,6 +134,17 @@
 
     <main class="blog">
       <div class="blog__container container">
+        <!-- Loader koji ostaje vidljiv dok se učitava sadržaj -->
+        <div
+          class="loader-overlay"
+          role="status"
+          aria-live="polite"
+          aria-label="Učitavanje sadržaja"
+        >
+          <div class="loader-spinner" aria-hidden="true"></div>
+          <div class="loader-text">Učitavanje objava...</div>
+        </div>
+
         <header class="blog__header">
           <div>
             <p class="blog__eyebrow">Novosti i savjeti</p>
@@ -113,7 +154,13 @@
               priče o zdravlju i prehrani.
             </p>
           </div>
-          <a href="create.html" class="btn btn--primary">Nova objava</a>
+          <!-- Sakrij gumb po defaultu; prikaži ga samo ako postoji svz_admin_token -->
+          <a
+            href="create.html"
+            class="btn btn--primary admin-only"
+            aria-hidden="true"
+            >Nova objava</a
+          >
         </header>
 
         <section
@@ -146,12 +193,18 @@
           </label>
         </section>
 
-        <div
-          id="posts-list"
-          class="post-list"
-          aria-live="polite"
-          aria-busy="false"
-        ></div>
+        <!-- Pretpostavljeni kontejner sa listom blogova -->
+        <div class="blog-list">
+          <div
+            id="posts-list"
+            class="post-list"
+            aria-live="polite"
+            aria-busy="false"
+          ></div>
+        </div>
+
+        <!-- Poruka koja će biti prikazana ako nema postova -->
+        <div class="no-blogs" aria-live="polite">Blogovi dolaze.</div>
       </div>
     </main>
 
@@ -185,7 +238,7 @@
                   <a href="#" class="footer__link">Usluge</a>
                 </li>
                 <li class="footer__list-item">
-                  <a href="index.html" class="footer__link">Blog</a>
+                  <a href="#" class="footer__link">Blog</a>
                 </li>
               </ul>
             </div>
@@ -286,31 +339,10 @@
       </div>
     </footer>
 
+    <script src="../scripts/loader.js"></script>
     <script src="../scripts/main.js"></script>
     <script src="../scripts/config.js"></script>
     <script src="../scripts/blog.js"></script>
-
-    <!-- Dodano: skripta koja sakriva #posts-list ako je stvarno prazan i sluša promjene -->
-    <script>
-      (function () {
-        var postsList = document.getElementById("posts-list");
-        if (!postsList) return;
-        function updateEmptyState() {
-          var isEmpty =
-            postsList.children.length === 0 &&
-            postsList.textContent.trim() === "";
-          postsList.style.display = isEmpty ? "none" : "";
-        }
-        updateEmptyState();
-        if (window.MutationObserver) {
-          var mo = new MutationObserver(updateEmptyState);
-          mo.observe(postsList, {
-            childList: true,
-            subtree: true,
-            characterData: true,
-          });
-        }
-      })();
-    </script>
+    <script src="../scripts/admin-guard.js"></script>
   </body>
 </html>

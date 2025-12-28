@@ -11,6 +11,12 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap"
       rel="stylesheet"
     />
+    <style>
+      /* Sakrij administratorske elemente po defaultu */
+      .admin-only {
+        display: none !important;
+      }
+    </style>
   </head>
   <body>
     <header class="header">
@@ -74,10 +80,20 @@
           />
           <section id="post-content" class="post-detail__content"></section>
           <div class="post-detail__actions">
-            <a id="post-edit" class="btn btn--primary" href="create.html"
+            <!-- Sakrij ove akcije po defaultu; prikaži samo admin -->
+            <a
+              id="post-edit"
+              class="btn btn--primary admin-only"
+              href="create.html"
+              aria-hidden="true"
               >Uredi objavu</a
             >
-            <button id="post-delete" class="btn btn--secondary" type="button">
+            <button
+              id="post-delete"
+              class="btn btn--secondary admin-only"
+              type="button"
+              aria-hidden="true"
+            >
               Izbriši objavu
             </button>
             <a id="post-back" class="post-detail__back-link" href="index.html"
@@ -222,5 +238,7 @@
     <script src="../scripts/main.js"></script>
     <script src="../scripts/config.js"></script>
     <script src="../scripts/blog.js"></script>
+    <!-- Centralizirana provjera/otkrivanje admin elemenata -->
+    <script src="../scripts/admin-guard.js"></script>
   </body>
 </html>
