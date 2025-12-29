@@ -16,6 +16,13 @@
       href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap"
       rel="stylesheet"
     />
+    <script>
+      try {
+        if (sessionStorage.getItem("svz_preloader_seen") === "1") {
+          document.documentElement.classList.add("preloader-skip");
+        }
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <!-- Preloader overlay -->
@@ -38,9 +45,13 @@
           <span class="preloader__word" style="--i: 3">Zdravlja!</span>
         </div>
 
-        <div class="preloader__logo" aria-hidden="true">
+        <div
+          class="preloader__logo"
+          data-svg-src="images/logo/animation_logo.svg"
+          aria-hidden="true"
+        >
           <img
-            src="images/logo/SZ_simbol_transparent.png"
+            src="images/logo/animation_logo.svg"
             alt="Svijet Zdravlja simbol"
           />
         </div>

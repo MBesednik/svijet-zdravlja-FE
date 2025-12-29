@@ -72,12 +72,16 @@
           <p class="blog__eyebrow">Blog</p>
           <h1 id="post-title">Učitavanje objave...</h1>
           <div id="post-meta" class="post-detail__meta"></div>
-          <img
-            id="post-hero"
-            class="post-detail__hero"
-            alt="Naslovna slika objave"
-            hidden
-          />
+          <div id="post-hero-wrap" class="post-detail__hero-wrap skeleton">
+            <img
+              id="post-hero"
+              class="post-detail__hero"
+              alt="Naslovna slika objave"
+              loading="lazy"
+              width="1200"
+              height="675"
+            />
+          </div>
           <section id="post-content" class="post-detail__content"></section>
           <div class="post-detail__actions">
             <!-- Sakrij ove akcije po defaultu; prikaži samo admin -->

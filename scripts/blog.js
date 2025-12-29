@@ -806,6 +806,7 @@
     }
     const titleEl = document.getElementById("post-title");
     const hero = document.getElementById("post-hero");
+    const heroWrap = document.getElementById("post-hero-wrap");
     const meta = document.getElementById("post-meta");
     const content = document.getElementById("post-content");
     const editLink = document.getElementById("post-edit");
@@ -860,17 +861,35 @@
     document.title = post.title + " | Svijet Zdravlja";
 
     if (hero) {
+      hero.classList.remove("is-loaded");
+      if (heroWrap) {
+        heroWrap.classList.remove("is-hidden");
+        heroWrap.classList.add("skeleton");
+      }
       // prefer hero_media.storage_path (backend), fallback to featuredImage (local storage)
       const heroSrc =
         (post.hero_media && post.hero_media.storage_path) ||
         post.featuredImage ||
         "";
       if (heroSrc) {
+        hero.onload = function () {
+          hero.classList.add("is-loaded");
+          if (heroWrap) {
+            heroWrap.classList.remove("skeleton");
+          }
+        };
+        hero.onerror = function () {
+          hero.classList.remove("is-loaded");
+          if (heroWrap) {
+            heroWrap.classList.add("is-hidden");
+          }
+        };
         hero.src = heroSrc;
         hero.alt = post.title || "Naslovna slika objave";
-        hero.hidden = false;
       } else {
-        hero.hidden = true;
+        if (heroWrap) {
+          heroWrap.classList.add("is-hidden");
+        }
         hero.removeAttribute("src");
       }
     }

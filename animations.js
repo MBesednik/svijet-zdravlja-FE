@@ -107,25 +107,26 @@ document.addEventListener("DOMContentLoaded", function () {
 // Čekaj da se stranica učita
 document.addEventListener("DOMContentLoaded", function () {
   // Selektiraj elemente za animaciju SAMO nakon hero sekcije
-  const elementsToAnimate = document.querySelectorAll(`
-    .about-section h2,
-    .about-section p,
-    .about-section .badge,
-    .about-section h3,
-    .about-section .intro-text,
-    .about-section .feature-item,
-    .about-section img,
-    .services-section .section-title,
-    .services-section .section-subtitle,
-    .service-card,
-    .btn-primary,
-    .featured-posts__header h2,
-    .featured-posts__header p,
-    .featured-posts__header .blog__eyebrow,
-    .post-list,
-    .featured-posts .btn,
-
-  `);
+  const elementsToAnimate = document.querySelectorAll(
+    [
+      ".about-section h2",
+      ".about-section p",
+      ".about-section .badge",
+      ".about-section h3",
+      ".about-section .intro-text",
+      ".about-section .feature-item",
+      ".about-section img",
+      ".services-section .section-title",
+      ".services-section .section-subtitle",
+      ".service-card",
+      ".btn-primary",
+      ".featured-posts__header h2",
+      ".featured-posts__header p",
+      ".featured-posts__header .blog__eyebrow",
+      ".post-list",
+      ".featured-posts .btn",
+    ].join(", ")
+  );
 
   elementsToAnimate.forEach((element) => {
     element.classList.add("scroll-animate");

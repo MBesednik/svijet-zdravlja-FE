@@ -1121,10 +1121,9 @@ body {
   background-color: #f9faf8;
 }
 .post-page__container {
-  max-width: 1200px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 0 1.5rem;
-  max-width: 800px;
+  padding: 0 clamp(1rem, 4vw, 3rem);
 }
 
 .post-detail {
@@ -1136,11 +1135,49 @@ body {
   flex-direction: column;
   gap: 1.5rem;
 }
+.post-detail__hero-wrap {
+  position: relative;
+  width: 100%;
+  height: 600px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f0f2ec;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.post-detail__hero-wrap.skeleton::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    rgba(240, 242, 236, 0.9) 8%,
+    rgba(228, 233, 223, 0.8) 18%,
+    rgba(240, 242, 236, 0.9) 33%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+.post-detail__hero-wrap.is-hidden {
+  display: none;
+}
 .post-detail__hero {
   width: 100%;
-  max-height: 420px;
+  height: 100%;
   object-fit: cover;
   border-radius: 8px;
+  display: block;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.post-detail__hero.is-loaded {
+  opacity: 1;
+}
+@keyframes shimmer {
+  to {
+    background-position-x: -200%;
+  }
 }
 .post-detail__meta {
   font-size: 0.875rem;
@@ -1364,6 +1401,10 @@ body {
   pointer-events: none;
 }
 
+html.preloader-skip #preloader {
+  display: none !important;
+}
+
 .preloader__content {
   display: flex;
   flex-direction: column;
@@ -1371,12 +1412,17 @@ body {
 }
 
 .preloader__text {
-  /* makni font-family i povecaj velicinu teksta */
   font-size: 3.5rem;
   font-weight: 700;
   letter-spacing: 0.02em;
   margin-bottom: 2.8rem;
   justify-content: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  text-align: center;
+  white-space: normal !important;
+  line-height: 1.1;
   color: rgb(61, 74, 44);
 }
 
@@ -1406,6 +1452,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  color: #3d4a2c;
 }
 
 .preloader__logo img {
@@ -1414,9 +1461,67 @@ body {
   display: block;
 }
 
+.preloader__logo svg {
+  width: 230px;
+  height: auto;
+  display: block;
+}
+
+.preloader__logo-path {
+  stroke: var(--stroke-color, currentColor);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: var(--path-length, 1200);
+  stroke-dashoffset: var(--path-length, 1200);
+  fill: transparent;
+  animation: logoDraw 3s ease forwards, logoFill 0.6s ease forwards;
+  animation-delay: var(--path-delay, 0s), calc(var(--path-delay, 0s) + 3s);
+}
+
+.preloader__logo.logo-visible .preloader__logo-path {
+  opacity: 1;
+}
+
+@keyframes logoDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes logoFill {
+  to {
+    fill: var(--path-fill, currentColor);
+    stroke-opacity: 0.25;
+  }
+}
+
 .preloader.logo-visible .preloader__logo {
   opacity: 1;
   transform: translateY(0) scale(1);
+}
+
+/* Responsive preloader sizing */
+@media (max-width: 768px) {
+  .preloader__text {
+    font-size: 2.6rem;
+    text-align: center;
+  }
+  .preloader__logo img,
+  .preloader__logo svg {
+    width: 180px;
+  }
+}
+
+@media (max-width: 480px) {
+  .preloader__text {
+    font-size: 2.1rem;
+    line-height: 1.1;
+  }
+  .preloader__logo img,
+  .preloader__logo svg {
+    width: 150px;
+  }
 }
 
 /* ============================================
@@ -1436,7 +1541,8 @@ body {
 .scroll-animate-left {
   opacity: 0;
   transform: translateX(-60px);
-  transition: opacity 0.8s cubic-bezier(0.4,0,0.2,1), transform 0.8s cubic-bezier(0.4,0,0.2,1);
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .scroll-animate-left.visible {
   opacity: 1;
@@ -1447,7 +1553,8 @@ body {
 .scroll-animate-right {
   opacity: 0;
   transform: translateX(60px);
-  transition: opacity 0.8s cubic-bezier(0.4,0,0.2,1), transform 0.8s cubic-bezier(0.4,0,0.2,1);
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .scroll-animate-right.visible {
   opacity: 1;
