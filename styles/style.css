@@ -1354,7 +1354,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.6s cubic-bezier(.4,0,.2,1);
+  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   opacity: 1;
   pointer-events: all;
 }
@@ -1384,7 +1384,7 @@ body {
   display: inline-block;
   opacity: 0;
   transform: translateY(60px);
-  animation: preloaderWordUp 0.6s cubic-bezier(.4,0,.2,1) forwards;
+  animation: preloaderWordUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   animation-delay: calc(var(--i) * 0.35s);
   color: rgb(61, 74, 44);
 }
@@ -1399,7 +1399,8 @@ body {
 .preloader__logo {
   opacity: 0;
   transform: translateY(40px) scale(0.95);
-  transition: opacity 0.6s cubic-bezier(.4,0,.2,1), transform 0.6s cubic-bezier(.4,0,.2,1);
+  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: opacity, transform;
   /* Center logo */
   display: flex;
@@ -1416,4 +1417,63 @@ body {
 .preloader.logo-visible .preloader__logo {
   opacity: 1;
   transform: translateY(0) scale(1);
+}
+
+/* ============================================
+   SCROLL ANIMATIONS - Slide Up from Bottom
+   ============================================ */
+.scroll-animate {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+.scroll-animate.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Slide s lijeva na desno */
+.scroll-animate-left {
+  opacity: 0;
+  transform: translateX(-60px);
+  transition: opacity 0.8s cubic-bezier(0.4,0,0.2,1), transform 0.8s cubic-bezier(0.4,0,0.2,1);
+}
+.scroll-animate-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Slide s desna na lijevo */
+.scroll-animate-right {
+  opacity: 0;
+  transform: translateX(60px);
+  transition: opacity 0.8s cubic-bezier(0.4,0,0.2,1), transform 0.8s cubic-bezier(0.4,0,0.2,1);
+}
+.scroll-animate-right.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Responsive - brža animacija na mobilnom */
+@media (max-width: 767px) {
+  .scroll-animate {
+    transform: translateY(30px);
+    transition-duration: 0.6s;
+  }
+  .scroll-animate-left,
+  .scroll-animate-right {
+    transform: translateX(30px);
+    transition-duration: 0.6s;
+  }
+}
+
+/* Pristupačnost - isključi animacije za korisnike koji to preferiraju */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-animate,
+  .scroll-animate-left,
+  .scroll-animate-right {
+    transition: none;
+    opacity: 1;
+    transform: none;
+  }
 }

@@ -103,3 +103,132 @@ document.addEventListener("DOMContentLoaded", function () {
     observer.observe(element);
   });
 });
+
+// Čekaj da se stranica učita
+document.addEventListener("DOMContentLoaded", function () {
+  // Selektiraj elemente za animaciju SAMO nakon hero sekcije
+  const elementsToAnimate = document.querySelectorAll(`
+    .about-section h2,
+    .about-section p,
+    .about-section .badge,
+    .about-section h3,
+    .about-section .intro-text,
+    .about-section .feature-item,
+    .about-section img,
+    .services-section .section-title,
+    .services-section .section-subtitle,
+    .service-card,
+    .btn-primary,
+    .featured-posts__header h2,
+    .featured-posts__header p,
+    .featured-posts__header .blog__eyebrow,
+    .post-list,
+    .featured-posts .btn,
+
+  `);
+
+  elementsToAnimate.forEach((element) => {
+    element.classList.add("scroll-animate");
+    element.style.transitionDelay = "";
+  });
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    {
+      threshold: 0.15,
+      rootMargin: "0px 0px -100px 0px",
+    }
+  );
+
+  elementsToAnimate.forEach((element) => {
+    observer.observe(element);
+  });
+});
+
+// Čekaj da se stranica učita
+document.addEventListener("DOMContentLoaded", function () {
+  // Selektiraj .service-card i .services-grid za animaciju
+  const elementsToAnimate = document.querySelectorAll(
+    ".services-grid, .service-card"
+  );
+
+  elementsToAnimate.forEach((element) => {
+    element.classList.add("scroll-animate");
+    element.style.transitionDelay = "";
+  });
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    {
+      threshold: 0.15,
+      rootMargin: "0px 0px -100px 0px",
+    }
+  );
+
+  elementsToAnimate.forEach((element) => {
+    observer.observe(element);
+  });
+});
+
+// Čekaj da se stranica učita
+document.addEventListener("DOMContentLoaded", function () {
+  // Slide s lijeva na desno: O NAMA label
+  const label = document.querySelector(".about-section .hero__label");
+  if (label) {
+    label.classList.add("scroll-animate-left");
+  }
+
+  // Slide s desna na lijevo: slika u about sekciji
+  const aboutImage = document.querySelector(".about-section .about-image");
+  if (aboutImage) {
+    aboutImage.classList.add("scroll-animate-right");
+  }
+
+  // Slide up: usluge grid i kartice
+  const elementsToAnimate = document.querySelectorAll(
+    ".services-grid, .service-card"
+  );
+  elementsToAnimate.forEach((element) => {
+    element.classList.add("scroll-animate");
+    element.style.transitionDelay = "";
+  });
+
+  // Observer za sve animacije
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    {
+      threshold: 0.15,
+      rootMargin: "0px 0px -100px 0px",
+    }
+  );
+
+  // Promatraj labelu i sliku
+  if (label) observer.observe(label);
+  if (aboutImage) observer.observe(aboutImage);
+
+  // Promatraj usluge grid i kartice
+  elementsToAnimate.forEach((element) => {
+    observer.observe(element);
+  });
+});
