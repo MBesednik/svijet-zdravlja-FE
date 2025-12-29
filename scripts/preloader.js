@@ -37,4 +37,20 @@
   } else {
     window.addEventListener("load", initPreloader);
   }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const preloader = document.getElementById("preloader");
+    if (!preloader) return;
+
+    // Show logo after words animate in
+    setTimeout(() => {
+      preloader.classList.add("logo-visible");
+    }, 1400);
+
+    // Hide preloader after 3.5s
+    setTimeout(() => {
+      preloader.classList.add("hide");
+      preloader.setAttribute("aria-hidden", "true");
+    }, 3500);
+  });
 })();

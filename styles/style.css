@@ -1344,3 +1344,76 @@ body {
     margin: 0;
   }
 }
+
+/* === PRELOADER STYLES === */
+.preloader {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.6s cubic-bezier(.4,0,.2,1);
+  opacity: 1;
+  pointer-events: all;
+}
+
+.preloader.hide {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.preloader__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.preloader__text {
+  /* makni font-family i povecaj velicinu teksta */
+  font-size: 3.5rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin-bottom: 2.8rem;
+  justify-content: center;
+  color: rgb(61, 74, 44);
+}
+
+.preloader__word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(60px);
+  animation: preloaderWordUp 0.6s cubic-bezier(.4,0,.2,1) forwards;
+  animation-delay: calc(var(--i) * 0.35s);
+  color: rgb(61, 74, 44);
+}
+
+@keyframes preloaderWordUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.preloader__logo {
+  opacity: 0;
+  transform: translateY(40px) scale(0.95);
+  transition: opacity 0.6s cubic-bezier(.4,0,.2,1), transform 0.6s cubic-bezier(.4,0,.2,1);
+  will-change: opacity, transform;
+  /* Center logo */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.preloader__logo img {
+  width: 230px;
+  height: auto;
+  display: block;
+}
+
+.preloader.logo-visible .preloader__logo {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
