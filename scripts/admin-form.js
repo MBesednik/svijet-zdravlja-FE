@@ -526,7 +526,6 @@
         document.getElementById("post-meta-title").value.trim() || null,
       meta_description:
         document.getElementById("post-meta-description").value.trim() || null,
-      lang: document.getElementById("post-lang").value,
       category_ids: selectedCategories
         .map((c) => c.id)
         .filter((id) => id != null),
@@ -816,7 +815,6 @@
         currentPost.meta_title || "";
       document.getElementById("post-meta-description").value =
         currentPost.meta_description || "";
-      document.getElementById("post-lang").value = currentPost.lang || "hr";
       document.getElementById("post-featured").checked =
         currentPost.is_featured || false;
 
