@@ -11,8 +11,42 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap"
       rel="stylesheet"
     />
+    <!-- Add Playfair Display for preloader -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
+    <!-- Preloader overlay -->
+    <div
+      id="preloader"
+      class="preloader"
+      role="status"
+      aria-label="Učitavanje stranice"
+      aria-hidden="false"
+    >
+      <div class="preloader__content">
+        <div
+          class="preloader__text"
+          aria-hidden="true"
+          style="white-space: nowrap"
+        >
+          <span class="preloader__word" style="--i: 0">Dobrodošli</span>
+          <span class="preloader__word" style="--i: 1">u</span>
+          <span class="preloader__word" style="--i: 2">Svijet</span>
+          <span class="preloader__word" style="--i: 3">Zdravlja!</span>
+        </div>
+
+        <div class="preloader__logo" aria-hidden="true">
+          <img
+            src="images/logo/SZ_simbol_transparent.png"
+            alt="Svijet Zdravlja simbol"
+          />
+        </div>
+      </div>
+    </div>
+
     <!-- HEADER -->
     <header class="header">
       <div class="header__container container">
@@ -348,6 +382,9 @@
         </div>
       </div>
     </footer>
+
+    <!-- Preloader script (must run before main scripts) -->
+    <script src="scripts/preloader.js" defer></script>
 
     <script src="scripts/main.js"></script>
     <script src="scripts/home-featured.js"></script>
