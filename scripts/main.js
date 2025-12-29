@@ -1,6 +1,7 @@
 // Hamburger menu toggle
 const hamburger = document.querySelector(".header__hamburger");
 const nav = document.querySelector(".header__nav");
+const navList = document.querySelector(".header__nav-list");
 const body = document.body;
 
 // Kreiranje overlay elementa
@@ -52,3 +53,58 @@ window.addEventListener("resize", () => {
     toggleMenu();
   }
 });
+
+function hasAdminToken() {
+  let token = null;
+  try {
+    token = localStorage.getItem("svz_admin_token");
+  } catch (e) {
+    token = null;
+  }
+  if (
+    token &&
+    token !== "null" &&
+    token !== "undefined" &&
+    String(token).trim() !== ""
+  ) {
+    return true;
+  }
+  const cookieMatch = document.cookie.match(
+    /(?:^|; )svz_admin_token=([^;]+)/i
+  );
+  return !!(cookieMatch && cookieMatch[1]);
+}
+
+function removeAdminToken() {
+  try {
+    localStorage.removeItem("svz_admin_token");
+  } catch (e) {}
+  document.cookie =
+    "svz_admin_token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+}
+
+function addLogoutNavItem() {
+  if (!navList || !hasAdminToken()) return;
+  if (navList.querySelector(".js-logout-nav")) return;
+
+  const item = document.createElement("li");
+  item.className = "header__nav-item";
+
+  const btn = document.createElement("a");
+  btn.href = "#";
+  btn.className = "header__nav-link js-logout-nav";
+  btn.textContent = "Odjavi";
+  btn.addEventListener("click", (e) => {
+    e.preventDefault();
+    removeAdminToken();
+    if (nav && nav.classList.contains("is-active")) {
+      toggleMenu();
+    }
+    window.location.href = "/index.html";
+  });
+
+  item.appendChild(btn);
+  navList.appendChild(item);
+}
+
+addLogoutNavItem();

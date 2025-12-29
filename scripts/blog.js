@@ -8,6 +8,9 @@
     'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="600" height="400" fill="%23f4f6f2"/><text x="50%" y="50%" fill="%235a5f56" font-size="24" font-family="Inter,Arial,sans-serif" text-anchor="middle">Svijet Zdravlja</text></svg>';
   const WINDOW_STATE_PREFIX = "SVZ_BLOG::";
   const SESSION_CACHE_KEY = "svz_blog_posts_cache";
+  const ADMIN_API_BASE = window.getSVZAdminApiBase
+    ? window.getSVZAdminApiBase()
+    : null;
 
   function readSessionCache() {
     try {
@@ -101,6 +104,18 @@
     writeToWindowState(posts);
   }
 
+  function clearPostsCache() {
+    try {
+      window.localStorage.removeItem(SVZ_STORAGE_KEY);
+    } catch (e) {}
+    try {
+      window.sessionStorage.removeItem(SESSION_CACHE_KEY);
+    } catch (e) {}
+    try {
+      window.name = "";
+    } catch (e) {}
+  }
+
   function generateId() {
     return (
       Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8)
@@ -158,6 +173,14 @@
   const DEFAULT_SORT_OPTIONS = [];
   let sortAliases = {};
 
+  function getAdminToken() {
+    try {
+      return localStorage.getItem("svz_admin_token");
+    } catch (e) {
+      return null;
+    }
+  }
+
   function normalizeApiPost(p) {
     if (!p || typeof p !== "object") {
       return null;
@@ -213,8 +236,18 @@
 
   async function fetchPostsFromApi(filters) {
     try {
+      const token = getAdminToken();
+      const headers = { Accept: "application/json" };
+      if (
+        token &&
+        token !== "null" &&
+        token !== "undefined" &&
+        String(token).trim() !== ""
+      ) {
+        headers.Authorization = "Bearer " + token;
+      }
       const resp = await fetch(API_BASE + "/posts" + buildPostsQuery(filters), {
-        headers: { Accept: "application/json" },
+        headers: headers,
       });
       if (!resp.ok) {
         console.warn("API posts fetch failed", resp.status);
@@ -869,13 +902,25 @@
         const sorted = post.chapters.slice().sort(function (a, b) {
           return (a.position || 0) - (b.position || 0);
         });
+
+        function appendChapterTitle(target, ch) {
+          if (ch && ch.title) {
+            const heading = document.createElement("h3");
+            heading.className = "post-chapter__title";
+            heading.textContent = ch.title;
+            target.appendChild(heading);
+          }
+        }
+
         sorted.forEach(function (ch) {
           if (ch.type === "TEXT") {
+            appendChapterTitle(content, ch);
             const p = document.createElement("p");
             p.textContent = ch.text_content || "";
             content.appendChild(p);
           } else if (ch.type === "IMAGE") {
             const figure = document.createElement("figure");
+            appendChapterTitle(figure, ch);
             const img = document.createElement("img");
             img.src =
               (ch.media && ch.media.storage_path) ||
@@ -894,6 +939,7 @@
             content.appendChild(figure);
           } else if (ch.type === "VIDEO") {
             if (ch.external_video_url) {
+              appendChapterTitle(content, ch);
               // try to embed YouTube links
               const youtubeMatch = ch.external_video_url.match(
                 /(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})/i
@@ -1296,14 +1342,43 @@
       });
 
     if (deleteBtn) {
-      deleteBtn.addEventListener("click", function () {
+      deleteBtn.addEventListener("click", async function () {
         const id = article.dataset.id;
-        if (!id) {
+        if (!id || !ADMIN_API_BASE) {
           return;
         }
-        const deleted = deletePost(id);
-        if (deleted) {
-          window.location.href = "index.html?status=deleted";
+        const token = getAdminToken();
+        if (!token) {
+          alert("Niste prijavljeni kao administrator.");
+          return;
+        }
+        const confirmed = window.confirm(
+          "Jeste li sigurni da želite izbrisati ovu objavu?"
+        );
+        if (!confirmed) return;
+
+        deleteBtn.disabled = true;
+        deleteBtn.textContent = "Brisanje...";
+        try {
+          const resp = await fetch(`${ADMIN_API_BASE}/posts/${id}`, {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (!resp.ok) {
+            const errText = await resp.text();
+            throw new Error(
+              errText || "Brisanje nije uspjelo. Pokušajte ponovno."
+            );
+          }
+          clearPostsCache();
+          window.location.href = "blog.html?status=deleted";
+        } catch (err) {
+          alert(err.message || "Brisanje nije uspjelo.");
+        } finally {
+          deleteBtn.disabled = false;
+          deleteBtn.textContent = "Izbriši objavu";
         }
       });
     }

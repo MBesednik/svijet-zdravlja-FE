@@ -66,6 +66,18 @@
     console.error(message);
   }
 
+  function toggleFormLoader(show) {
+    const loader = document.getElementById("post-form-loader");
+    if (!loader) return;
+    if (show) {
+      loader.classList.remove("hidden");
+      loader.setAttribute("aria-hidden", "false");
+    } else {
+      loader.classList.add("hidden");
+      loader.setAttribute("aria-hidden", "true");
+    }
+  }
+
   /**
    * Čita datoteku kao Data URL
    */
@@ -348,6 +360,10 @@
           }">Ukloni</button>
         </div>
 
+        <input type="text" placeholder="Tekst naslova poglavlja (opcionalno)" class="chapter-title" data-id="${
+          ch.id
+        }" value="${ch.title || ""}">
+
         ${
           ch.type === "TEXT"
             ? `
@@ -361,9 +377,6 @@
         ${
           ch.type === "IMAGE"
             ? `
-          <input type="text" placeholder="Tekst naslova poglavlja (opcionalno)" class="chapter-title" data-id="${
-            ch.id
-          }" value="${ch.title || ""}">
           <div class="chapter-image-wrapper">
             ${
               getChapterImagePreviewUrl(ch)
@@ -726,6 +739,7 @@
 
     if (!validateForm()) return;
 
+    toggleFormLoader(true);
     showFormStatus("Slanje objave...", "info");
 
     try {
@@ -762,12 +776,12 @@
       );
 
       setTimeout(() => {
-        window.location.href = `index.html?status=${
-          currentPost ? "updated" : "created"
-        }&id=${result.id}`;
+        window.location.replace(`post.html?id=${result.id}`);
       }, 1500);
     } catch (error) {
       showError(error.message);
+    } finally {
+      toggleFormLoader(false);
     }
   }
 
