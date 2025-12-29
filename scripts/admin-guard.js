@@ -23,10 +23,6 @@
   function enforceAdminAccess(redirectTo) {
     if (isAdmin()) return true;
     var to = redirectTo || "/blog/blog.html";
-    try {
-      // kratka poruka korisniku prije preusmjeravanja
-      alert("Pristup odbijen. Morate biti prijavljeni kao administrator.");
-    } catch (e) {}
     window.location.replace(to);
     return false;
   }

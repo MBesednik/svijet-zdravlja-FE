@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="hr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>404 - Stranica nije pronađena</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles/style.css" />
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: #f9faf8;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .notfound {
+        width: 100%;
+        text-align: center;
+      }
+      .notfound__logo {
+        display: block;
+        margin: 0 auto 2.5rem auto;
+        width: 160px;
+        height: 160px;
+        opacity: 0.97;
+      }
+      .notfound__title {
+        font-size: 8rem;
+        font-weight: 900;
+        color: #3d4a2c;
+        margin-bottom: 0.5rem;
+        letter-spacing: -3px;
+        line-height: 1;
+      }
+      .notfound__desc {
+        font-size: 2.1rem;
+        color: #3d4a2c;
+        margin-bottom: 3rem;
+        font-weight: 500;
+        line-height: 1.4;
+      }
+      .notfound__link {
+        font-size: 1.3rem;
+        padding: 1em 2.5em;
+      }
+      @media (max-width: 600px) {
+        .notfound__title {
+          font-size: 4.5rem;
+        }
+        .notfound__desc {
+          font-size: 1.1rem;
+        }
+        .notfound__logo {
+          width: 90px;
+          height: 90px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="notfound">
+      <img
+        src="images/logo/SZ_simbol_transparent.png"
+        alt="Svijet Zdravlja logo"
+        class="notfound__logo"
+      />
+      <div class="notfound__title">404</div>
+      <div class="notfound__desc">
+        Stranica nije pronađena ili nemate dopuštenje za pristup.
+      </div>
+      <a href="blog/blog.html" class="btn btn--secondary notfound__link"
+        >Natrag na blogove</a
+      >
+    </div>
+  </body>
+</html>

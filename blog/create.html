@@ -20,7 +20,7 @@
       // Pozivemo zaštitu odmah nakon učitavanja
       document.addEventListener("DOMContentLoaded", function () {
         if (window.adminGuard) {
-          window.adminGuard.enforceAdminAccess("/blog/blog.html");
+          window.adminGuard.enforceAdminAccess("../404.html");
         }
       });
     </script>
@@ -449,11 +449,6 @@
 
     <script src="../scripts/config.js"></script>
     <script src="../scripts/main.js"></script>
-    <script>
-      // Explicit backend and test admin token for local testing only
-      window.__SVZ_ADMIN_TOKEN__ =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NjM1MDkwMzAsImV4cCI6MTc2MzUxMjYzMH0.BHNZMG0KBDOsvhwfC6hvrWGNJNkzqHF7hViTBy13IN4";
-    </script>
     <script src="../scripts/admin-form.js"></script>
   </body>
 </html>
