@@ -40,6 +40,66 @@
   let pendingCategorySelection = null;
   let chapters = [];
 
+  function clearAdminSession() {
+    try {
+      localStorage.removeItem("svz_admin_token");
+    } catch (e) {}
+    authToken = null;
+  }
+
+  async function refreshAdminToken() {
+    if (!authToken) return null;
+    try {
+      const resp = await fetch(`${API_BASE_URL}/auth/refresh`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+      if (!resp.ok) {
+        clearAdminSession();
+        return null;
+      }
+      const data = await resp.json().catch(() => ({}));
+      const newToken = data.token || data.access_token || data.accessToken;
+      if (!newToken) {
+        clearAdminSession();
+        return null;
+      }
+      authToken = newToken;
+      try {
+        localStorage.setItem("svz_admin_token", newToken);
+      } catch (e) {}
+      return newToken;
+    } catch (e) {
+      clearAdminSession();
+      return null;
+    }
+  }
+
+  async function adminFetch(url, options = {}, retry = true) {
+    const opts = Object.assign({ headers: {} }, options);
+    const headers = new Headers(opts.headers || {});
+    if (!headers.has("Authorization") && authToken) {
+      headers.set("Authorization", `Bearer ${authToken}`);
+    }
+    if (!headers.has("Accept")) headers.set("Accept", "application/json");
+    opts.headers = headers;
+
+    const response = await fetch(url, opts);
+    if (response.status === 401 && retry) {
+      const newToken = await refreshAdminToken();
+      if (newToken) {
+        headers.set("Authorization", `Bearer ${newToken}`);
+        return adminFetch(url, { ...opts, headers }, false);
+      }
+      clearAdminSession();
+      throw new Error("Sesija je istekla. Ponovno se prijavite.");
+    }
+    return response;
+  }
+
   /**
    * Prikazuje poruku statusa forme
    */
@@ -111,11 +171,7 @@
    */
   async function loadCategories() {
     try {
-      const response = await fetch(`${API_BASE_URL}/categories`, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
+      const response = await adminFetch(`${API_BASE_URL}/categories`);
 
       if (!response.ok) throw new Error("Učitavanje kategorija nije uspjelo");
 
@@ -757,11 +813,15 @@
         headers["Content-Type"] = "application/json";
       }
 
-      const response = await fetch(url, {
-        method: method,
-        headers: headers,
-        body: body,
-      });
+      const response = await adminFetch(
+        url,
+        {
+          method: method,
+          headers: headers,
+          body: body,
+        },
+        true
+      );
 
       if (!response.ok) {
         const error = await response.json();
@@ -809,11 +869,7 @@
     try {
       showFormStatus("Učitavanje objave...", "info");
 
-      const response = await fetch(`${API_BASE_URL}/posts/${postId}`, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
+      const response = await adminFetch(`${API_BASE_URL}/posts/${postId}`);
 
       if (!response.ok) throw new Error("Objava nije pronađena");
 

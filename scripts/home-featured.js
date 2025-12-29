@@ -1,18 +1,8 @@
 (function () {
   "use strict";
 
-  const STORAGE_KEY = "svz_blog_posts";
   const FALLBACK_IMAGE =
     'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="600" height="400" fill="%23f4f6f2"/><text x="50%" y="50%" fill="%235a5f56" font-size="24" font-family="Inter,Arial,sans-serif" text-anchor="middle">Svijet Zdravlja</text></svg>';
-
-  function safeParse(raw) {
-    try {
-      const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (e) {
-      return [];
-    }
-  }
 
   function formatDate(value) {
     if (!value) return "";
@@ -27,9 +17,41 @@
     }
   }
 
-  function getStoredPosts() {
-    const raw = window.localStorage.getItem(STORAGE_KEY) || "";
-    return safeParse(raw);
+  function normalizePost(p) {
+    if (!p || typeof p !== "object") return null;
+    return {
+      id: p.id || p._id || p.slug || "",
+      slug: p.slug || "",
+      title: p.title || "",
+      excerpt: p.summary || p.excerpt || "",
+      createdAt: p.createdAt || p.published_at || p.created_at,
+      categories: Array.isArray(p.categories)
+        ? p.categories.map(function (c) {
+            return c.name || c;
+          })
+        : [],
+      featuredImage:
+        (p.hero_media && p.hero_media.storage_path) ||
+        p.featuredImage ||
+        p.hero_media ||
+        "",
+    };
+  }
+
+  async function fetchFeaturedFromApi() {
+    const apiBase = window.getSVZApiBase();
+    const resp = await fetch(apiBase + "/posts/featured", {
+      headers: { Accept: "application/json" },
+    });
+    if (!resp.ok) throw new Error("Featured fetch failed");
+    const data = await resp.json();
+    if (!Array.isArray(data)) return [];
+    return data
+      .map(normalizePost)
+      .filter(Boolean)
+      .filter(function (p) {
+        return p.title;
+      });
   }
 
   function renderFeatured(container, posts) {
@@ -98,32 +120,16 @@
   }
 
   // Main
-  try {
-    const container = document.getElementById("featured-posts");
-    if (!container) return;
+  (async function () {
+    try {
+      const container = document.getElementById("featured-posts");
+      if (!container) return;
 
-    const posts = getStoredPosts()
-      .filter(function (p) {
-        if (!p) return false;
-        // accept both camelCase and snake_case names
-        const isFeatured = p.is_featured === true || p.isFeatured === true;
-        const isPublished = p.published === true || p.status === "PUBLISHED";
-        return isFeatured && isPublished;
-      })
-      .sort(function (a, b) {
-        const ta = new Date(
-          a.createdAt || a.published_at || a.created_at || 0
-        ).getTime();
-        const tb = new Date(
-          b.createdAt || b.published_at || b.created_at || 0
-        ).getTime();
-        return tb - ta;
-      })
-      .slice(0, 3);
-
-    renderFeatured(container, posts);
-  } catch (err) {
-    // Fail silently — homepage should stay up even if posts are malformed
-    console.warn("Featured posts render failed:", err);
-  }
+      const posts = await fetchFeaturedFromApi();
+      renderFeatured(container, posts);
+    } catch (err) {
+      // Fail silently — homepage should stay up even if posts are malformed
+      console.warn("Featured posts render failed:", err);
+    }
+  })();
 })();

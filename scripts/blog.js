@@ -172,13 +172,78 @@
   const API_BASE = window.getSVZApiBase();
   const DEFAULT_SORT_OPTIONS = [];
   let sortAliases = {};
+  let adminTokenCache = null;
 
   function getAdminToken() {
     try {
-      return localStorage.getItem("svz_admin_token");
+      if (adminTokenCache) return adminTokenCache;
+      const t = localStorage.getItem("svz_admin_token");
+      adminTokenCache = t;
+      return t;
     } catch (e) {
       return null;
     }
+  }
+
+  function clearAdminToken() {
+    adminTokenCache = null;
+    try {
+      localStorage.removeItem("svz_admin_token");
+    } catch (e) {}
+  }
+
+  async function refreshAdminToken() {
+    const token = getAdminToken();
+    if (!token || !ADMIN_API_BASE) return null;
+    try {
+      const resp = await fetch(`${ADMIN_API_BASE}/auth/refresh`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!resp.ok) {
+        clearAdminToken();
+        return null;
+      }
+      const data = await resp.json().catch(() => ({}));
+      const newToken = data.token || data.access_token || data.accessToken;
+      if (!newToken) {
+        clearAdminToken();
+        return null;
+      }
+      adminTokenCache = newToken;
+      try {
+        localStorage.setItem("svz_admin_token", newToken);
+      } catch (e) {}
+      return newToken;
+    } catch (e) {
+      clearAdminToken();
+      return null;
+    }
+  }
+
+  async function adminFetch(url, options = {}, retry = true) {
+    const opts = Object.assign({ headers: {} }, options);
+    const headers = new Headers(opts.headers || {});
+    const token = getAdminToken();
+    if (token && !headers.has("Authorization")) {
+      headers.set("Authorization", `Bearer ${token}`);
+    }
+    if (!headers.has("Accept")) headers.set("Accept", "application/json");
+    opts.headers = headers;
+
+    const resp = await fetch(url, opts);
+    if (resp.status === 401 && retry) {
+      const newToken = await refreshAdminToken();
+      if (newToken) {
+        headers.set("Authorization", `Bearer ${newToken}`);
+        return adminFetch(url, { ...opts, headers }, false);
+      }
+      clearAdminToken();
+    }
+    return resp;
   }
 
   function normalizeApiPost(p) {
@@ -1379,12 +1444,13 @@
         deleteBtn.disabled = true;
         deleteBtn.textContent = "Brisanje...";
         try {
-          const resp = await fetch(`${ADMIN_API_BASE}/posts/${id}`, {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${token}`,
+          const resp = await adminFetch(
+            `${ADMIN_API_BASE}/posts/${id}`,
+            {
+              method: "DELETE",
             },
-          });
+            true
+          );
           if (!resp.ok) {
             const errText = await resp.text();
             throw new Error(
