@@ -179,6 +179,7 @@
         (p.author && p.author.display_name) || p.author || "Svijet Zdravlja",
       createdAt: p.published_at || p.created_at || new Date().toISOString(),
       updatedAt: p.updated_at || p.updatedAt || p.created_at,
+      status: p.status,
       categories: Array.isArray(p.categories)
         ? p.categories.map(function (c) {
             return c.name || c;
@@ -468,9 +469,11 @@
       title: title,
       excerpt: createExcerpt(content, raw.excerpt),
       content: content,
-      author: (raw.author && raw.author.trim()) || "Svijet Zdravlja",
+      author:
+        getAdminUserId() || (raw.author && raw.author.trim()) || "Svijet Zdravlja",
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,
+      status: raw.status || (raw.published ? "PUBLISHED" : undefined),
       categories: parseDelimited(raw.categories),
       tags: parseDelimited(raw.tags),
       featuredImage: raw.featuredImage || "",
@@ -699,29 +702,27 @@
       article.className = "post-card";
       article.dataset.id = post.id;
 
-      // Dodaj žuti obrub i badge za skice
-      if (!post.published) {
-        // Provjeri je li zakazana objava (createdAt u budućnosti)
-        const createdAtDate = new Date(post.createdAt);
-        const now = new Date();
-        if (createdAtDate > now) {
-          // Zakazana objava: plavi obrub i badge
-          article.classList.add("post-card--scheduled"); // koristi plavi obrub iz style.css
-
-          const scheduledBadge = document.createElement("span");
-          scheduledBadge.className =
-            "post-card__badge post-card__badge--scheduled"; // koristi plavi badge iz style.css
-          scheduledBadge.textContent = "Zakazano";
-          article.appendChild(scheduledBadge);
-        } else {
-          // Skica: žuti obrub i badge
-          article.classList.add("post-card--draft"); // koristi žuti obrub iz style.css
-
-          const draftBadge = document.createElement("span");
-          draftBadge.className = "post-card__badge post-card__badge--draft"; // koristi žuti badge iz style.css
-          draftBadge.textContent = "Skica";
-          article.appendChild(draftBadge);
-        }
+      // Dodaj obrub/badge prema statusu
+      if (post.status == "SCHEDULED") {
+        article.classList.add("post-card--scheduled");
+        const scheduledBadge = document.createElement("span");
+        scheduledBadge.className =
+          "post-card__badge post-card__badge--scheduled";
+        scheduledBadge.textContent = "Zakazano";
+        article.appendChild(scheduledBadge);
+      } else if (post.status == "DRAFT") {
+        article.classList.add("post-card--draft");
+        const draftBadge = document.createElement("span");
+        draftBadge.className = "post-card__badge post-card__badge--draft";
+        draftBadge.textContent = "Skica";
+        article.appendChild(draftBadge);
+      } else if (post.status == "HIDDEN" || post.status == "ARCHIVED") {
+        article.classList.add("post-card--draft");
+        const hiddenBadge = document.createElement("span");
+        hiddenBadge.className = "post-card__badge post-card__badge--draft";
+        hiddenBadge.textContent =
+          post.status === "HIDDEN" ? "Sakriveno" : "Arhivirano";
+        article.appendChild(hiddenBadge);
       }
 
       const image = document.createElement("img");
@@ -1530,7 +1531,6 @@
   });
 
   window.SVZBlog = {
-    SVZ_STORAGE_KEY: SVZ_STORAGE_KEY,
     getPosts: getPosts,
     savePosts: savePosts,
     createPost: createPost,
