@@ -97,6 +97,20 @@
     } catch (e) {}
   }
 
+  function buildAuthHeaders(base) {
+    const headers = Object.assign({ Accept: "application/json" }, base || {});
+    const token = getAdminToken();
+    if (
+      token &&
+      token !== "null" &&
+      token !== "undefined" &&
+      String(token).trim() !== ""
+    ) {
+      headers.Authorization = "Bearer " + token;
+    }
+    return headers;
+  }
+
   async function refreshAdminToken() {
     const token = getAdminToken();
     if (!token || !ADMIN_API_BASE) return null;
@@ -206,16 +220,7 @@
 
   async function fetchPostsFromApi(filters) {
     try {
-      const token = getAdminToken();
-      const headers = { Accept: "application/json" };
-      if (
-        token &&
-        token !== "null" &&
-        token !== "undefined" &&
-        String(token).trim() !== ""
-      ) {
-        headers.Authorization = "Bearer " + token;
-      }
+      const headers = buildAuthHeaders();
       const resp = await fetch(API_BASE + "/posts" + buildPostsQuery(filters), {
         headers: headers,
       });
@@ -239,11 +244,12 @@
       return null;
     }
     const path = fetchById ? "/posts/id/" : "/posts/";
+    const headers = buildAuthHeaders();
     try {
       const resp = await fetch(
         API_BASE + path + encodeURIComponent(identifier),
         {
-          headers: { Accept: "application/json" },
+          headers: headers,
         }
       );
       if (!resp.ok) {
@@ -293,7 +299,7 @@
   async function fetchSortOptionsFromApi() {
     try {
       const resp = await fetch(API_BASE + "/posts/sort-options", {
-        headers: { Accept: "application/json" },
+        headers: buildAuthHeaders(),
       });
       if (!resp.ok) {
         return null;
@@ -337,7 +343,7 @@
   async function fetchCategoriesFromApi() {
     try {
       const resp = await fetch(API_BASE + "/categories", {
-        headers: { Accept: "application/json" },
+        headers: buildAuthHeaders(),
       });
       if (!resp.ok) {
         return null;

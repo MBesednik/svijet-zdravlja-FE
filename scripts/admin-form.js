@@ -618,18 +618,17 @@
 
     if (document.getElementById("post-status").value === "SCHEDULED") {
       let raw = document.getElementById("post-scheduled-for").value;
-      // Try to parse and convert to ISO string (UTC)
-      if (raw) {
-        // If input type is datetime-local, value is 'YYYY-MM-DDTHH:mm'
-        // Convert to Date and then toISOString (which is always UTC)
-        let dt = new Date(raw);
-        if (!isNaN(dt.getTime())) {
-          payload.scheduled_for = dt.toISOString();
-        } else {
-          // fallback: send as is (backend may reject)
-          payload.scheduled_for = raw;
-        }
+      if (!raw) {
+        throw new Error("Unesite datum i vrijeme zakazivanja.");
       }
+      const dt = new Date(raw);
+      if (isNaN(dt.getTime())) {
+        throw new Error("Datum zakazivanja nije ispravan format.");
+      }
+      if (dt.getTime() <= Date.now()) {
+        throw new Error("Datum zakazivanja mora biti u budućnosti.");
+      }
+      payload.scheduled_for = dt.toISOString(); // always ISO 8601 with Z (UTC)
     }
 
     return payload;
