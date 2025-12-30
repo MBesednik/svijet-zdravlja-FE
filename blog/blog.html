@@ -87,9 +87,89 @@
       .admin-only {
         display: none !important;
       }
+
+      /* Toast styles */
+      #toast-container {
+        position: fixed;
+        top: 32px;
+        right: 32px;
+        z-index: 9999;
+        pointer-events: none;
+      }
+      .toast {
+        min-width: 280px;
+        max-width: 400px;
+        background: #fbeaea;
+        color: #b71c1c;
+        font-size: 1.15rem;
+        font-family: inherit;
+        font-weight: 600;
+        padding: 20px 36px 20px 24px;
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+        opacity: 0.98;
+        margin-bottom: 18px;
+        display: flex;
+        align-items: center;
+        position: relative;
+        transform: translateX(120%);
+        transition: transform 0.5s cubic-bezier(0.4, 1.4, 0.6, 1), opacity 0.4s;
+        pointer-events: auto;
+        border: 1.5px solid #f3bcbc;
+        overflow: hidden;
+      }
+      .toast--show {
+        transform: translateX(0);
+      }
+      .toast--hide {
+        opacity: 0;
+        transform: translateX(120%);
+      }
+      .toast__close {
+        margin-left: 18px;
+        background: none;
+        border: none;
+        color: #b71c1c;
+        font-size: 1.2em;
+        cursor: pointer;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+        pointer-events: auto;
+      }
+      .toast__close:hover {
+        opacity: 1;
+      }
+      .toast--error {
+        background: #fbeaea;
+        color: #b71c1c;
+        border: 1.5px solid #f3bcbc;
+      }
+      .toast__progress {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        height: 0;
+        width: 100%;
+        border-bottom: 4px solid #d32f2f;
+        border-radius: 0 0 16px 16px;
+        /* Animacija: s desna na lijevo */
+        transform: scaleX(1);
+        transform-origin: right; /* <-- ovo je ključno za desno-lijevo */
+        animation: toast-progress-bar 3.5s linear forwards;
+        pointer-events: none;
+      }
+      @keyframes toast-progress-bar {
+        from {
+          transform: scaleX(1);
+        }
+        to {
+          transform: scaleX(0);
+        }
+      }
     </style>
   </head>
   <body>
+    <div id="toast-container"></div>
     <header class="header">
       <div class="header__container container">
         <a href="../index.html" class="header__logo">
@@ -344,5 +424,41 @@
     <script src="../scripts/config.js"></script>
     <script src="../scripts/blog.js"></script>
     <script src="../scripts/admin-guard.js"></script>
+    <script>
+      // Toast logic for deleted blog
+      (function () {
+        function showToast(message, type = "error", duration = 3500) {
+          const container = document.getElementById("toast-container");
+          if (!container) return;
+          const toast = document.createElement("div");
+          toast.className = `toast toast--${type}`;
+          toast.innerHTML = `
+            <span>${message}</span>
+            <button class="toast__close" aria-label="Zatvori">&times;</button>
+            <div class="toast__progress"></div>
+          `;
+          container.appendChild(toast);
+          // Slide in
+          setTimeout(() => toast.classList.add("toast--show"), 10);
+          // Auto close
+          const removeToast = () => {
+            toast.classList.remove("toast--show");
+            toast.classList.add("toast--hide");
+            setTimeout(() => toast.remove(), 500);
+          };
+          setTimeout(removeToast, duration);
+          toast.querySelector(".toast__close").onclick = removeToast;
+        }
+        // Show toast if status=deleted in URL
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("status") === "deleted") {
+          showToast("Obrisali ste objavu.", "error", 3500);
+          params.delete("status");
+          const query = params.toString();
+          const url = window.location.pathname + (query ? "?" + query : "");
+          window.history.replaceState({}, "", url);
+        }
+      })();
+    </script>
   </body>
 </html>

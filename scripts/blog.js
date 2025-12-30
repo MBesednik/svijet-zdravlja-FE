@@ -472,7 +472,9 @@
       excerpt: createExcerpt(content, raw.excerpt),
       content: content,
       author:
-        getAdminUserId() || (raw.author && raw.author.trim()) || "Svijet Zdravlja",
+        getAdminUserId() ||
+        (raw.author && raw.author.trim()) ||
+        "Svijet Zdravlja",
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,
       status: raw.status || (raw.published ? "PUBLISHED" : undefined),
@@ -1182,23 +1184,20 @@
     target.className = "form-status form-status--" + type;
   }
 
-  function highlightPostCardFromParams(params) {
-    if (!params) {
-      return false;
-    }
-    const id = params.get("id");
-    if (!id) {
-      return false;
-    }
-    const card = document.querySelector('.post-card[data-id="' + id + '"]');
-    if (!card) {
-      return false;
-    }
-    card.classList.add("post-card--highlight");
-    window.setTimeout(function () {
-      card.classList.remove("post-card--highlight");
-    }, 3000);
-    return true;
+  // Toast helper
+  function showToast(message, type = "error", duration = 3500) {
+    const container = document.getElementById("toast-container");
+    if (!container) return;
+    const toast = document.createElement("div");
+    toast.className = `toast toast--${type}`;
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.classList.add("toast--hide");
+      setTimeout(() => {
+        toast.remove();
+      }, 400);
+    }, duration);
   }
 
   function showListStatusBanner(params) {
@@ -1209,6 +1208,11 @@
     if (!status) {
       return false;
     }
+    // Show only toast for deleted status, do NOT render banner
+    if (status === "deleted") {
+      showToast("Obrisali ste objavu.", "error", 3500);
+      return true;
+    }
     const container = document.querySelector(".blog__container");
     if (!container) {
       return false;
@@ -1216,14 +1220,14 @@
     var messageMap = {
       created: "Objava je uspješno spremljena.",
       updated: "Objava je ažurirana.",
-      deleted: "Objava je izbrisana.",
+      // deleted: "Objava je izbrisana.", // toast only
     };
     const message = messageMap[status];
     if (!message) {
       return false;
     }
     const banner = document.createElement("div");
-    const variant = status === "deleted" ? "warning" : "success";
+    const variant = "success";
     banner.className = "blog__status blog__status--" + variant;
     banner.textContent = message;
     container.insertBefore(banner, container.firstChild);
@@ -1350,9 +1354,9 @@
 
     // Try to refresh posts from backend API, fall back to local storage
     renderWithFallback(filters);
-    const highlightApplied = highlightPostCardFromParams(urlParams);
+    // const highlightApplied = highlightPostCardFromParams(urlParams);
     const bannerShown = showListStatusBanner(urlParams);
-    if (highlightApplied || bannerShown) {
+    if (/*highlightApplied ||*/ bannerShown) {
       clearTransientListParams(urlParams);
     }
 
