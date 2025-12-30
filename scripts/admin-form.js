@@ -617,8 +617,19 @@
     };
 
     if (document.getElementById("post-status").value === "SCHEDULED") {
-      payload.scheduled_for =
-        document.getElementById("post-scheduled-for").value;
+      let raw = document.getElementById("post-scheduled-for").value;
+      // Try to parse and convert to ISO string (UTC)
+      if (raw) {
+        // If input type is datetime-local, value is 'YYYY-MM-DDTHH:mm'
+        // Convert to Date and then toISOString (which is always UTC)
+        let dt = new Date(raw);
+        if (!isNaN(dt.getTime())) {
+          payload.scheduled_for = dt.toISOString();
+        } else {
+          // fallback: send as is (backend may reject)
+          payload.scheduled_for = raw;
+        }
+      }
     }
 
     return payload;
@@ -889,8 +900,23 @@
         currentPost.is_featured || false;
 
       if (currentPost.scheduled_for) {
-        document.getElementById("post-scheduled-for").value =
-          currentPost.scheduled_for;
+        // Convert ISO string to 'yyyy-MM-ddTHH:mm' for datetime-local input
+        const dt = new Date(currentPost.scheduled_for);
+        if (!isNaN(dt.getTime())) {
+          // Pad helper
+          const pad = (n) => n.toString().padStart(2, "0");
+          const yyyy = dt.getFullYear();
+          const MM = pad(dt.getMonth() + 1);
+          const dd = pad(dt.getDate());
+          const HH = pad(dt.getHours());
+          const mm = pad(dt.getMinutes());
+          // Format for input type="datetime-local"
+          document.getElementById(
+            "post-scheduled-for"
+          ).value = `${yyyy}-${MM}-${dd}T${HH}:${mm}`;
+        } else {
+          document.getElementById("post-scheduled-for").value = "";
+        }
         handleStatusChange("SCHEDULED");
       }
 

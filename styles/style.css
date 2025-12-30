@@ -1,3 +1,41 @@
+.post-card--scheduled {
+  border: 2px solid #4dabf7 !important;
+  box-shadow: 0 0 0 3px #e7f5ff, 0 2px 8px 0 rgba(33, 150, 243, 0.08);
+  position: relative;
+}
+
+.post-card__badge--scheduled {
+  background: #4dabf7;
+  color: #0b375a;
+  border: 1.5px solid #228be6;
+}
+.post-card--draft {
+  border: 2px solid #ffe066 !important;
+  box-shadow: 0 0 0 3px #fffbe6, 0 2px 8px 0 rgba(232, 168, 84, 0.08);
+  position: relative;
+}
+
+.post-card__badge {
+  display: inline-block;
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  z-index: 2;
+  background: #ffe066;
+  color: #7a5a00;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.25em 0.85em;
+  border-radius: 999px;
+  box-shadow: 0 1px 4px 0 rgba(232, 168, 84, 0.1);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.post-card__badge--draft {
+  border: 1.5px solid #ffd43b;
+}
 *,
 *::before,
 *::after {

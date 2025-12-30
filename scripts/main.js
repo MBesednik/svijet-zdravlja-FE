@@ -69,9 +69,7 @@ function hasAdminToken() {
   ) {
     return true;
   }
-  const cookieMatch = document.cookie.match(
-    /(?:^|; )svz_admin_token=([^;]+)/i
-  );
+  const cookieMatch = document.cookie.match(/(?:^|; )svz_admin_token=([^;]+)/i);
   return !!(cookieMatch && cookieMatch[1]);
 }
 
@@ -93,7 +91,7 @@ function addLogoutNavItem() {
   const btn = document.createElement("a");
   btn.href = "#";
   btn.className = "header__nav-link js-logout-nav";
-  btn.textContent = "Odjavi";
+  btn.textContent = "Odjava";
   btn.addEventListener("click", (e) => {
     e.preventDefault();
     removeAdminToken();

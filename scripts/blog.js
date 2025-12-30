@@ -788,6 +788,30 @@
       article.className = "post-card";
       article.dataset.id = post.id;
 
+      // Dodaj žuti obrub i badge za skice
+      if (!post.published) {
+        // Provjeri je li zakazana objava (createdAt u budućnosti)
+        const createdAtDate = new Date(post.createdAt);
+        const now = new Date();
+        if (createdAtDate > now) {
+          // Zakazana objava: plavi obrub i badge
+          article.classList.add("post-card--scheduled"); // koristi plavi obrub iz style.css
+
+          const scheduledBadge = document.createElement("span");
+          scheduledBadge.className = "post-card__badge post-card__badge--scheduled"; // koristi plavi badge iz style.css
+          scheduledBadge.textContent = "Zakazano";
+          article.appendChild(scheduledBadge);
+        } else {
+          // Skica: žuti obrub i badge
+          article.classList.add("post-card--draft"); // koristi žuti obrub iz style.css
+
+          const draftBadge = document.createElement("span");
+          draftBadge.className = "post-card__badge post-card__badge--draft"; // koristi žuti badge iz style.css
+          draftBadge.textContent = "Skica";
+          article.appendChild(draftBadge);
+        }
+      }
+
       const image = document.createElement("img");
       image.className = "post-card__image";
       image.src = post.featuredImage || FALLBACK_IMAGE;
@@ -816,11 +840,12 @@
         meta.appendChild(categoriesSpan);
       }
 
-      if (!post.published) {
-        const draft = document.createElement("span");
-        draft.textContent = " • Skica";
-        meta.appendChild(draft);
-      }
+      // Ukloni stari "Skica" tekst iz meta (sada je badge)
+      // if (!post.published) {
+      //   const draft = document.createElement("span");
+      //   draft.textContent = " • Skica";
+      //   meta.appendChild(draft);
+      // }
 
       article.appendChild(meta);
 
