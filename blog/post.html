@@ -100,6 +100,30 @@
           <hr class="post-meta-bar__divider" />
           <p id="post-summary" class="post-summary"></p>
           <section id="post-content" class="post-detail__content"></section>
+          <!-- ISTAKNUTI POSTOVI -->
+          <hr class="post-meta-bar__divider" />
+          <section class="featured-posts section">
+            <div class="container">
+              <header class="featured-posts__header text-center">
+                <p class="blog__eyebrow">Novosti</p>
+                <h2>Istaknuti postovi</h2>
+                <p class="text-secondary">Najnoviji istaknuti članci s bloga</p>
+              </header>
+
+              <div
+                id="featured-posts"
+                class="post-list"
+                aria-live="polite"
+                aria-busy="false"
+              ></div>
+
+              <div class="text-center" style="margin-top: 1.5rem">
+                <a href="../blog/blog.html" class="btn btn--secondary"
+                  >Pogledaj sve objave</a
+                >
+              </div>
+            </div>
+          </section>
           <div class="post-detail__actions">
             <!-- Sakrij ove akcije po defaultu; prikaži samo admin -->
             <a
@@ -259,6 +283,7 @@
     <script src="../scripts/main.js"></script>
     <script src="../scripts/config.js"></script>
     <script src="../scripts/blog.js"></script>
+    <script src="../scripts/home-featured.js"></script>
     <!-- Centralizirana provjera/otkrivanje admin elemenata -->
     <script src="../scripts/admin-guard.js"></script>
   </body>

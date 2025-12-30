@@ -509,7 +509,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 1rem 2rem;
+  padding: 1rem;
   font-size: 1rem;
   font-weight: 600;
   text-decoration: none;
@@ -552,6 +552,7 @@ body {
 }
 .btn--primary:hover {
   background-color: #2a331f;
+  color: #ffffff;
   box-shadow: 0 10px 15px -3px rgba(61, 74, 44, 0.1);
   transform: translateY(-2px);
 }
@@ -572,10 +573,6 @@ body {
   transform: translateY(0);
 }
 @media (min-width: 768px) {
-  .btn {
-    padding: 1.5rem 3rem;
-    font-size: 1.125rem;
-  }
 }
 
 .hero {
@@ -1793,7 +1790,7 @@ html.preloader-skip #preloader {
   margin-top: 0.5rem;
 }
 
-post-chapter--video. {
+.post-chapter--video {
   margin-bottom: 3rem;
 }
 
