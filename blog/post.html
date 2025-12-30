@@ -11,37 +11,6 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap"
       rel="stylesheet"
     />
-    <style>
-      /* Sakrij administratorske elemente po defaultu */
-      .admin-only {
-        display: none !important;
-      }
-      /* Prilagođene boje za admin akcije */
-      .btn--edit {
-        background: #ffe066;
-        color: #3d4a2c;
-        border: 2px solid #ffe066;
-        transition: background 0.2s, color 0.2s, border 0.2s;
-      }
-      .btn--edit:hover,
-      .btn--edit:focus {
-        background: #fff3bf;
-        color: #3d4a2c;
-        border-color: #ffd43b;
-      }
-      .btn--delete {
-        background: #ff6b6b;
-        color: #fff;
-        border: 2px solid #ff6b6b;
-        transition: background 0.2s, color 0.2s, border 0.2s;
-      }
-      .btn--delete:hover,
-      .btn--delete:focus {
-        background: #fa5252;
-        color: #fff;
-        border-color: #fa5252;
-      }
-    </style>
   </head>
   <body>
     <header class="header">
@@ -87,12 +56,27 @@
     </header>
 
     <main class="post-page">
-      <div class="post-page__container post-page__container--wide">
+      <div
+        class="post-page__container post-page__container--wide"
+        style="
+          display: flex;
+          gap: 1rem;
+          padding-left: 35px;
+          padding-right: 40px;
+        "
+      >
+        <!-- Floating TOC -->
+        <nav id="floating-toc" class="toc" style="display: none">
+          <h3 class="toc__title">Sadržaj bloga</h3>
+          <ul id="toc-list" class="toc__list"></ul>
+        </nav>
+        <!-- POST -->
         <article
           id="post-article"
           class="post-detail"
           aria-live="polite"
           data-id=""
+          style="flex: 1"
         >
           <p class="blog__eyebrow">Blog</p>
           <h1 id="post-title">Učitavanje objave...</h1>
@@ -323,5 +307,93 @@
     <script src="../scripts/home-featured.js"></script>
     <!-- Centralizirana provjera/otkrivanje admin elemenata -->
     <script src="../scripts/admin-guard.js"></script>
+    <script src="../scripts/toast.js"></script>
+    <script>
+      // Floating TOC generator
+      document.addEventListener("DOMContentLoaded", function () {
+        setTimeout(function () {
+          const postContent = document.getElementById("post-content");
+          if (!postContent) return;
+
+          const chapterTitles = postContent.querySelectorAll(
+            "h3.post-chapter__title"
+          );
+          if (chapterTitles.length === 0) return;
+
+          const tocList = document.getElementById("toc-list");
+          tocList.innerHTML = "";
+
+          // Kontrola za ručno kliknuti TOC (da scroll event ne preuzima odmah)
+          let tocClickInProgress = false;
+          let tocClickTimeout = null;
+
+          chapterTitles.forEach((h3, idx) => {
+            if (!h3.id) h3.id = "chapter-" + (idx + 1);
+            h3.style.scrollMarginTop = "130px";
+
+            const li = document.createElement("li");
+            const a = document.createElement("a");
+            a.href = "#" + h3.id;
+            a.textContent = h3.textContent;
+            a.className = "toc__item";
+            a.tabIndex = 0;
+            // Smooth scroll handler - spriječi scroll event highlight dok traje scroll
+            a.addEventListener("click", function (e) {
+              e.preventDefault();
+              document
+                .querySelectorAll(".toc__item")
+                .forEach((el) => el.classList.remove("toc__item--active"));
+              document
+                .getElementById(h3.id)
+                .scrollIntoView({ behavior: "smooth" });
+
+              tocClickInProgress = true;
+              a.classList.add("toc__item--active");
+              // Makni focus s linka nakon klika (da ne ostane outline/tab)
+              a.blur();
+              if (tocClickTimeout) clearTimeout(tocClickTimeout);
+              tocClickTimeout = setTimeout(() => {
+                tocClickInProgress = false;
+              }, 700); // dulje od trajanja scrolla
+            });
+            li.appendChild(a);
+            tocList.appendChild(li);
+          });
+
+          // Prikaži TOC
+          document.getElementById("floating-toc").style.display = "block";
+
+          // Highlight active TOC item on scroll, ali ne dok je tocClickInProgress
+          let lastActiveIdx = -1;
+          window.addEventListener("scroll", function () {
+            if (tocClickInProgress) return;
+            let activeIdx = -1;
+            // Pronađi najbliži naslov iznad vrha (ili najbliži ispod ako nema iznad)
+            let minDist = Infinity;
+            chapterTitles.forEach((h3, idx) => {
+              const rect = h3.getBoundingClientRect();
+              const dist = Math.abs(rect.top - 140);
+              if (rect.top < 140 && dist < minDist) {
+                minDist = dist;
+                activeIdx = idx;
+              }
+            });
+            if (activeIdx === -1) {
+              // Ako nema iznad, uzmi prvi ispod
+              chapterTitles.forEach((h3, idx) => {
+                const rect = h3.getBoundingClientRect();
+                if (rect.top >= 140 && activeIdx === -1) activeIdx = idx;
+              });
+            }
+            if (activeIdx !== lastActiveIdx) {
+              document.querySelectorAll(".toc__item").forEach((el, idx) => {
+                el.classList.toggle("toc__item--active", idx === activeIdx);
+              });
+              lastActiveIdx = activeIdx;
+            }
+          });
+        }, 500);
+      });
+    </script>
   </body>
 </html>
