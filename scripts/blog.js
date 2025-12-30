@@ -1,119 +1,24 @@
 (function () {
   "use strict";
 
-  const SVZ_STORAGE_KEY = "svz_blog_posts";
   const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2MB
   const SUPPORTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
   const FALLBACK_IMAGE =
     'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="600" height="400" fill="%23f4f6f2"/><text x="50%" y="50%" fill="%235a5f56" font-size="24" font-family="Inter,Arial,sans-serif" text-anchor="middle">Svijet Zdravlja</text></svg>';
-  const WINDOW_STATE_PREFIX = "SVZ_BLOG::";
-  const SESSION_CACHE_KEY = "svz_blog_posts_cache";
   const ADMIN_API_BASE = window.getSVZAdminApiBase
     ? window.getSVZAdminApiBase()
     : null;
 
-  function readSessionCache() {
-    try {
-      const raw = window.sessionStorage.getItem(SESSION_CACHE_KEY);
-      if (!raw) {
-        return null;
-      }
-      const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed : null;
-    } catch (error) {
-      console.warn("Ne možemo pročitati sessionStorage cache.", error);
-      return null;
-    }
-  }
-
-  function writeSessionCache(posts) {
-    try {
-      window.sessionStorage.setItem(
-        SESSION_CACHE_KEY,
-        JSON.stringify(posts || [])
-      );
-    } catch (error) {
-      console.warn("Ne možemo spremiti sessionStorage cache.", error);
-    }
-  }
-
-  function readFromWindowState() {
-    const raw = window.name || "";
-    if (!raw.startsWith(WINDOW_STATE_PREFIX)) {
-      return null;
-    }
-    try {
-      const parsed = JSON.parse(raw.slice(WINDOW_STATE_PREFIX.length));
-      return Array.isArray(parsed) ? parsed : null;
-    } catch (error) {
-      console.warn("Ne možemo pročitati window.name stanje.", error);
-      return null;
-    }
-  }
-
-  function writeToWindowState(posts) {
-    try {
-      window.name = WINDOW_STATE_PREFIX + JSON.stringify(posts || []);
-    } catch (error) {
-      console.warn("Ne možemo spremiti stanje u window.name.", error);
-    }
-  }
-
   function getPosts() {
-    let posts = [];
-    try {
-      const raw = window.localStorage.getItem(SVZ_STORAGE_KEY);
-      console.log("LOLOLO Rendering raw:", raw);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) {
-          posts = parsed;
-        }
-      }
-    } catch (error) {
-      console.error("Ne možemo učitati objave", error);
-    }
-    if (!posts.length) {
-      const cached = readSessionCache();
-      if (Array.isArray(cached)) {
-        posts = cached;
-      }
-    }
-
-    if (!posts.length) {
-      const fallback = readFromWindowState();
-      if (Array.isArray(fallback)) {
-        posts = fallback;
-      }
-    }
-
-    if (posts.length) {
-      writeSessionCache(posts);
-      writeToWindowState(posts);
-    }
-    return posts;
+    return [];
   }
 
   function savePosts(posts) {
-    try {
-      window.localStorage.setItem(SVZ_STORAGE_KEY, JSON.stringify(posts));
-    } catch (error) {
-      console.error("Ne možemo spremiti objave.", error);
-    }
-    writeSessionCache(posts);
-    writeToWindowState(posts);
+    // no-op: persistence removed
   }
 
   function clearPostsCache() {
-    try {
-      window.localStorage.removeItem(SVZ_STORAGE_KEY);
-    } catch (e) {}
-    try {
-      window.sessionStorage.removeItem(SESSION_CACHE_KEY);
-    } catch (e) {}
-    try {
-      window.name = "";
-    } catch (e) {}
+    // no-op: persistence removed
   }
 
   function generateId() {
