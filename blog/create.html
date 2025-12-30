@@ -44,6 +44,118 @@
           transform: rotate(360deg);
         }
       }
+      /* Žuti gumb za "Spremi kao skicu" i "Uredi objavu" */
+      .btn--edit,
+      .btn--draft {
+        background: #ffe066;
+        color: #3d4a2c;
+        border: 2px solid #ffe066;
+        transition: background 0.2s, color 0.2s, border 0.2s;
+      }
+      .btn--edit:hover,
+      .btn--edit:focus,
+      .btn--draft:hover,
+      .btn--draft:focus {
+        background: #fff3bf;
+        color: #3d4a2c;
+        border-color: #ffd43b;
+      }
+
+      #toast-container {
+        position: fixed;
+        top: 2rem;
+        right: 2rem;
+        z-index: 3000;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        pointer-events: none;
+      }
+      .toast {
+        min-width: 220px;
+        max-width: 350px;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 16px 0 rgba(60, 60, 60, 0.08);
+        font-size: 1rem;
+        font-weight: 500;
+        color: #2d3a1d;
+        background: #e6f9e6;
+        /* Uklonjen border-left */
+        /* border-left: 6px solid #51cf66; */
+        opacity: 0.98;
+        pointer-events: auto;
+        transition: opacity 0.3s, transform 0.4s cubic-bezier(0.4, 1.4, 0.6, 1),
+          max-height 0.3s;
+        transform: translateX(120%);
+        max-height: 200px;
+        position: relative;
+        overflow: hidden;
+      }
+      .toast.toast-success {
+        background: #e6f9e6;
+        /* border-left-color: #51cf66; */
+        color: #2d3a1d;
+      }
+      .toast.toast-error {
+        background: #fff0f0;
+        /* border-left-color: #fa5252; */
+        color: #a4161a;
+      }
+      .toast.toast-info {
+        background: #e7f5ff;
+        /* border-left-color: #228be6; */
+        color: #1864ab;
+      }
+      .toast.toast-show {
+        transform: translateX(0);
+      }
+      .toast.toast-hide {
+        opacity: 0;
+        max-height: 0;
+        transform: translateX(120%);
+      }
+      .toast__close {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem; /* smanjeno s 1.25rem na 0.5rem */
+        background: none;
+        border: none;
+        color: inherit;
+        font-size: 1.25rem;
+        cursor: pointer;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+        pointer-events: auto;
+        z-index: 2;
+        padding-left: 1.25rem; /* dodatno udalji X od teksta */
+      }
+      .toast__close:hover,
+      .toast__close:focus {
+        opacity: 1;
+      }
+      .toast__bar {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        height: 4px;
+        width: 100%;
+        background: linear-gradient(90deg, #ffd43b 0%, #ffe066 100%);
+        border-radius: 0 0 8px 8px;
+        transform: scaleX(1);
+        transform-origin: left;
+        transition: none;
+        z-index: 1;
+      }
+      .toast.toast-success .toast__bar {
+        background: linear-gradient(90deg, #51cf66 0%, #b2f2bb 100%);
+      }
+      .toast.toast-error .toast__bar {
+        background: linear-gradient(90deg, #fa5252 0%, #ffa8a8 100%);
+      }
+      .toast.toast-info .toast__bar {
+        background: linear-gradient(90deg, #228be6 0%, #a5d8ff 100%);
+      }
     </style>
   </head>
   <body>
@@ -127,14 +239,6 @@
         </header>
 
         <form id="post-form" novalidate enctype="multipart/form-data">
-          <div
-            id="post-form-status"
-            class="form-status"
-            role="status"
-            aria-live="polite"
-            hidden
-          ></div>
-
           <!-- OSNOVNE INFORMACIJE -->
           <section class="form__section">
             <h2 class="form__section-title">Osnovne informacije</h2>
@@ -324,7 +428,11 @@
                 <span class="form__hint">Odaberite status objave.</span>
               </div>
 
-              <div class="form__group" id="scheduled-date-group" hidden>
+              <div
+                class="form__group"
+                id="scheduled-date-group"
+                style="display: none"
+              >
                 <label for="post-scheduled-for">Zakazano za *</label>
                 <input
                   type="datetime-local"
@@ -342,17 +450,22 @@
           </section>
 
           <!-- AKCIJE -->
-          <div class="form__actions">
-            <button type="submit" id="post-save" class="btn btn--primary">
-              Kreiraj objavu
-            </button>
-            <button
-              type="button"
-              id="post-save-draft"
-              class="btn btn--secondary"
-            >
-              Spremi kao skicu
-            </button>
+          <div
+            class="form__actions"
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            <div style="display: flex; gap: 1.5rem">
+              <button type="submit" id="post-save" class="btn btn--primary">
+                Kreiraj objavu
+              </button>
+              <button type="button" id="post-save-draft" class="btn btn--draft">
+                Spremi kao skicu
+              </button>
+            </div>
             <a href="blog.html" id="post-cancel" class="btn btn--outline">
               Odustani
             </a>
@@ -492,8 +605,118 @@
       </div>
     </footer>
 
+    <!-- Toast container -->
+    <div id="toast-container" aria-live="polite"></div>
+
     <script src="../scripts/config.js"></script>
     <script src="../scripts/main.js"></script>
     <script src="../scripts/admin-form.js"></script>
+    <script>
+      // Toast helper
+      function showToast(message, type = "success") {
+        const container = document.getElementById("toast-container");
+        if (!container) return;
+        const toast = document.createElement("div");
+        toast.className = "toast toast-" + type;
+        toast.innerHTML = `
+          <span>${message}</span>
+          <button class="toast__close" aria-label="Zatvori">&times;</button>
+          <div class="toast__bar"></div>
+        `;
+        container.appendChild(toast);
+
+        // Slide in
+        setTimeout(() => {
+          toast.classList.add("toast-show");
+        }, 10);
+
+        // Animate loading bar
+        const bar = toast.querySelector(".toast__bar");
+        bar.style.transition = "transform 3s linear";
+        setTimeout(() => {
+          bar.style.transform = "scaleX(0)";
+        }, 30);
+
+        // Close on X click
+        toast.querySelector(".toast__close").onclick = function (e) {
+          e.stopPropagation();
+          hideToast(toast);
+        };
+
+        // Auto close after 3s
+        const hideTimeout = setTimeout(() => hideToast(toast), 3000);
+
+        // Hide function
+        function hideToast(toastEl) {
+          toastEl.classList.remove("toast-show");
+          toastEl.classList.add("toast-hide");
+          clearTimeout(hideTimeout);
+          setTimeout(() => toastEl.remove(), 400);
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        // Omogući klik na dropzonu za odabir slike
+        var dropzone = document.querySelector(".file-upload__dropzone");
+        var fileInput = document.getElementById("post-hero-image");
+        if (dropzone && fileInput) {
+          dropzone.style.cursor = "pointer";
+          dropzone.addEventListener("click", function (e) {
+            if (e.target.tagName !== "A" && e.target.tagName !== "BUTTON") {
+              fileInput.click();
+            }
+          });
+        }
+
+        // Prikaži "Zakazano za" samo kad je status "SCHEDULED"
+        var statusSelect = document.getElementById("post-status");
+        var scheduledGroup = document.getElementById("scheduled-date-group");
+        function toggleScheduledGroup() {
+          if (statusSelect.value === "SCHEDULED") {
+            scheduledGroup.style.display = "";
+            scheduledGroup.querySelector("input").required = true;
+          } else {
+            scheduledGroup.style.display = "none";
+            scheduledGroup.querySelector("input").required = false;
+            scheduledGroup.querySelector("input").value = "";
+          }
+        }
+        if (statusSelect && scheduledGroup) {
+          statusSelect.addEventListener("change", toggleScheduledGroup);
+          // Inicijalno postavi na temelju trenutnog statusa
+          toggleScheduledGroup();
+        }
+
+        // Presretni submit forme i prikaži toast (umjesto status div-a)
+        var form = document.getElementById("post-form");
+        if (form) {
+          form.addEventListener("submit", function (e) {
+            // Ovdje pretpostavljamo da postoji AJAX/JS logika za spremanje
+            // Ovdje samo demo toast, makni e.preventDefault() ako backend postoji
+            e.preventDefault();
+            // ...pozovi svoju logiku za spremanje...
+            showToast("Objava je uspješno spremljena.", "success");
+          });
+        }
+
+        // Ako imaš gumb za brisanje, npr. #post-delete
+        var deleteBtn = document.getElementById("post-delete");
+        if (deleteBtn) {
+          deleteBtn.addEventListener("click", function () {
+            // ...pozovi svoju logiku za brisanje...
+            showToast("Objava je izbrisana.", "error");
+          });
+        }
+
+        // Ako imaš funkciju za odjavu, npr. #logout-btn
+        var logoutBtn = document.getElementById("logout-btn");
+        if (logoutBtn) {
+          logoutBtn.addEventListener("click", function () {
+            // ...pozovi svoju logiku za odjavu...
+            showToast("Uspješno ste odjavljeni.", "info");
+          });
+        }
+      });
+    </script>
   </body>
 </html>

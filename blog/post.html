@@ -16,6 +16,31 @@
       .admin-only {
         display: none !important;
       }
+      /* Prilagođene boje za admin akcije */
+      .btn--edit {
+        background: #ffe066;
+        color: #3d4a2c;
+        border: 2px solid #ffe066;
+        transition: background 0.2s, color 0.2s, border 0.2s;
+      }
+      .btn--edit:hover,
+      .btn--edit:focus {
+        background: #fff3bf;
+        color: #3d4a2c;
+        border-color: #ffd43b;
+      }
+      .btn--delete {
+        background: #ff6b6b;
+        color: #fff;
+        border: 2px solid #ff6b6b;
+        transition: background 0.2s, color 0.2s, border 0.2s;
+      }
+      .btn--delete:hover,
+      .btn--delete:focus {
+        background: #fa5252;
+        color: #fff;
+        border-color: #fa5252;
+      }
     </style>
   </head>
   <body>
@@ -103,7 +128,7 @@
           <!-- ISTAKNUTI POSTOVI -->
           <hr class="post-meta-bar__divider" />
           <section class="featured-posts section">
-            <div class="container">
+            <div class="container" style="padding: 0">
               <header class="featured-posts__header text-center">
                 <p class="blog__eyebrow">Novosti</p>
                 <h2>Istaknuti postovi</h2>
@@ -124,25 +149,37 @@
               </div>
             </div>
           </section>
-          <div class="post-detail__actions">
-            <!-- Sakrij ove akcije po defaultu; prikaži samo admin -->
+          <div
+            class="post-detail__actions"
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            <div style="display: flex; gap: 1rem">
+              <!-- Sakrij ove akcije po defaultu; prikaži samo admin -->
+              <a
+                id="post-edit"
+                class="btn btn--edit admin-only"
+                href="create.html"
+                aria-hidden="true"
+                >Uredi objavu</a
+              >
+              <button
+                id="post-delete"
+                class="btn btn--delete admin-only"
+                type="button"
+                aria-hidden="true"
+              >
+                Izbriši objavu
+              </button>
+            </div>
             <a
-              id="post-edit"
-              class="btn btn--primary admin-only"
-              href="create.html"
-              aria-hidden="true"
-              >Uredi objavu</a
-            >
-            <button
-              id="post-delete"
-              class="btn btn--secondary admin-only"
-              type="button"
-              aria-hidden="true"
-            >
-              Izbriši objavu
-            </button>
-            <a id="post-back" class="post-detail__back-link" href="blog.html"
-              >← Natrag na popis</a
+              id="post-back"
+              class="btn btn--secondary"
+              href="../blog/blog.html"
+              >Natrag</a
             >
           </div>
         </article>
