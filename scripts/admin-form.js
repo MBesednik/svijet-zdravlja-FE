@@ -40,6 +40,70 @@
   let pendingCategorySelection = null;
   let chapters = [];
 
+  function addManualCategory(name) {
+    const inputName = (name || "").trim();
+    const slug = slugify(inputName);
+    if (!inputName || !slug) return;
+    const exists = selectedCategories.some(
+      (c) =>
+        c.slug === slug ||
+        c.name === inputName ||
+        (c.id != null && availableCategories.some((a) => a.id === c.id))
+    );
+    if (exists) return;
+    selectedCategories.push({ id: null, name: inputName, slug: slug });
+    updateSelectedCategories();
+  }
+
+  async function ensureCategoriesExist() {
+    if (!selectedCategories.length) return;
+    if (!authToken) {
+      throw new Error("Niste prijavljeni. Molimo prijavite se.");
+    }
+    let created = false;
+    for (const cat of selectedCategories) {
+      if (cat.id != null) continue;
+      const name = cat.name || cat.slug;
+      const slug = cat.slug || slugify(name);
+      if (!name || !slug) continue;
+      const resp = await adminFetch(`${API_BASE_URL}/categories`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: name,
+          slug: slug,
+          description: cat.description || null,
+        }),
+      });
+      if (!resp.ok) {
+        let msg = "Kreiranje kategorije nije uspjelo.";
+        try {
+          const data = await resp.json();
+          if (data && data.message) msg = data.message;
+        } catch (e) {}
+        throw new Error(msg);
+      }
+      const data = await resp.json().catch(() => ({}));
+      cat.id = data.id != null ? data.id : cat.id;
+      cat.slug = data.slug || cat.slug;
+      cat.name = data.name || cat.name;
+      created = true;
+      if (!availableCategories.some((c) => c.id === cat.id)) {
+        availableCategories.push({
+          id: cat.id,
+          name: cat.name,
+          slug: cat.slug,
+        });
+      }
+    }
+    if (created) {
+      updateSelectedCategories();
+      renderCategoriesList(availableCategories);
+    }
+  }
+
   function clearAdminSession() {
     try {
       localStorage.removeItem("svz_admin_token");
@@ -570,12 +634,16 @@
    */
   function handleStatusChange(status) {
     const scheduledGroup = document.getElementById("scheduled-date-group");
+    if (!scheduledGroup) return;
     if (status === "SCHEDULED") {
       scheduledGroup.hidden = false;
+      scheduledGroup.style.display = "";
       document.getElementById("post-scheduled-for").required = true;
     } else {
       scheduledGroup.hidden = true;
+      scheduledGroup.style.display = "none";
       document.getElementById("post-scheduled-for").required = false;
+      document.getElementById("post-scheduled-for").value = "";
     }
   }
 
@@ -805,6 +873,13 @@
 
     if (!validateForm()) return;
 
+    try {
+      await ensureCategoriesExist();
+    } catch (err) {
+      showError(err.message || "Nije moguće kreirati kategoriju.");
+      return;
+    }
+
     toggleFormLoader(true);
     showFormStatus("Slanje objave...", "info");
 
@@ -891,6 +966,7 @@
       document.getElementById("post-summary").value = currentPost.summary || "";
       document.getElementById("post-status").value =
         currentPost.status || "DRAFT";
+      handleStatusChange(currentPost.status || "DRAFT");
       document.getElementById("post-meta-title").value =
         currentPost.meta_title || "";
       document.getElementById("post-meta-description").value =
@@ -898,23 +974,21 @@
       document.getElementById("post-featured").checked =
         currentPost.is_featured || false;
 
-      if (currentPost.scheduled_for) {
-        // Convert ISO string to 'yyyy-MM-ddTHH:mm' for datetime-local input
-        const dt = new Date(currentPost.scheduled_for);
-        if (!isNaN(dt.getTime())) {
-          // Pad helper
-          const pad = (n) => n.toString().padStart(2, "0");
-          const yyyy = dt.getFullYear();
-          const MM = pad(dt.getMonth() + 1);
-          const dd = pad(dt.getDate());
-          const HH = pad(dt.getHours());
-          const mm = pad(dt.getMinutes());
-          // Format for input type="datetime-local"
-          document.getElementById(
-            "post-scheduled-for"
-          ).value = `${yyyy}-${MM}-${dd}T${HH}:${mm}`;
-        } else {
-          document.getElementById("post-scheduled-for").value = "";
+      if (currentPost.status === "SCHEDULED") {
+        const schedInput = document.getElementById("post-scheduled-for");
+        if (currentPost.scheduled_for) {
+          const dt = new Date(currentPost.scheduled_for);
+          if (!isNaN(dt.getTime())) {
+            const pad = (n) => n.toString().padStart(2, "0");
+            const yyyy = dt.getFullYear();
+            const MM = pad(dt.getMonth() + 1);
+            const dd = pad(dt.getDate());
+            const HH = pad(dt.getHours());
+            const mm = pad(dt.getMinutes());
+            schedInput.value = `${yyyy}-${MM}-${dd}T${HH}:${mm}`;
+          } else {
+            schedInput.value = "";
+          }
         }
         handleStatusChange("SCHEDULED");
       }
@@ -1040,6 +1114,21 @@
     const saveBtn = document.getElementById("post-save-draft");
     if (saveBtn) {
       saveBtn.addEventListener("click", saveDraft);
+    }
+
+    const categoriesSearch = document.getElementById("categories-search");
+    if (categoriesSearch) {
+      categoriesSearch.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          addManualCategory(categoriesSearch.value);
+          categoriesSearch.value = "";
+        }
+      });
+      categoriesSearch.addEventListener("blur", function () {
+        addManualCategory(categoriesSearch.value);
+        categoriesSearch.value = "";
+      });
     }
 
     const addChapterBtn = document.getElementById("add-chapter-btn");
