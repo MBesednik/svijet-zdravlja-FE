@@ -62,7 +62,7 @@
     </header>
 
     <main class="post-page">
-      <div class="post-page__container container">
+      <div class="post-page__container post-page__container--wide">
         <article
           id="post-article"
           class="post-detail"
@@ -71,17 +71,34 @@
         >
           <p class="blog__eyebrow">Blog</p>
           <h1 id="post-title">Učitavanje objave...</h1>
-          <div id="post-meta" class="post-detail__meta"></div>
           <div id="post-hero-wrap" class="post-detail__hero-wrap skeleton">
             <img
               id="post-hero"
-              class="post-detail__hero"
+              class="post-detail__hero post-detail__hero--rounded"
               alt="Naslovna slika objave"
               loading="lazy"
               width="1200"
               height="675"
             />
           </div>
+          <div class="post-meta-bar post-meta-bar--columns">
+            <div class="post-meta-bar__col post-meta-bar__col--left">
+              <span class="post-meta-bar__label">Kategorija:</span>
+              <span id="post-category" class="post-meta-bar__value"></span>
+            </div>
+            <div class="post-meta-bar__col post-meta-bar__col--center">
+              <span class="post-meta-bar__label">Datum:</span>
+              <span id="post-date" class="post-meta-bar__value"></span>
+            </div>
+            <div class="post-meta-bar__col post-meta-bar__col--right">
+              <span class="post-meta-bar__label">Autor:</span>
+              <span id="post-author" class="post-meta-bar__value"
+                >Filip Jugović</span
+              >
+            </div>
+          </div>
+          <hr class="post-meta-bar__divider" />
+          <p id="post-summary" class="post-summary"></p>
           <section id="post-content" class="post-detail__content"></section>
           <div class="post-detail__actions">
             <!-- Sakrij ove akcije po defaultu; prikaži samo admin -->

@@ -909,18 +909,25 @@
       titleEl.textContent = post.title;
       // featured badge
       if (post.is_featured) {
-        if (!titleEl.querySelector(".post-featured")) {
-          const badge = document.createElement("span");
-          badge.className = "post-featured";
-          badge.textContent = "Istaknuto";
-          badge.style.marginLeft = "0.75rem";
-          badge.style.fontSize = "0.6rem";
-          badge.style.background = "#3d4a2c";
-          badge.style.color = "#fff";
-          badge.style.padding = "0.25rem 0.5rem";
-          badge.style.borderRadius = "6px";
-          titleEl.appendChild(badge);
+        // Ukloni postojeći badge ako postoji
+        const oldBadge = document.querySelector(".post-featured");
+        if (oldBadge) oldBadge.remove();
+
+        // Kreiraj badge i pozicioniraj ga desno od naslova
+        const badge = document.createElement("span");
+        badge.className = "post-featured";
+        badge.textContent = "Istaknuto";
+        // Ukloni inline stilove, koristi CSS
+        // Dodaj badge u wrapper oko naslova, ili ako nema wrappera, koristi flex
+        // Kreiraj wrapper ako ne postoji
+        if (!titleEl.parentElement.classList.contains("post-title-wrap")) {
+          const wrap = document.createElement("div");
+          wrap.className = "post-title-wrap";
+          titleEl.parentElement.insertBefore(wrap, titleEl);
+          wrap.appendChild(titleEl);
         }
+        const wrap = titleEl.parentElement;
+        wrap.appendChild(badge);
       }
     }
     document.title = post.title + " | Svijet Zdravlja";
@@ -979,6 +986,33 @@
       meta.textContent = bits.join(" • ");
     }
 
+    // Dodaj sažetak ispod horizontalne crte
+    const summaryEl = document.getElementById("post-summary");
+    if (summaryEl) {
+      summaryEl.textContent = post.excerpt || post.summary || "";
+      summaryEl.style.marginBottom = "2rem";
+      summaryEl.style.fontSize = "1.15rem";
+      summaryEl.style.color = "#5a5f56";
+    }
+
+    // Dinamički postavi kategoriju i datum u meta bar
+    const categoryEl = document.getElementById("post-category");
+    const dateEl = document.getElementById("post-date");
+    // Autor je statički "Filip Jugović" (već u HTML-u)
+
+    if (categoryEl) {
+      if (post.categories && post.categories.length) {
+        categoryEl.textContent = Array.isArray(post.categories)
+          ? post.categories.join(", ")
+          : post.categories;
+      } else {
+        categoryEl.textContent = "";
+      }
+    }
+    if (dateEl) {
+      dateEl.textContent = formatDate(post.createdAt);
+    }
+
     // Render content: if chapters exist, render them in order, otherwise use single content field
     if (content) {
       content.innerHTML = "";
@@ -998,13 +1032,47 @@
 
         sorted.forEach(function (ch) {
           if (ch.type === "TEXT") {
-            appendChapterTitle(content, ch);
+            // Tekstualni chapter: naslov + paragraf (veći font)
+            const chapterDiv = document.createElement("div");
+            chapterDiv.className = "post-chapter";
+            appendChapterTitle(chapterDiv, ch);
             const p = document.createElement("p");
+            p.className = "post-chapter__paragraph";
             p.textContent = ch.text_content || "";
-            content.appendChild(p);
+            chapterDiv.appendChild(p);
+            content.appendChild(chapterDiv);
           } else if (ch.type === "IMAGE") {
-            const figure = document.createElement("figure");
-            appendChapterTitle(figure, ch);
+            // Prikaži naslov iznad cijelog image-flex containera
+            if (ch.title) {
+              const heading = document.createElement("h3");
+              heading.className = "post-chapter__title";
+              heading.textContent = ch.title;
+              content.appendChild(heading);
+            }
+
+            // Slika desno, tekst lijevo
+            const chapterFlex = document.createElement("div");
+            chapterFlex.className = "post-chapter post-chapter--image-flex";
+
+            // Lijeva strana: tekst + alt
+            const left = document.createElement("div");
+            left.className = "post-chapter__left";
+            if (ch.text_content) {
+              const p = document.createElement("p");
+              p.className = "post-chapter__paragraph";
+              p.textContent = ch.text_content;
+              left.appendChild(p);
+            }
+            if (ch.alt_text) {
+              const altP = document.createElement("p");
+              altP.className = "post-chapter__alt";
+              altP.textContent = ch.alt_text;
+              left.appendChild(altP);
+            }
+
+            // Desna strana: slika
+            const right = document.createElement("div");
+            right.className = "post-chapter__right";
             const img = document.createElement("img");
             img.src =
               (ch.media && ch.media.storage_path) ||
@@ -1013,18 +1081,28 @@
               ch.featuredImage ||
               "";
             img.alt = ch.alt_text || ch.title || post.title || "";
-            img.style.maxWidth = "100%";
-            figure.appendChild(img);
+            img.className = "post-chapter__image";
+            right.appendChild(img);
+
+            // Caption ispod slike (opcionalno)
             if (ch.caption) {
               const figcap = document.createElement("figcaption");
+              figcap.className = "post-chapter__caption";
               figcap.textContent = ch.caption;
-              figure.appendChild(figcap);
+              right.appendChild(figcap);
             }
-            content.appendChild(figure);
+
+            chapterFlex.appendChild(left);
+            chapterFlex.appendChild(right);
+            content.appendChild(chapterFlex);
           } else if (ch.type === "VIDEO") {
+            // VIDEO poglavlje
+            let videoContainer = document.createElement("div");
+            videoContainer.className = "post-chapter post-chapter--video";
+            appendChapterTitle(videoContainer, ch);
+
+            // YouTube embed ili link
             if (ch.external_video_url) {
-              appendChapterTitle(content, ch);
-              // try to embed YouTube links
               const youtubeMatch = ch.external_video_url.match(
                 /(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})/i
               );
@@ -1037,21 +1115,41 @@
                 iframe.allow =
                   "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
                 iframe.allowFullscreen = true;
-                content.appendChild(iframe);
+                videoContainer.appendChild(iframe);
               } else {
                 const link = document.createElement("a");
                 link.href = ch.external_video_url;
                 link.textContent = ch.external_video_url;
                 link.target = "_blank";
-                content.appendChild(link);
-              }
-              if (ch.caption) {
-                const cap = document.createElement("p");
-                cap.className = "post-chapter__caption";
-                cap.textContent = ch.caption;
-                content.appendChild(cap);
+                videoContainer.appendChild(link);
               }
             }
+
+            // Caption ispod videa (opcionalno)
+            if (ch.caption) {
+              const cap = document.createElement("p");
+              cap.className = "post-chapter__caption";
+              cap.textContent = ch.caption;
+              videoContainer.appendChild(cap);
+            }
+
+            // Alt opis (chapter-alt) ispod videa
+            if (ch.alt_text) {
+              const altP = document.createElement("p");
+              altP.className = "post-chapter__alt";
+              altP.textContent = ch.alt_text;
+              videoContainer.appendChild(altP);
+            }
+
+            // Novi tekstualni opis ispod videa (chapter_text)
+            if (ch.chapter_text) {
+              const textP = document.createElement("p");
+              textP.className = "post-chapter__video-text";
+              textP.textContent = ch.chapter_text;
+              videoContainer.appendChild(textP);
+            }
+
+            content.appendChild(videoContainer);
           }
         });
       } else {
