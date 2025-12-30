@@ -33,8 +33,35 @@
   pointer-events: none;
 }
 
+.post-card__badge--scheduled {
+  background: #4dabf7;
+  color: #0b375a;
+  border: 1.5px solid #228be6;
+  box-shadow: 0 1px 4px 0 rgba(33, 150, 243, 0.15);
+}
+
 .post-card__badge--draft {
   border: 1.5px solid #ffd43b;
+}
+
+.post-card__badge--time {
+  display: none;
+}
+
+.post-card__when {
+  position: absolute;
+  top: 54px;
+  left: 18px;
+  z-index: 2;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #0b375a;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(4px);
+  padding: 0.15em 0.6em;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
 }
 *,
 *::before,

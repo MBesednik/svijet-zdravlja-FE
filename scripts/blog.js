@@ -194,6 +194,8 @@
       lang: p.lang || p.language || undefined,
       chapters: p.chapters || [],
       hero_media: p.hero_media,
+      scheduled_for:
+        p.scheduled_for || p.scheduledFor || p.scheduled_at || null,
     };
   }
 
@@ -710,6 +712,16 @@
           "post-card__badge post-card__badge--scheduled";
         scheduledBadge.textContent = "Zakazano";
         article.appendChild(scheduledBadge);
+        if (post.scheduled_for) {
+          const whenBadge = document.createElement("span");
+          whenBadge.className = "post-card__when";
+          const dt = new Date(post.scheduled_for);
+          const formatted = isNaN(dt.getTime())
+            ? post.scheduled_for
+            : dt.toLocaleString("hr-HR");
+          whenBadge.textContent = formatted;
+          article.appendChild(whenBadge);
+        }
       } else if (post.status == "DRAFT") {
         article.classList.add("post-card--draft");
         const draftBadge = document.createElement("span");
