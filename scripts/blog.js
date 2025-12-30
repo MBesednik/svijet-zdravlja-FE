@@ -703,7 +703,8 @@
           article.classList.add("post-card--scheduled"); // koristi plavi obrub iz style.css
 
           const scheduledBadge = document.createElement("span");
-          scheduledBadge.className = "post-card__badge post-card__badge--scheduled"; // koristi plavi badge iz style.css
+          scheduledBadge.className =
+            "post-card__badge post-card__badge--scheduled"; // koristi plavi badge iz style.css
           scheduledBadge.textContent = "Zakazano";
           article.appendChild(scheduledBadge);
         } else {
@@ -864,11 +865,11 @@
 
     if (hero) {
       hero.classList.remove("is-loaded");
+      hero.hidden = true;
       if (heroWrap) {
         heroWrap.classList.remove("is-hidden");
         heroWrap.classList.add("skeleton");
       }
-      // prefer hero_media.storage_path (backend), fallback to featuredImage (local storage)
       const heroSrc =
         (post.hero_media && post.hero_media.storage_path) ||
         post.featuredImage ||
@@ -876,21 +877,26 @@
       if (heroSrc) {
         hero.onload = function () {
           hero.classList.add("is-loaded");
+          hero.hidden = false;
           if (heroWrap) {
             heroWrap.classList.remove("skeleton");
           }
         };
         hero.onerror = function () {
           hero.classList.remove("is-loaded");
+          hero.hidden = true;
           if (heroWrap) {
-            heroWrap.classList.add("is-hidden");
+            // Only add shimmer, do not remove is-hidden
+            heroWrap.classList.add("skeleton");
           }
         };
         hero.src = heroSrc;
         hero.alt = post.title || "Naslovna slika objave";
       } else {
+        hero.hidden = true;
         if (heroWrap) {
           heroWrap.classList.add("is-hidden");
+          heroWrap.classList.remove("skeleton");
         }
         hero.removeAttribute("src");
       }
