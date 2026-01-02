@@ -4,6 +4,16 @@
   const msg = document.getElementById("login-msg");
   const demoBtn = document.getElementById("demo-btn");
 
+  function trackApiError(endpoint, status, message) {
+    if (!window.svzTrack) return;
+    window.svzTrack("api_error", {
+      endpoint: endpoint || "",
+      status: status || 0,
+      message: message || "",
+      path: window.location.pathname,
+    });
+  }
+
   function showMessage(text, isError) {
     msg.textContent = text;
     msg.style.color = isError ? "#9b1c1c" : "#1a7f37";
@@ -30,7 +40,9 @@
       // allow explicit backend base URL (useful when frontend is served from different origin)
       var BASE_URL = window.getSVZBaseUrl();
 
-      fetch(BASE_URL + "/api/admin/auth/login", {
+      const loginEndpoint = BASE_URL + "/api/admin/auth/login";
+
+      fetch(loginEndpoint, {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -48,9 +60,11 @@
                   j && (j.message || j.detail || j.error || j.msg)
                     ? j.message || j.detail || j.error || j.msg
                     : JSON.stringify(j);
+                trackApiError("/api/admin/auth/login", r.status, msg);
                 throw { status: r.status, message: msg };
               })
               .catch(function () {
+                trackApiError("/api/admin/auth/login", r.status, "Neuspjela prijava");
                 throw { status: r.status, message: "Neuspjela prijava" };
               });
           }
@@ -79,6 +93,11 @@
         })
         .catch(function (err) {
           console.error("login error", err);
+          if (err && err.status) {
+            trackApiError("/api/admin/auth/login", err.status, err.message);
+          } else {
+            trackApiError("/api/admin/auth/login", 0, "network/login");
+          }
           var m =
             "Neuspjela prijava — provjerite korisničke podatke i backend.";
           if (err && err.message) {

@@ -43,7 +43,17 @@
     const resp = await fetch(apiBase + "/posts/featured", {
       headers: { Accept: "application/json" },
     });
-    if (!resp.ok) throw new Error("Featured fetch failed");
+    if (!resp.ok) {
+      if (window.svzTrack) {
+        window.svzTrack("api_error", {
+          endpoint: "/posts/featured",
+          status: resp.status,
+          message: "featured",
+          path: window.location.pathname,
+        });
+      }
+      throw new Error("Featured fetch failed");
+    }
     const data = await resp.json();
     if (!Array.isArray(data)) return [];
     return data
@@ -68,7 +78,7 @@
 
     const frag = document.createDocumentFragment();
 
-    posts.forEach(function (post) {
+    posts.forEach(function (post, index) {
       const article = document.createElement("article");
       article.className = "post-card";
       article.dataset.id = post.id || "";
@@ -110,6 +120,15 @@
       link.href =
         "blog/post.html?id=" + encodeURIComponent(post.id || post.slug || "");
       link.textContent = "Pročitaj više";
+      link.addEventListener("click", function () {
+        if (window.svzTrack) {
+          window.svzTrack("featured_read_click", {
+            id: post.id || "",
+            slug: post.slug || "",
+            position: index + 1,
+          });
+        }
+      });
       article.appendChild(link);
 
       frag.appendChild(article);
