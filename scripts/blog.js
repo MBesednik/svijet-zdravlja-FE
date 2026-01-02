@@ -230,20 +230,49 @@
     return query ? "?" + query : "";
   }
 
-  async function fetchPostsFromApi(filters) {
-    try {
-      const headers = buildAuthHeaders();
-      const resp = await fetch(API_BASE + "/posts" + buildPostsQuery(filters), {
-        headers: headers,
-      });
+  async function fetchWithAuthFallback(url, parseResponse, trackPath, errorMsg) {
+    const fetchWithHeaders = function (headers) {
+      return fetch(url, { headers: headers });
+    };
+
+    const fetchPublic = async function () {
+      const resp = await fetchWithHeaders({ Accept: "application/json" });
       if (!resp.ok) {
-        trackApiError("/posts", resp.status, "list");
-        console.warn("API posts fetch failed", resp.status);
-        return null;
+        trackApiError(trackPath, resp.status, "list");
+        throw new Error(errorMsg);
       }
+      return parseResponse(resp);
+    };
+
+    const token = getAdminToken();
+    if (token) {
+      let resp = await fetchWithHeaders(buildAuthHeaders());
+      if (resp.status === 401) {
+        const newToken = await refreshAdminToken();
+        if (newToken) {
+          resp = await fetchWithHeaders(buildAuthHeaders());
+        } else {
+          clearAdminToken();
+        }
+      }
+      if (resp.ok) {
+        return parseResponse(resp);
+      }
+      if (resp.status === 401) {
+        clearAdminToken();
+        return fetchPublic();
+      }
+      trackApiError(trackPath, resp.status, "list");
+    }
+    return fetchPublic();
+  }
+
+  async function fetchPostsFromApi(filters) {
+    const url = API_BASE + "/posts" + buildPostsQuery(filters);
+
+    const parseResponse = async function (resp) {
       const data = await resp.json();
       if (!Array.isArray(data)) return null;
-      // normalize to local storage shape
       const normalized = data.map(normalizeApiPost).filter(Boolean);
       if (window.svzTrack) {
         window.svzTrack("post_list_view", {
@@ -258,9 +287,18 @@
         });
       }
       return normalized;
+    };
+
+    try {
+      return await fetchWithAuthFallback(
+        url,
+        parseResponse,
+        "/posts",
+        "Nismo mogli učitati objave. Osvježite stranicu i pokušajte ponovno."
+      );
     } catch (err) {
       console.warn("Failed to fetch posts from API", err);
-      return null;
+      throw err;
     }
   }
 
@@ -351,18 +389,25 @@
 
   async function fetchSortOptionsFromApi() {
     try {
-      const resp = await fetch(API_BASE + "/posts/sort-options", {
-        headers: buildAuthHeaders(),
-      });
-      if (!resp.ok) {
-        return null;
-      }
-      const data = await resp.json();
-      const normalized = normalizeSortResponse(data);
-      sortAliases = normalized.aliases || {};
-      return normalized.options.length ? normalized.options : null;
+      const url = API_BASE + "/posts/sort-options";
+      const parseResponse = async function (resp) {
+        const data = await resp.json();
+        const normalized = normalizeSortResponse(data);
+        sortAliases = normalized.aliases || {};
+        return normalized.options.length ? normalized.options : null;
+      };
+      return await fetchWithAuthFallback(
+        url,
+        parseResponse,
+        "/posts/sort-options",
+        "Ne možemo učitati opcije sortiranja. Pokušajte ponovno."
+      );
     } catch (err) {
       console.warn("Failed to fetch sort options", err);
+      showToast(
+        "Ne možemo učitati opcije sortiranja. Pokušajte ponovno.",
+        "error"
+      );
       return null;
     }
   }
@@ -395,17 +440,24 @@
 
   async function fetchCategoriesFromApi() {
     try {
-      const resp = await fetch(API_BASE + "/categories", {
-        headers: buildAuthHeaders(),
-      });
-      if (!resp.ok) {
-        return null;
-      }
-      const data = await resp.json();
-      const normalized = normalizeCategoryOptions(data);
-      return normalized.length ? normalized : null;
+      const url = API_BASE + "/categories";
+      const parseResponse = async function (resp) {
+        const data = await resp.json();
+        const normalized = normalizeCategoryOptions(data);
+        return normalized.length ? normalized : null;
+      };
+      return await fetchWithAuthFallback(
+        url,
+        parseResponse,
+        "/categories",
+        "Nismo mogli učitati kategorije. Osvježite stranicu i pokušajte ponovno."
+      );
     } catch (err) {
       console.warn("Failed to fetch categories", err);
+      showToast(
+        "Ne možemo učitati kategorije. Pokušajte ponovno.",
+        "error"
+      );
       return null;
     }
   }
@@ -1410,6 +1462,15 @@
       const listTrace =
         window.svzStartTrace && window.svzStartTrace("blog_list_render");
       let renderedCount = 0;
+      const renderLocalFallback = function () {
+        const local = filterPostsLocally(
+          getPosts(),
+          targetFilters,
+          categoryOptions
+        );
+        renderList(local);
+        renderedCount = local.length;
+      };
       return fetchPostsFromApi(targetFilters)
         .then(function (apiPosts) {
           if (Array.isArray(apiPosts)) {
@@ -1424,22 +1485,14 @@
             renderedCount = apiPosts.length;
             return;
           }
-          const local = filterPostsLocally(
-            getPosts(),
-            targetFilters,
-            categoryOptions
-          );
-          renderList(local);
-          renderedCount = local.length;
+          renderLocalFallback();
         })
-        .catch(function () {
-          const local = filterPostsLocally(
-            getPosts(),
-            targetFilters,
-            categoryOptions
-          );
-          renderList(local);
-          renderedCount = local.length;
+        .catch(function (error) {
+          renderLocalFallback();
+          const message =
+            (error && error.message) ||
+            "Ne možemo učitati objave. Pokušajte ponovno.";
+          showToast(message, "error");
         })
         .finally(function () {
           window.svzStopTrace &&
