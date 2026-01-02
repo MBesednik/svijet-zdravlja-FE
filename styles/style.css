@@ -1043,7 +1043,7 @@ body {
   border-top: 1px solid #e8ebe6;
   transition: color 0.3s ease;
   position: relative;
-  transition: color 0.18s cubic-bezier(.4,1.4,.6,1);
+  transition: color 0.18s cubic-bezier(0.4, 1.4, 0.6, 1);
   z-index: 1;
   overflow: hidden;
 }
@@ -1058,7 +1058,7 @@ body {
   border-radius: 2px;
   opacity: 0;
   transform: scaleX(0.6);
-  transition: opacity 0.18s, transform 0.18s cubic-bezier(.4,1.4,.6,1);
+  transition: opacity 0.18s, transform 0.18s cubic-bezier(0.4, 1.4, 0.6, 1);
   z-index: 2;
   pointer-events: none;
 }
@@ -1204,7 +1204,7 @@ body {
 }
 
 .post-page {
-  padding: 1.5rem 0;
+  padding-bottom: 1.5rem;
   background-color: #f9faf8;
 }
 .post-page__container {
@@ -1954,7 +1954,7 @@ html.preloader-skip #preloader {
 .post-detail__hero {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  /* object-fit: cover; */
   border-radius: 8px;
   display: block;
   opacity: 0;
@@ -1966,5 +1966,178 @@ html.preloader-skip #preloader {
 @keyframes shimmer {
   to {
     background-position-x: -200%;
+  }
+}
+
+/* Sakrij administratorske elemente po defaultu */
+.admin-only {
+  display: none !important;
+}
+/* Prilagođene boje za admin akcije */
+.btn--edit {
+  background: #ffe066;
+  color: #3d4a2c;
+  border: 2px solid #ffe066;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+}
+.btn--edit:hover,
+.btn--edit:focus {
+  background: #fff3bf;
+  color: #3d4a2c;
+  border-color: #ffd43b;
+}
+.btn--delete {
+  background: #ff6b6b;
+  color: #fff;
+  border: 2px solid #ff6b6b;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+}
+.btn--delete:hover,
+.btn--delete:focus {
+  background: #fa5252;
+  color: #fff;
+  border-color: #fa5252;
+}
+html {
+  scroll-behavior: smooth;
+}
+/* Dodaj scroll-margin za chapter naslove */
+h3.post-chapter__title {
+  scroll-margin-top: 110px; /* prilagodi po visini headera */
+}
+
+/* TOC dizajn prema slici */
+.toc {
+  background: #fff;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  padding: 1.5rem 1rem;
+  min-width: 260px;
+  max-width: 320px;
+  height: fit-content;
+  z-index: 10;
+  position: sticky;
+  top: 135px;
+  align-self: flex-start;
+}
+.toc__title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 1.2rem;
+  margin-top: 0;
+  color: #222;
+  letter-spacing: 0.01em;
+}
+.toc__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.toc__item {
+  padding: 0.7rem 0.5rem;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 1rem;
+  color: #222;
+  background: none;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  font-weight: 400;
+  text-decoration: none;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.toc__item:last-child {
+  border-bottom: none;
+}
+.toc__item:hover,
+.toc__item:focus {
+  background: #f3f4f6;
+  color: #3d4a2c;
+  text-decoration: none;
+}
+.toc__item--active {
+  background: #f3f4f6;
+  color: #3d4a2c;
+  font-weight: 600;
+  border-left: 3px solid #3d4a2c;
+  padding-left: calc(0.5rem - 3px);
+}
+
+/* Dodaj veći shadow na naslovnu sliku */
+#post-hero.post-detail__hero {
+  box-shadow: 0 8px 32px rgba(60, 60, 60, 0.18), 0 1.5px 8px rgba(0, 0, 0, 0.1);
+  /* Možeš prilagoditi vrijednosti po želji */
+}
+
+@media (max-width: 900px) {
+  .toc {
+    display: none !important;
+  }
+  .post-page__container--wide {
+    flex-direction: column !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    gap: 0 !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    box-sizing: border-box;
+    overflow-x: hidden !important;
+  }
+  #post-article {
+    width: 100% !important;
+    max-width: 100vw !important;
+    box-sizing: border-box;
+    margin: 0 !important;
+    padding: 10px !important;
+  }
+  /* Dodaj padding na mobilnim uređajima za sadržaj */
+  .post-detail,
+  .post-detail__content,
+  .post-meta-bar,
+  .post-summary,
+  .featured-posts,
+  .post-detail__actions {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    box-sizing: border-box;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+  /* Hero wrap i slika */
+  .post-detail__hero-wrap {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding: 0 !important;
+    border-radius: 16px !important;
+    overflow: hidden;
+    box-sizing: border-box;
+    max-width: 100vw !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+  .post-detail__hero {
+    width: 100% !important;
+    height: auto !important;
+    max-width: 100vw !important;
+    display: block;
+    border-radius: 16px !important;
+    box-shadow: 0 8px 32px rgba(60, 60, 60, 0.18),
+      0 1.5px 8px rgba(0, 0, 0, 0.1);
+    object-fit: cover;
+    background: #f8fafc;
+  }
+  /* Popravi margine na dnu */
+  .featured-posts.section {
+    margin-bottom: 1.5rem !important;
+  }
+  /* Spriječi horizontalni scroll na body i html */
+  html,
+  body {
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
   }
 }
