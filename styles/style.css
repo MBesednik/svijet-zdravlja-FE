@@ -1013,7 +1013,7 @@ body {
 .post-card__image {
   width: 100%;
   height: 200px;
-  object-fit: cover;
+  object-fit: contain;
 }
 .post-card__title {
   font-size: 1.5rem;
@@ -2139,5 +2139,244 @@ h3.post-chapter__title {
   body {
     max-width: 100vw !important;
     overflow-x: hidden !important;
+  }
+}
+
+.contact-section {
+  position: relative;
+  min-height: 100vh;
+  background: #f8faf7;
+  overflow: hidden;
+  padding: 60px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.contact-center-wrapper {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+}
+
+.contact-container {
+  position: relative;
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(60, 80, 40, 0.08);
+  padding: 48px 40px;
+  max-width: 540px;
+  width: 100%;
+  z-index: 2;
+  margin: 32px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.contact-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #3a4d2c;
+  margin-bottom: 32px;
+  text-align: center;
+  letter-spacing: -1px;
+}
+
+.contact-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.contact-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.contact-form label {
+  font-size: 1rem;
+  color: #3a4d2c;
+  font-weight: 500;
+}
+
+.contact-form input,
+.contact-form textarea {
+  padding: 12px 16px;
+  border: 1.5px solid #dbe7d1;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #f6fbf3;
+  color: #2d3b22;
+  transition: border-color 0.2s, background 0.2s;
+  resize: none;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  border-color: #7bb86f;
+  outline: none;
+  background: #fff;
+}
+
+.contact-form textarea {
+  min-height: 120px;
+  max-height: 240px;
+}
+
+/* .btn.btn--primary {
+  width: 100%;
+  margin-top: 8px;
+  font-size: 1.1rem;
+  padding: 14px 0;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #7bb86f 0%, #4e7d3a 100%);
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  box-shadow: 0 2px 16px rgba(60, 80, 40, 0.1);
+  transition: background 0.2s, transform 0.2s;
+}
+
+.btn.btn--primary:hover {
+  background: linear-gradient(90deg, #4e7d3a 0%, #7bb86f 100%);
+  transform: translateY(-2px) scale(1.03);
+} */
+
+/* Dekorativni krugovi */
+.circle-bg {
+  position: absolute;
+  border-radius: 50%;
+  z-index: 1;
+  opacity: 0.18;
+  pointer-events: none;
+  animation-duration: 8s;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+.circle-bg--1 {
+  width: 340px;
+  height: 340px;
+  background: #7bb86f;
+  top: -80px;
+  left: -120px;
+  z-index: 1;
+}
+
+.circle-bg--2 {
+  width: 220px;
+  height: 220px;
+  background: #b7e4c7;
+  bottom: 40px;
+  right: -80px;
+  z-index: 1;
+}
+
+.circle-bg--3 {
+  width: 120px;
+  height: 120px;
+  background: #dbe7d1;
+  top: 60%;
+  left: 60%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
+
+/* Novi krug dolje lijevo */
+.circle-bg--6 {
+  width: 70px;
+  height: 70px;
+  background: #b7e4c7;
+  bottom: 6%;
+  left: 2%;
+  z-index: 1;
+  opacity: 0.14;
+}
+
+/* Responsivnost za novi krug */
+@media (max-width: 600px) {
+  .circle-bg--6 {
+    width: 28px;
+    height: 28px;
+    bottom: 3%;
+    left: 1%;
+  }
+}
+
+/* Animacije */
+@keyframes leftRight {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(40px);
+  }
+}
+@keyframes upDown {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-40px);
+  }
+}
+@keyframes zoomInOut {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.18);
+  }
+}
+
+.animate-left-right {
+  animation-name: leftRight;
+}
+.animate-up-down {
+  animation-name: upDown;
+}
+.animate-zoom {
+  animation-name: zoomInOut;
+}
+
+/* Responsivnost za krugove */
+@media (max-width: 600px) {
+  .circle-bg--1 {
+    width: 120px;
+    height: 120px;
+    top: -30px;
+    left: -40px;
+  }
+  .circle-bg--2 {
+    width: 70px;
+    height: 70px;
+    bottom: 10px;
+    right: -20px;
+  }
+  .circle-bg--3 {
+    width: 40px;
+    height: 40px;
+    top: 70%;
+    left: 80%;
+  }
+  .circle-bg--4 {
+    width: 60px;
+    height: 60px;
+    top: 8%;
+    right: 6%;
+  }
+  .circle-bg--5 {
+    width: 36px;
+    height: 36px;
+    bottom: 10%;
+    left: 8%;
   }
 }

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="hr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kontakt | Svijet zdravlja</title>
+    <link rel="stylesheet" href="styles/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Add Playfair Display for preloader -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      try {
+        if (sessionStorage.getItem("svz_preloader_seen") === "1") {
+          document.documentElement.classList.add("preloader-skip");
+        }
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <!-- HEADER -->
+    <header class="header">
+      <div class="header__container container">
+        <a href="/" class="header__logo">
+          <img
+            src="images/logo/SZ_cijelilogo_transparent.png"
+            alt="Svijet Zdravlja logo"
+            class="header__logo-img"
+          />
+        </a>
+
+        <nav class="header__nav">
+          <ul class="header__nav-list">
+            <li class="header__nav-item">
+              <a href="index.html" class="header__nav-link">Početna</a>
+            </li>
+            <li class="header__nav-item">
+              <a href="#" class="header__nav-link">O nama</a>
+            </li>
+            <li class="header__nav-item">
+              <a href="#" class="header__nav-link">Usluge</a>
+            </li>
+            <li class="header__nav-item">
+              <a href="blog/blog.html" class="header__nav-link">Blog</a>
+            </li>
+            <li class="header__nav-item">
+              <a href="#" class="header__nav-link">Kontakt</a>
+            </li>
+          </ul>
+        </nav>
+
+        <button
+          class="header__hamburger"
+          aria-label="Toggle navigation"
+          aria-expanded="false"
+        >
+          <span class="header__hamburger-line"></span>
+          <span class="header__hamburger-line"></span>
+          <span class="header__hamburger-line"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+      <section class="contact-section">
+        <!-- Dekorativni krugovi u pozadini -->
+        <div class="circle-bg circle-bg--1 animate-left-right"></div>
+        <div class="circle-bg circle-bg--2 animate-zoom"></div>
+        <div class="circle-bg circle-bg--3 animate-up-down"></div>
+        <div class="circle-bg circle-bg--4 animate-zoom"></div>
+        <div class="circle-bg circle-bg--5 animate-left-right"></div>
+        <div class="circle-bg circle-bg--6 animate-up-down"></div>
+
+        <div class="contact-center-wrapper">
+          <div class="contact-container">
+            <h1 class="contact-title">Kontaktirajte nas</h1>
+            <form class="contact-form">
+              <div class="form-group">
+                <label for="name">Ime i prezime</label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  placeholder="Vaše ime i prezime"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="email">Email adresa</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  placeholder="Vaš email"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="message">Poruka</label>
+                <textarea
+                  id="message"
+                  name="message"
+                  rows="5"
+                  placeholder="Vaša poruka"
+                  required
+                ></textarea>
+              </div>
+              <button type="submit" class="btn btn--primary">Pošalji</button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="footer__container container">
+        <div class="footer__content">
+          <div class="footer__brand">
+            <a href="/" class="footer__logo">
+              <img
+                src="images/logo/SZ_cijelilogo_transparent.png"
+                alt="Svijet Zdravlja logo"
+                class="footer__logo-img"
+              />
+            </a>
+            <p class="footer__description">
+              Vaš pouzdani partner za zdravlje i dobrobit.
+            </p>
+          </div>
+
+          <div class="footer__links">
+            <div class="footer__column">
+              <h4 class="footer__title">Navigacija</h4>
+              <ul class="footer__list">
+                <li class="footer__list-item">
+                  <a href="index.html" class="footer__link">Početna</a>
+                </li>
+                <li class="footer__list-item">
+                  <a href="#" class="footer__link">O nama</a>
+                </li>
+                <li class="footer__list-item">
+                  <a href="#" class="footer__link">Usluge</a>
+                </li>
+                <li class="footer__list-item">
+                  <a href="blog/blog.html" class="footer__link">Blog</a>
+                </li>
+                <li class="footer__list-item">
+                  <a href="#" class="footer__link">Kontakt</a>
+                </li>
+              </ul>
+            </div>
+
+            <div class="footer__column">
+              <h4 class="footer__title">Kontakt</h4>
+              <ul class="footer__list">
+                <li class="footer__list-item">
+                  <a href="tel:+385123456789" class="footer__link"
+                    >+385 12 345 6789</a
+                  >
+                </li>
+                <li class="footer__list-item">
+                  <a href="mailto:info@svijet-zdravlja.hr" class="footer__link"
+                    >info@svijet-zdravlja.hr</a
+                  >
+                </li>
+                <li class="footer__list-item">
+                  <span class="footer__text">Zagreb, Hrvatska</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="footer__column">
+              <h4 class="footer__title">Pratite nas</h4>
+              <ul class="footer__social">
+                <li class="footer__social-item">
+                  <a href="#" class="footer__social-link" aria-label="Facebook">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </a>
+                </li>
+                <li class="footer__social-item">
+                  <a
+                    href="#"
+                    class="footer__social-link"
+                    aria-label="Instagram"
+                  >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <rect
+                        x="2"
+                        y="2"
+                        width="20"
+                        height="20"
+                        rx="5"
+                        ry="5"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      />
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="4"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      />
+                      <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" />
+                    </svg>
+                  </a>
+                </li>
+                <li class="footer__social-item">
+                  <a href="#" class="footer__social-link" aria-label="LinkedIn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <circle
+                        cx="4"
+                        cy="4"
+                        r="2"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      />
+                    </svg>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer__bottom">
+          <p class="footer__copyright">
+            &copy; 2025 Svijet Zdravlja. Sva prava pridržana.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="scripts/main.js"></script>
+    <script src="scripts/config.js"></script>
+    <script src="scripts/home-featured.js"></script>
+    <!-- Scroll animacije - dodaj samo ovu liniju -->
+    <script src="animations.js"></script>
+  </body>
+</html>
