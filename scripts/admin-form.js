@@ -40,6 +40,16 @@
   let pendingCategorySelection = null;
   let chapters = [];
 
+  function trackApiError(endpoint, status, message) {
+    if (!window.svzTrack) return;
+    window.svzTrack("api_error", {
+      endpoint: endpoint || "",
+      status: status || 0,
+      message: message || "",
+      path: window.location.pathname,
+    });
+  }
+
   function addManualCategory(name) {
     const inputName = (name || "").trim();
     const slug = slugify(inputName);
@@ -152,6 +162,9 @@
     opts.headers = headers;
 
     const response = await fetch(url, opts);
+    if (!response.ok) {
+      trackApiError(url, response.status, opts.method || "GET");
+    }
     if (response.status === 401 && retry) {
       const newToken = await refreshAdminToken();
       if (newToken) {

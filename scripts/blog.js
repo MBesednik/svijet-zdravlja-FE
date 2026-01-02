@@ -78,6 +78,15 @@
   const DEFAULT_SORT_OPTIONS = [];
   let sortAliases = {};
   let adminTokenCache = null;
+  const trackApiError = function (endpoint, status, message) {
+    if (!window.svzTrack) return;
+    window.svzTrack("api_error", {
+      endpoint: endpoint || "",
+      status: status || 0,
+      message: message || "",
+      path: window.location.pathname,
+    });
+  };
 
   function getAdminToken() {
     try {
@@ -228,6 +237,7 @@
         headers: headers,
       });
       if (!resp.ok) {
+        trackApiError("/posts", resp.status, "list");
         console.warn("API posts fetch failed", resp.status);
         return null;
       }
@@ -235,6 +245,18 @@
       if (!Array.isArray(data)) return null;
       // normalize to local storage shape
       const normalized = data.map(normalizeApiPost).filter(Boolean);
+      if (window.svzTrack) {
+        window.svzTrack("post_list_view", {
+          count: normalized.length,
+          filters: JSON.stringify(filters || {}),
+        });
+        window.svzTrack("blog_filter", {
+          category: (filters && filters.category) || "all",
+          sort: (filters && filters.sort) || "newest",
+          search: (filters && filters.q) || "",
+          count: normalized.length,
+        });
+      }
       return normalized;
     } catch (err) {
       console.warn("Failed to fetch posts from API", err);
@@ -256,9 +278,37 @@
         }
       );
       if (!resp.ok) {
+        trackApiError(path + encodeURIComponent(identifier), resp.status, "fetch");
         return null;
       }
       const data = await resp.json();
+      if (window.svzTrack) {
+        window.svzTrack("blog_post_view", {
+          id: data.id || data.slug || identifier,
+          slug: data.slug || identifier,
+        });
+      }
+      // Track time-on-post when unloading the page
+      if (window.svzTrack) {
+        const start = Date.now();
+        const handler = function () {
+          const durationMs = Date.now() - start;
+          window.svzTrack("blog_post_engagement", {
+            id: data.id || data.slug || identifier,
+            slug: data.slug || identifier,
+            duration_ms: durationMs,
+          });
+          window.removeEventListener("beforeunload", handler);
+          document.removeEventListener("visibilitychange", visHandler);
+        };
+        const visHandler = function () {
+          if (document.visibilityState === "hidden") {
+            handler();
+          }
+        };
+        window.addEventListener("beforeunload", handler);
+        document.addEventListener("visibilitychange", visHandler);
+      }
       return normalizeApiPost(data);
     } catch (err) {
       console.warn("Failed to fetch post from API", err);
@@ -440,6 +490,48 @@
     const words = (content || "").trim().split(/\s+/).filter(Boolean).length;
     const minutes = Math.round(words / 200) || 1;
     return Math.max(1, minutes);
+  }
+
+  let scrollDepthCleanup = null;
+  function initPostScrollDepth(post) {
+    if (!window.svzTrack || !post) return;
+    if (scrollDepthCleanup) {
+      scrollDepthCleanup();
+      scrollDepthCleanup = null;
+    }
+    const postId = post.id || post.slug;
+    if (!postId) return;
+    const thresholds = [0.5, 0.75, 1];
+    const fired = new Set();
+
+    const handler = function () {
+      const doc = document.documentElement;
+      const maxScroll = doc.scrollHeight - window.innerHeight;
+      if (maxScroll <= 0) return;
+      const progress = (window.scrollY || doc.scrollTop || 0) / maxScroll;
+      thresholds.forEach(function (t) {
+        if (progress >= t && !fired.has(t)) {
+          fired.add(t);
+          window.svzTrack("blog_post_scroll", {
+            id: post.id || "",
+            slug: post.slug || "",
+            depth: Math.round(t * 100),
+          });
+        }
+      });
+      if (fired.size === thresholds.length) {
+        cleanup();
+      }
+    };
+
+    const cleanup = function () {
+      window.removeEventListener("scroll", handler);
+      window.removeEventListener("beforeunload", handler);
+    };
+
+    window.addEventListener("scroll", handler, { passive: true });
+    window.addEventListener("beforeunload", handler);
+    scrollDepthCleanup = cleanup;
   }
 
   function normalizePostInput(raw, posts, currentId) {
@@ -817,8 +909,12 @@
   }
 
   function renderPost(identifier, postOverride) {
+    const postTrace =
+      window.svzStartTrace &&
+      window.svzStartTrace("blog_post_render", { id: identifier || "" });
     const article = document.getElementById("post-article");
     if (!article) {
+      window.svzStopTrace && window.svzStopTrace(postTrace);
       return null;
     }
     const titleEl = document.getElementById("post-title");
@@ -853,6 +949,7 @@
         deleteButton.disabled = true;
       }
       document.title = "Objava nije pronađena | Svijet Zdravlja";
+      window.svzStopTrace && window.svzStopTrace(postTrace);
       return null;
     }
 
@@ -1114,6 +1211,9 @@
       }
     }
 
+    // track scroll depth for analytics once content is rendered
+    initPostScrollDepth(post);
+
     if (editLink) {
       editLink.href = "create.html?id=" + encodeURIComponent(post.id);
     }
@@ -1121,6 +1221,7 @@
       deleteButton.disabled = false;
     }
 
+    window.svzStopTrace && window.svzStopTrace(postTrace);
     return post;
   }
 
@@ -1306,6 +1407,9 @@
 
     const renderWithFallback = function (targetFilters) {
       listEl.setAttribute("aria-busy", "true");
+      const listTrace =
+        window.svzStartTrace && window.svzStartTrace("blog_list_render");
+      let renderedCount = 0;
       return fetchPostsFromApi(targetFilters)
         .then(function (apiPosts) {
           if (Array.isArray(apiPosts)) {
@@ -1317,18 +1421,31 @@
               }
             }
             renderList(apiPosts);
+            renderedCount = apiPosts.length;
             return;
           }
-          renderList(
-            filterPostsLocally(getPosts(), targetFilters, categoryOptions)
+          const local = filterPostsLocally(
+            getPosts(),
+            targetFilters,
+            categoryOptions
           );
+          renderList(local);
+          renderedCount = local.length;
         })
         .catch(function () {
-          renderList(
-            filterPostsLocally(getPosts(), targetFilters, categoryOptions)
+          const local = filterPostsLocally(
+            getPosts(),
+            targetFilters,
+            categoryOptions
           );
+          renderList(local);
+          renderedCount = local.length;
         })
-        .finally(notifyPostsLoaded);
+        .finally(function () {
+          window.svzStopTrace &&
+            window.svzStopTrace(listTrace, { count: renderedCount });
+          notifyPostsLoaded();
+        });
     };
 
     applyOptions(filters);

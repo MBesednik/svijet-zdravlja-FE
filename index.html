@@ -16,6 +16,24 @@
       href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap"
       rel="stylesheet"
     />
+    <script type="module" src="scripts/analytics.js"></script>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyAS9Oy88NY70Eo4lOpQDkYO0vD5FYHBUp8",
+        authDomain: "jugo-projekt.firebaseapp.com",
+        projectId: "jugo-projekt",
+        storageBucket: "jugo-projekt.firebasestorage.app",
+        messagingSenderId: "349150746918",
+        appId: "1:349150746918:web:20219a6eeacc2f955e49e7",
+        measurementId: "G-T903QB3RZZ",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      getAnalytics(app);
+    </script>
     <script>
       try {
         if (sessionStorage.getItem("svz_preloader_seen") === "1") {
@@ -124,7 +142,12 @@
               vaše transformacije.
             </p>
             <div class="hero__buttons">
-              <a href="#kontakt" class="btn btn--secondary">
+              <a
+                href="#kontakt"
+                class="btn btn--secondary"
+                data-track="cta"
+                data-track-label="hero_consult"
+              >
                 Zakaži besplatnu konzultaciju
                 <svg
                   class="btn__icon"
