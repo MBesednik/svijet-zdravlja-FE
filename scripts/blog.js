@@ -230,7 +230,12 @@
     return query ? "?" + query : "";
   }
 
-  async function fetchWithAuthFallback(url, parseResponse, trackPath, errorMsg) {
+  async function fetchWithAuthFallback(
+    url,
+    parseResponse,
+    trackPath,
+    errorMsg
+  ) {
     const fetchWithHeaders = function (headers) {
       return fetch(url, { headers: headers });
     };
@@ -316,7 +321,11 @@
         }
       );
       if (!resp.ok) {
-        trackApiError(path + encodeURIComponent(identifier), resp.status, "fetch");
+        trackApiError(
+          path + encodeURIComponent(identifier),
+          resp.status,
+          "fetch"
+        );
         return null;
       }
       const data = await resp.json();
@@ -454,10 +463,7 @@
       );
     } catch (err) {
       console.warn("Failed to fetch categories", err);
-      showToast(
-        "Ne možemo učitati kategorije. Pokušajte ponovno.",
-        "error"
-      );
+      showToast("Ne možemo učitati kategorije. Pokušajte ponovno.", "error");
       return null;
     }
   }
@@ -883,48 +889,63 @@
         article.appendChild(hiddenBadge);
       }
 
+      // Slika gore, od ruba do ruba
       const image = document.createElement("img");
       image.className = "post-card__image";
       image.src = post.featuredImage || FALLBACK_IMAGE;
       image.alt = post.title || "Naslovna slika objave";
       article.appendChild(image);
 
+      // Sadržaj ispod slike
+      const contentDiv = document.createElement("div");
+      contentDiv.className = "post-card__content";
+
+      // 1. RED: kategorija (badge) + datum (horizontalno)
+      const row1 = document.createElement("div");
+      row1.style.display = "flex";
+      row1.style.alignItems = "center";
+      row1.style.gap = "1em";
+      row1.style.width = "100%";
+      row1.style.marginBottom = "0.5em";
+
+      // kategorija badge
+      if (post.categories && post.categories.length) {
+        post.categories.forEach(function (cat) {
+          const badge = document.createElement("span");
+          badge.className = "post-card__category-badge";
+          badge.textContent = cat;
+          row1.appendChild(badge);
+        });
+      }
+
+      // datum
+      const date = document.createElement("span");
+      date.className = "post-card__meta";
+      date.textContent = formatDate(post.createdAt);
+      row1.appendChild(date);
+
+      contentDiv.appendChild(row1);
+
+      // 2. RED: naslov
       const title = document.createElement("h3");
       title.className = "post-card__title";
       title.textContent = post.title;
-      article.appendChild(title);
+      contentDiv.appendChild(title);
 
+      // 3. RED: opis
       const excerpt = document.createElement("p");
       excerpt.className = "post-card__excerpt";
       excerpt.textContent = post.excerpt;
-      article.appendChild(excerpt);
+      contentDiv.appendChild(excerpt);
 
-      const meta = document.createElement("div");
-      meta.className = "post-card__meta";
-      const date = document.createElement("span");
-      date.textContent = formatDate(post.createdAt);
-      meta.appendChild(date);
-
-      if (post.categories && post.categories.length) {
-        const categoriesSpan = document.createElement("span");
-        categoriesSpan.textContent = " • " + post.categories.join(", ");
-        meta.appendChild(categoriesSpan);
-      }
-
-      // Ukloni stari "Skica" tekst iz meta (sada je badge)
-      // if (!post.published) {
-      //   const draft = document.createElement("span");
-      //   draft.textContent = " • Skica";
-      //   meta.appendChild(draft);
-      // }
-
-      article.appendChild(meta);
-
+      // 4. RED: gumb "Pročitaj više"
       const link = document.createElement("a");
       link.className = "post-card__read";
       link.href = "post.html?id=" + encodeURIComponent(post.id);
       link.textContent = "Pročitaj više";
-      article.appendChild(link);
+      contentDiv.appendChild(link);
+
+      article.appendChild(contentDiv);
 
       fragment.appendChild(article);
     });
