@@ -78,6 +78,9 @@
   const DEFAULT_SORT_OPTIONS = [];
   let sortAliases = {};
   let adminTokenCache = null;
+  let hiddenCategorySlugs = new Set();
+  let lastRenderedPosts = [];
+  let lastCategoryOptions = [];
   const trackApiError = function (endpoint, status, message) {
     if (!window.svzTrack) return;
     window.svzTrack("api_error", {
@@ -464,13 +467,98 @@
       .filter(Boolean);
   }
 
+  function filterVisibleCategories(categories) {
+    const hidden = hiddenCategorySlugs || new Set();
+    return (categories || []).filter(function (category) {
+      const slug = (category && category.slug) || "";
+      if (!slug) return false;
+      if (hidden.has(slug.toLowerCase())) return false;
+      return category.is_visible_for_public !== false;
+    });
+  }
+
+  function renderCategoryButtons(categories, selectedSlug) {
+    const container = document.getElementById("category-buttons");
+    if (!container) return;
+    const list = Array.isArray(categories) ? categories : [];
+    const selected = (selectedSlug || "all").toString();
+    const hidden = hiddenCategorySlugs || new Set();
+    const visibleSlugs = new Set(
+      (lastCategoryOptions || [])
+        .map(function (c) {
+          return (c.slug || "").toString().toLowerCase();
+        })
+        .filter(Boolean)
+    );
+    container.innerHTML = "";
+    if (!list.length) return;
+    const counts = (lastRenderedPosts || []).reduce(function (acc, post) {
+      if (!Array.isArray(post.categories)) return acc;
+      post.categories.forEach(function (c) {
+        const key = (c || "").toString().trim().toLowerCase();
+        if (!key || hidden.has(key)) return;
+        acc[key] = (acc[key] || 0) + 1;
+      });
+      return acc;
+    }, {});
+    const totalCount = (lastRenderedPosts || []).filter(function (post) {
+      if (!Array.isArray(post.categories)) return false;
+      return post.categories.some(function (c) {
+        const key = (c || "").toString().trim().toLowerCase();
+        if (!key) return false;
+        if (hidden.has(key)) return false;
+        return visibleSlugs.has(key);
+      });
+    }).length;
+    const withAll = [{ name: "Sve kategorije", slug: "all" }].concat(list);
+    withAll.forEach(function (cat) {
+      const slug = cat.slug || cat.name || "";
+      const key = slug.toString().trim().toLowerCase();
+      const count =
+        slug === "all" || cat.name === "Sve kategorije"
+          ? totalCount
+          : counts[key] || 0;
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "category-btn" + (selected === slug ? " active" : "");
+      btn.innerHTML = `
+        <span class="cat-label">${cat.name}</span>
+        <span class="category-count-badge">${count}</span>
+      `;
+      btn.addEventListener("click", function () {
+        // If already selected, do nothing
+        if (btn.classList.contains("active")) return;
+        const select = document.getElementById("posts-filter-category");
+        if (select) {
+          select.value = slug;
+          select.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+        Array.from(container.children).forEach(function (b) {
+          b.classList.remove("active");
+        });
+        btn.classList.add("active");
+      });
+      container.appendChild(btn);
+    });
+  }
+
   async function fetchCategoriesFromApi() {
     try {
       const url = API_BASE + "/categories";
       const parseResponse = async function (resp) {
         const data = await resp.json();
         const normalized = normalizeCategoryOptions(data);
-        return normalized.length ? normalized : null;
+        const hidden = normalized
+          .filter(function (c) {
+            return c.is_visible_for_public === false;
+          })
+          .map(function (c) {
+            return c.slug && c.slug.toLowerCase();
+          })
+          .filter(Boolean);
+        hiddenCategorySlugs = new Set(hidden);
+        const visible = filterVisibleCategories(normalized);
+        return visible.length ? visible : null;
       };
       return await fetchWithAuthFallback(
         url,
@@ -486,17 +574,22 @@
   }
 
   function getCategoryOptionsFromPosts(posts) {
+    const hidden = hiddenCategorySlugs || new Set();
     const items = Array.from(
       new Set(
         (posts || []).flatMap(function (post) {
           return Array.isArray(post.categories) ? post.categories : [];
         })
       )
-    ).sort(function (a, b) {
-      return a.localeCompare(b, "hr");
-    });
+    )
+      .filter(function (name) {
+        return name && !hidden.has(name.toString().toLowerCase());
+      })
+      .sort(function (a, b) {
+        return a.localeCompare(b, "hr");
+      });
     return items.map(function (name) {
-      return { slug: name, name: name };
+      return { slug: name, name: name, is_visible_for_public: true };
     });
   }
 
@@ -504,11 +597,10 @@
     if (!selectEl) {
       return;
     }
-    const normalized = normalizeCategoryOptions(categories || []).filter(
-      function (category) {
-        return category.is_visible_for_public !== false;
-      }
+    const normalized = filterVisibleCategories(
+      normalizeCategoryOptions(categories || [])
     );
+    lastCategoryOptions = normalized;
     selectEl.innerHTML = "";
     const defaultOption = document.createElement("option");
     defaultOption.value = "all";
@@ -858,6 +950,7 @@
       return [];
     }
     const items = Array.isArray(posts) ? posts : [];
+    lastRenderedPosts = items.slice();
 
     listEl.setAttribute("aria-busy", "true");
     listEl.innerHTML = "";
@@ -1494,6 +1587,7 @@
           categorySelect,
           targetFilters && targetFilters.category
         );
+        renderCategoryButtons(lastCategoryOptions, categorySelect.value);
       }
       if (sortSelect) {
         populateSortFilterOptions(
@@ -1545,6 +1639,11 @@
           window.svzStopTrace &&
             window.svzStopTrace(listTrace, { count: renderedCount });
           notifyPostsLoaded();
+          const currentCategory =
+            (categorySelect && categorySelect.value) ||
+            (targetFilters && targetFilters.category) ||
+            "all";
+          renderCategoryButtons(lastCategoryOptions, currentCategory);
         });
     };
 
@@ -1565,6 +1664,7 @@
         category: categorySelect ? categorySelect.value : "all",
         sort: sortSelect ? sortSelect.value : "newest",
       };
+      renderCategoryButtons(lastCategoryOptions, updatedFilters.category);
       persistFilterState(updatedFilters);
       renderWithFallback(updatedFilters);
     };
