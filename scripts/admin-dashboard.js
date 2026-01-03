@@ -152,9 +152,15 @@
     }
   }
 
-  function setCategoryStatus(text) {
+  function setCategoryStatus(text, type) {
     if (els.catStatus) {
       els.catStatus.textContent = text || "";
+      els.catStatus.className = "status muted";
+      if (type === "error") {
+        els.catStatus.classList.add("status--error");
+      } else if (type === "success") {
+        els.catStatus.classList.add("status--success");
+      }
     }
   }
 
@@ -335,6 +341,7 @@
     els.catVisible.checked = true;
     els.catSave.textContent = "Spremi kategoriju";
     els.catCancel.hidden = true;
+    validateSlugInput();
   }
 
   function formatStatusLabel(status) {
@@ -359,6 +366,23 @@
     return null;
   }
 
+  function validateSlugInput() {
+    if (!els.catSlug || !els.catSave) return true;
+    const raw = (els.catSlug.value || "").trim();
+    const lower = raw.toLowerCase();
+    const isValid = !raw || raw === lower;
+    els.catSave.disabled = !isValid;
+    if (!isValid) {
+      setCategoryStatus("Slug mora biti malim slovima.", "error");
+    } else if (
+      els.catStatus &&
+      els.catStatus.textContent === "Slug mora biti malim slovima."
+    ) {
+      setCategoryStatus("");
+    }
+    return isValid;
+  }
+
   function applyDataLabels(tr, labels) {
     if (!tr || !Array.isArray(labels)) return;
     const cells = tr.querySelectorAll("td");
@@ -377,6 +401,7 @@
     els.catVisible.checked = isVisibleForPublic(cat.is_visible_for_public);
     els.catSave.textContent = "Ažuriraj kategoriju";
     els.catCancel.hidden = false;
+    validateSlugInput();
   }
 
   function renderCategories(list) {
@@ -433,7 +458,10 @@
     } catch (err) {
       console.warn("Failed to load categories", err);
       renderCategories([]);
-      setCategoryStatus(err.message || "Greška pri dohvaćanju kategorija.");
+      setCategoryStatus(
+        err.message || "Greška pri dohvaćanju kategorija.",
+        "error"
+      );
       showToastMessage("Nismo mogli učitati kategorije.", "error");
     }
   }
@@ -441,6 +469,9 @@
   async function saveCategory(event) {
     event.preventDefault();
     const name = els.catName.value.trim();
+    if (!validateSlugInput()) {
+      return;
+    }
     const slugInput = els.catSlug.value.trim() || name;
     const payload = {
       name: name,
@@ -449,7 +480,7 @@
       is_visible_for_public: !!els.catVisible.checked,
     };
     if (!payload.name || !payload.slug) {
-      setCategoryStatus("Naziv i slug su obavezni.");
+      setCategoryStatus("Naziv i slug su obavezni.", "error");
       return;
     }
     setCategoryStatus(
@@ -477,7 +508,10 @@
       setCategoryStatus("");
     } catch (err) {
       console.warn("Failed to save category", err);
-      setCategoryStatus(err.message || "Greška pri spremanju kategorije.");
+      setCategoryStatus(
+        err.message || "Greška pri spremanju kategorije.",
+        "error"
+      );
       showToastMessage("Spremanje kategorije nije uspjelo.", "error");
     }
   }
@@ -548,7 +582,9 @@
         if (!state.editingId && !els.catSlug.value.trim()) {
           els.catSlug.value = slugify(els.catName.value);
         }
+        validateSlugInput();
       });
+      els.catSlug.addEventListener("input", validateSlugInput);
     }
     if (els.topStatusFilter) {
       els.topStatusFilter.addEventListener("change", function () {

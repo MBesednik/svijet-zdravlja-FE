@@ -73,6 +73,14 @@
   min-height: 1.5rem;
 }
 
+.status--error {
+  color: #fa5252;
+}
+
+.status--success {
+  color: #0f5835;
+}
+
 .metrics-form {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -226,6 +234,19 @@
   background: #3d4a2c;
   color: #f7f9f6;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.button--primary:disabled,
+.button--primary[disabled] {
+  background: #adb5bd;
+  border: 1px solid #adb5bd;
+  color: #f1f3f5;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.button:disabled {
+  transform: none;
 }
 
 .button--ghost {
