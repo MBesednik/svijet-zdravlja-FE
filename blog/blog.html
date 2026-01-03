@@ -906,6 +906,13 @@
         const container = document.getElementById("category-buttons");
         if (!container) return;
         container.innerHTML = "Učitavanje...";
+        const isVisible = (value) =>
+          !(
+            value === false ||
+            value === "false" ||
+            value === 0 ||
+            value === "0"
+          );
         try {
           const resp = await fetch(window.getSVZApiBase() + "/categories");
           const data = await resp.json();
@@ -915,15 +922,27 @@
             categories = data.map((cat) =>
               typeof cat === "string"
                 ? { slug: cat, name: cat }
-                : { slug: cat.slug || cat.name, name: cat.name || cat.slug }
+                : {
+                    slug: cat.slug || cat.name,
+                    name: cat.name || cat.slug,
+                    is_visible_for_public: cat.is_visible_for_public,
+                  }
             );
           } else if (Array.isArray(data.categories)) {
             categories = data.categories.map((cat) =>
               typeof cat === "string"
                 ? { slug: cat, name: cat }
-                : { slug: cat.slug || cat.name, name: cat.name || cat.slug }
+                : {
+                    slug: cat.slug || cat.name,
+                    name: cat.name || cat.slug,
+                    is_visible_for_public: cat.is_visible_for_public,
+                  }
             );
           }
+          // Filter hidden categories
+          categories = categories.filter(
+            (cat) => cat && isVisible(cat.is_visible_for_public)
+          );
           // Dodaj "Sve kategorije" na vrh
           categories.unshift({ slug: "all", name: "Sve kategorije" });
 

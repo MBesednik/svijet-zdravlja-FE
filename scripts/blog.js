@@ -934,7 +934,12 @@
         post.categories.forEach(function (cat) {
           const badge = document.createElement("span");
           badge.className = "post-card__category-badge";
-          badge.textContent = cat;
+          badge.textContent = (cat || "")
+            .toString()
+            .trim()
+            .replace(/^[a-zA-Z\u00c0-\u017f]/, function (c) {
+              return c.toUpperCase();
+            });
           row1.appendChild(badge);
         });
       }

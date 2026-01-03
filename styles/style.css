@@ -1313,6 +1313,7 @@ body {
   color: #222;
   font-weight: 700;
   letter-spacing: 0.08em;
+  text-transform: capitalize;
 }
 
 .post-meta-bar__divider {
@@ -1367,6 +1368,7 @@ body {
   letter-spacing: 0.08em;
   font-size: 1.1rem;
   display: inline;
+  text-transform: capitalize;
 }
 
 /* Responsive: stack on small screens */
