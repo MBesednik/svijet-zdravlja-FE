@@ -423,14 +423,31 @@
     return list
       .map(function (item) {
         if (typeof item === "string") {
-          return { slug: item, name: item };
+          return {
+            slug: item,
+            name: item,
+            is_visible_for_public: true,
+          };
         }
         if (item && typeof item === "object") {
+          var rawVisible =
+          item.is_visible_for_public !== undefined
+              ? item.is_visible_for_public
+              : true;
+          var isVisible =
+            rawVisible === true ||
+            rawVisible === "true" ||
+            rawVisible === 1 ||
+            rawVisible === "1";
           const slug =
             item.slug || item.value || item.id || item.key || item.name;
           const name = item.name || item.label || item.title || slug;
           if (slug) {
-            return { slug: slug, name: name };
+            return {
+              slug: slug,
+              name: name,
+              is_visible_for_public: isVisible,
+            };
           }
         }
         return null;
@@ -481,7 +498,11 @@
     if (!selectEl) {
       return;
     }
-    const normalized = normalizeCategoryOptions(categories || []);
+    const normalized = normalizeCategoryOptions(categories || []).filter(
+      function (category) {
+        return category.is_visible_for_public !== false;
+      }
+    );
     selectEl.innerHTML = "";
     const defaultOption = document.createElement("option");
     defaultOption.value = "all";

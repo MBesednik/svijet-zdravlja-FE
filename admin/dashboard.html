@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="hr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard | Svijet Zdravlja</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles/style.css" />
+    <link rel="stylesheet" href="../styles/admin-dashboard.css" />
+  </head>
+  <body>
+    <script src="../scripts/admin-guard.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        if (window.adminGuard) {
+          window.adminGuard.enforceAdminAccess("../404.html");
+        }
+      });
+    </script>
+
+    <header class="header">
+      <div class="header__container container">
+        <a href="../index.html" class="header__logo">
+          <img
+            src="../images/logo/SZ_cijelilogo_transparent.png"
+            alt="Svijet Zdravlja logo"
+            class="header__logo-img"
+          />
+        </a>
+
+        <nav class="header__nav">
+          <ul class="header__nav-list">
+            <li class="header__nav-item">
+              <a href="../index.html" class="header__nav-link">Početna</a>
+            </li>
+            <li class="header__nav-item">
+              <a href="#" class="header__nav-link">O nama</a>
+            </li>
+            <li class="header__nav-item">
+              <a href="#" class="header__nav-link">Usluge</a>
+            </li>
+            <li class="header__nav-item">
+              <a href="/blog/blog.html" class="header__nav-link">Blog</a>
+            </li>
+            <li class="header__nav-item">
+              <a href="../contact.html" class="header__nav-link">Kontakt</a>
+            </li>
+          </ul>
+        </nav>
+
+        <button
+          class="header__hamburger"
+          aria-label="Toggle navigation"
+          aria-expanded="false"
+        >
+          <span class="header__hamburger-line"></span>
+          <span class="header__hamburger-line"></span>
+          <span class="header__hamburger-line"></span>
+        </button>
+      </div>
+    </header>
+
+    <main class="admin-dashboard">
+      <section class="card">
+        <div class="card__header">
+          <div>
+            <p class="eyebrow">Analitika</p>
+            <h1>Sažetak posjećenosti</h1>
+            <p class="muted">
+              Ključne brojke, trendovi po danu i najčitanije objave u odabranom
+              razdoblju.
+            </p>
+          </div>
+        </div>
+
+        <form id="metrics-form" class="metrics-form">
+          <label>
+            Od
+            <input id="metrics-start" name="start_date" type="date" required />
+          </label>
+          <label>
+            Do
+            <input id="metrics-end" name="end_date" type="date" required />
+          </label>
+          <label>
+            Top N
+            <input
+              id="metrics-top-limit"
+              name="top_limit"
+              type="number"
+              min="1"
+              max="50"
+              value="5"
+              required
+            />
+          </label>
+          <button type="submit" class="button button--primary">Osvježi</button>
+        </form>
+
+        <div id="metrics-status" class="status muted"></div>
+
+        <div class="metrics-grid" id="metrics-totals">
+          <div class="metric">
+            <p class="metric__label">Pregledi</p>
+            <p class="metric__value" id="metric-views">—</p>
+          </div>
+          <div class="metric">
+            <p class="metric__label">Sviđanja</p>
+            <p class="metric__value" id="metric-likes">—</p>
+          </div>
+          <div class="metric">
+            <p class="metric__label">Dijeljenja</p>
+            <p class="metric__value" id="metric-shares">—</p>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <div class="table-header">
+              <h3>Trend po danu</h3>
+              <span class="muted" id="metrics-range-label"></span>
+            </div>
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Datum</th>
+                    <th>Pregledi</th>
+                    <th>Sviđanja</th>
+                    <th>Dijeljenja</th>
+                  </tr>
+                </thead>
+                <tbody id="metrics-daily-body">
+                  <tr>
+                    <td colspan="4" class="muted center">
+                      Nema podataka za prikaz.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <div class="table-header">
+              <h3>Top objave</h3>
+              <div class="top-controls">
+                <label class="muted" for="top-status-filter">Status</label>
+                <select id="top-status-filter">
+                  <option value="all">Svi</option>
+                  <option value="PUBLISHED">Objavljeno</option>
+                  <option value="DRAFT">Skica</option>
+                  <option value="SCHEDULED">Zakazano</option>
+                  <option value="HIDDEN">Sakriveno</option>
+                  <option value="ARCHIVED">Arhivirano</option>
+                </select>
+                <span class="muted" id="metrics-top-label"></span>
+              </div>
+            </div>
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Naslov</th>
+                    <th>Pregledi</th>
+                    <th>Sviđanja</th>
+                    <th>Dijeljenja</th>
+                  </tr>
+                </thead>
+                <tbody id="metrics-top-body">
+                  <tr>
+                    <td colspan="4" class="muted center">
+                      Nema podataka za prikaz.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card__header">
+          <div>
+            <p class="eyebrow">Kategorije</p>
+            <h2>Upravljanje kategorijama</h2>
+            <p class="muted">
+              Dodajte nove ili uredite postojeće kategorije i upravljajte
+              vidljivošću u javnim filterima.
+            </p>
+          </div>
+          <div id="category-status" class="status muted"></div>
+        </div>
+
+        <form id="category-form" class="category-form">
+          <div class="form-row">
+            <label>
+              Naziv
+              <input id="cat-name" type="text" required />
+            </label>
+            <label>
+              Slug
+              <input id="cat-slug" type="text" required />
+            </label>
+            <label>
+              Vidljivo u filteru
+              <div class="switch">
+                <input id="cat-visible" type="checkbox" checked />
+                <span>Da</span>
+              </div>
+            </label>
+          </div>
+          <label>
+            Opis
+            <textarea id="cat-description" rows="3"></textarea>
+          </label>
+          <div class="form-actions">
+            <button type="submit" class="button button--primary" id="cat-save">
+              Spremi kategoriju
+            </button>
+            <button
+              type="button"
+              class="button button--ghost"
+              id="cat-cancel"
+              hidden
+            >
+              Odustani od uređivanja
+            </button>
+          </div>
+        </form>
+
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Naziv</th>
+                <th>Slug</th>
+                <th>Vidljivo</th>
+                <th>Opis</th>
+                <th>Radnje</th>
+              </tr>
+            </thead>
+            <tbody id="categories-body">
+              <tr>
+                <td colspan="5" class="muted center">
+                  Nema kategorija za prikaz.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <div id="toast-container"></div>
+    <script src="../scripts/main.js"></script>
+    <script src="../scripts/config.js"></script>
+    <script src="../scripts/toast.js"></script>
+    <script src="../scripts/admin-dashboard.js"></script>
+  </body>
+</html>

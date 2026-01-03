@@ -85,6 +85,7 @@
           name: name,
           slug: slug,
           description: cat.description || null,
+          is_visible_for_public: true,
         }),
       });
       if (!resp.ok) {

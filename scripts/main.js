@@ -81,18 +81,35 @@ function removeAdminToken() {
     "svz_admin_token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
 }
 
-function addLogoutNavItem() {
+function addAdminNavItems() {
   if (!navList || !hasAdminToken()) return;
-  if (navList.querySelector(".js-logout-nav")) return;
 
-  const item = document.createElement("li");
-  item.className = "header__nav-item";
+  const ensureNavLink = function (className, text, href, onClick) {
+    if (navList.querySelector("." + className)) return;
+    const item = document.createElement("li");
+    item.className = "header__nav-item";
 
-  const btn = document.createElement("a");
-  btn.href = "#";
-  btn.className = "header__nav-link js-logout-nav";
-  btn.textContent = "Odjava";
-  btn.addEventListener("click", (e) => {
+    const link = document.createElement("a");
+    link.href = href || "#";
+    link.className = "header__nav-link " + className;
+    link.textContent = text;
+    if (onClick) {
+      link.addEventListener("click", onClick);
+    } else {
+      // close menu on navigation
+      link.addEventListener("click", () => {
+        if (nav && nav.classList.contains("is-active")) {
+          toggleMenu();
+        }
+      });
+    }
+
+    item.appendChild(link);
+    navList.appendChild(item);
+  };
+
+  ensureNavLink("js-dashboard-nav", "Dashboard", "/admin/dashboard.html");
+  ensureNavLink("js-logout-nav", "Odjava", "#", (e) => {
     e.preventDefault();
     removeAdminToken();
     if (nav && nav.classList.contains("is-active")) {
@@ -100,9 +117,6 @@ function addLogoutNavItem() {
     }
     window.location.href = "/index.html";
   });
-
-  item.appendChild(btn);
-  navList.appendChild(item);
 }
 
-addLogoutNavItem();
+addAdminNavItems();
