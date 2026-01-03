@@ -363,9 +363,8 @@
         display: flex;
         flex-direction: column;
         align-items: stretch;
-        background: #fff;
         border-radius: 18px;
-        box-shadow: 0 1.5px 8px rgba(61, 74, 44, 0.07);
+        /* box-shadow: 0 1.5px 8px rgba(61, 74, 44, 0.07); */
         overflow: hidden;
       }
       .category-buttons {
@@ -416,43 +415,58 @@
       }
       .category-btn.active,
       .category-btn:focus {
-        background: #3d4a2c;
-        color: #fff;
+        background: #3d4a2c !important;
+        color: #fff !important;
+        font-weight: 700;
+        border-radius: 0;
         box-shadow: 0 2px 8px rgba(61, 74, 44, 0.1) inset;
         z-index: 1;
-      }
-      .category-btn.active .cat-arrow,
-      .category-btn:focus .cat-arrow {
-        color: #fff;
-        transform: translateX(4px) scale(1.1);
-      }
-      /* Hover efekt kao .post-card__read */
-      .category-btn:hover:not(.active) {
-        background: #dbe2d3;
-        color: #3d4a2c;
-        /* nema underline na cijeli gumb, samo na label ispod */
-      }
-      .category-btn:hover:not(.active) .cat-arrow {
-        color: #3d4a2c;
-        transform: translateX(4px) scale(1.1);
-      }
-      .category-btn:hover:not(.active) span.cat-label {
+        border-bottom: none;
         position: relative;
       }
-      .category-btn:hover:not(.active) span.cat-label::after {
+      /* Za prvi i zadnji gumb zadrži zaobljenje */
+      .category-btn:first-child.active,
+      .category-btn:first-child:focus {
+        border-top-left-radius: 18px;
+        border-top-right-radius: 18px;
+      }
+      .category-btn:last-child.active,
+      .category-btn:last-child:focus {
+        border-bottom-left-radius: 18px;
+        border-bottom-right-radius: 18px;
+      }
+
+      /* Crta ispod teksta na aktivnom gumbu - uvijek vidljiva, bez animacije */
+      .category-btn.active::after,
+      .category-btn:focus::after {
         content: "";
         display: block;
-        height: 2px;
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 4px;
         background: #3d4a2c;
-        width: 100%;
-        margin-top: 6px;
-        border-radius: 2px;
-        transition: background 0.18s;
+        border-radius: 0 0 18px 18px;
+        /* crta ide cijelom širinom gumba */
+        z-index: 2;
       }
-      .category-btn:active {
-        background: #2c3820;
-        color: #fff;
-        transform: translateY(1px) scale(0.98);
+
+      /* Ukloni border-bottom na aktivnom da ne izgleda kao dvostruka crta */
+      .category-btn.active,
+      .category-btn:focus {
+        border-bottom: none;
+      }
+      /* Dodaj border samo na neaktivnim */
+      .category-btn:not(.active):not(:focus) {
+        border-bottom: 1px solid #dbe2d3;
+      }
+
+      /* Onemogući hover promjene za aktivni gumb */
+      .category-btn.active:hover,
+      .category-btn.active:focus {
+        background: #3d4a2c !important;
+        color: #fff !important;
       }
       @media (max-width: 900px) {
         .blog__layout {
@@ -548,6 +562,51 @@
         /* prazno */
       }
       @keyframes sticky-header-fadein {
+      }
+
+      /* Loader spinner for category buttons */
+      .category-loader-spinner {
+        width: 32px;
+        height: 32px;
+        border: 4px solid #e6e6e6;
+        border-top-color: #3d4a2c;
+        border-radius: 50%;
+        animation: loader-spin 0.9s linear infinite;
+        margin: 18px auto;
+        display: block;
+      }
+      /* Fade animation for category buttons */
+      .category-buttons.fade-out {
+        opacity: 0;
+        transition: opacity 0.25s;
+        pointer-events: none;
+      }
+      .category-buttons.fade-in {
+        opacity: 1;
+        transition: opacity 0.25s;
+      }
+      .category-count-badge {
+        display: inline-block;
+        min-width: 28px;
+        padding: 0 8px;
+        height: 22px;
+        background: #e6ede0;
+        color: #3d4a2c;
+        font-size: 0.98rem;
+        font-weight: 700;
+        border-radius: 12px;
+        margin-left: 12px;
+        text-align: center;
+        line-height: 22px;
+        vertical-align: middle;
+        box-shadow: 0 1px 4px rgba(61, 74, 44, 0.08);
+        /* Za aktivnu kategoriju badge je bijeli */
+        transition: background 0.18s, color 0.18s;
+      }
+      .category-btn.active .category-count-badge,
+      .category-btn:focus .category-count-badge {
+        background: #fff;
+        color: #3d4a2c;
       }
     </style>
   </head>
@@ -905,73 +964,131 @@
       async function fetchAndRenderCategoryButtons(selected) {
         const container = document.getElementById("category-buttons");
         if (!container) return;
-        container.innerHTML = "Učitavanje...";
-        const isVisible = (value) =>
-          !(
-            value === false ||
-            value === "false" ||
-            value === 0 ||
-            value === "0"
-          );
+
+        // Fade out current buttons
+        container.classList.remove("fade-in");
+        container.classList.add("fade-out");
+
+        // Prikaži spinner nakon fade-out
+        setTimeout(() => {
+          container.innerHTML =
+            '<div class="category-loader-spinner" aria-label="Učitavanje kategorija"></div>';
+          container.classList.remove("fade-out");
+        }, 220);
+
         try {
-          const resp = await fetch(window.getSVZApiBase() + "/categories");
-          const data = await resp.json();
-          // Normalizacija
+          // Dohvati kategorije
+          const catResp = await fetch(window.getSVZApiBase() + "/categories");
+          const catData = await catResp.json();
           let categories = [];
-          if (Array.isArray(data)) {
-            categories = data.map((cat) =>
+          if (Array.isArray(catData)) {
+            categories = catData.map((cat) =>
               typeof cat === "string"
-                ? { slug: cat, name: cat }
+                ? { name: String(cat) }
                 : {
-                    slug: cat.slug || cat.name,
-                    name: cat.name || cat.slug,
+                    name: String(cat.name || cat),
                     is_visible_for_public: cat.is_visible_for_public,
                   }
             );
-          } else if (Array.isArray(data.categories)) {
-            categories = data.categories.map((cat) =>
+          } else if (Array.isArray(catData.categories)) {
+            categories = catData.categories.map((cat) =>
               typeof cat === "string"
-                ? { slug: cat, name: cat }
+                ? { name: String(cat) }
                 : {
-                    slug: cat.slug || cat.name,
-                    name: cat.name || cat.slug,
+                    name: String(cat.name || cat),
                     is_visible_for_public: cat.is_visible_for_public,
                   }
             );
           }
-          // Filter hidden categories
           categories = categories.filter(
-            (cat) => cat && isVisible(cat.is_visible_for_public)
+            (cat) =>
+              cat &&
+              cat.name &&
+              (typeof cat.is_visible_for_public === "undefined" ||
+                cat.is_visible_for_public === true ||
+                cat.is_visible_for_public === "true" ||
+                cat.is_visible_for_public === 1 ||
+                cat.is_visible_for_public === "1")
           );
-          // Dodaj "Sve kategorije" na vrh
-          categories.unshift({ slug: "all", name: "Sve kategorije" });
 
-          container.innerHTML = "";
-          categories.forEach((cat) => {
-            const btn = document.createElement("button");
-            btn.type = "button";
-            btn.className =
-              "category-btn" +
-              ((selected || "all") === cat.slug ? " active" : "");
-            btn.textContent = cat.name;
-            btn.onclick = function () {
-              // Sinkroniziraj dropdown
-              const select = document.getElementById("posts-filter-category");
-              if (select) {
-                select.value = cat.slug;
-                select.dispatchEvent(new Event("change", { bubbles: true }));
-              }
-              // Osvježi aktivni gumb
-              Array.from(container.children).forEach((b) =>
-                b.classList.remove("active")
-              );
-              btn.classList.add("active");
-            };
-            container.appendChild(btn);
+          // Dohvati sve blogove
+          const postsResp = await fetch(window.getSVZApiBase() + "/posts");
+          const postsData = await postsResp.json();
+          let posts = Array.isArray(postsData)
+            ? postsData
+            : postsData.posts || [];
+
+          // Provjeri je li admin
+          const isAdmin = !!window.localStorage.getItem("svz_admin_token");
+
+          // Filtriraj blogove za prikaz
+          let visiblePosts;
+          if (isAdmin) {
+            visiblePosts = posts;
+          } else {
+            visiblePosts = posts.filter(
+              (post) =>
+                post.status === "objavljeno" || post.status === "published"
+            );
+          }
+
+          // Dodaj "Sve kategorije" na vrh s ukupnim brojem blogova
+          const totalCount = visiblePosts.length;
+          categories.unshift({
+            name: "Sve kategorije",
+            count: totalCount,
           });
+
+          // Dodaj count za svaku kategoriju (broji blogove koji sadrže tu kategoriju po name)
+          categories = categories.map((cat) => ({
+            ...cat,
+            count:
+              cat.name === "Sve kategorije"
+                ? totalCount
+                : visiblePosts.filter(
+                    (post) =>
+                      Array.isArray(post.categories) &&
+                      post.categories.some(
+                        (postCat) =>
+                          String(postCat).trim() !== "" &&
+                          String(postCat) === String(cat.name)
+                      )
+                  ).length,
+          }));
+
+          setTimeout(() => {
+            container.innerHTML = "";
+            categories.forEach((cat) => {
+              const btn = document.createElement("button");
+              btn.type = "button";
+              btn.className =
+                "category-btn" +
+                ((selected || "Sve kategorije") === cat.name ? " active" : "");
+              btn.innerHTML = `
+                <span class="cat-label">${cat.name}</span>
+                <span class="category-count-badge">${cat.count}</span>
+              `;
+              btn.onclick = function () {
+                const select = document.getElementById("posts-filter-category");
+                if (select) {
+                  select.value = cat.name;
+                  select.dispatchEvent(new Event("change", { bubbles: true }));
+                }
+                Array.from(container.children).forEach((b) =>
+                  b.classList.remove("active")
+                );
+                btn.classList.add("active");
+              };
+              container.appendChild(btn);
+            });
+            container.classList.add("fade-in");
+          }, 350);
         } catch (e) {
-          container.innerHTML =
-            "<span style='color:#b71c1c'>Greška kod učitavanja kategorija</span>";
+          setTimeout(() => {
+            container.innerHTML =
+              "<span style='color:#b71c1c'>Greška kod učitavanja kategorija</span>";
+            container.classList.add("fade-in");
+          }, 350);
         }
       }
 
