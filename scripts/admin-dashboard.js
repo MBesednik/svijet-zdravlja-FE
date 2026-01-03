@@ -341,7 +341,7 @@
     els.catVisible.checked = true;
     els.catSave.textContent = "Spremi kategoriju";
     els.catCancel.hidden = true;
-    validateSlugInput();
+    syncSlugFromName();
   }
 
   function formatStatusLabel(status) {
@@ -366,21 +366,15 @@
     return null;
   }
 
-  function validateSlugInput() {
-    if (!els.catSlug || !els.catSave) return true;
-    const raw = (els.catSlug.value || "").trim();
-    const lower = raw.toLowerCase();
-    const isValid = !raw || raw === lower;
-    els.catSave.disabled = !isValid;
-    if (!isValid) {
-      setCategoryStatus("Slug mora biti malim slovima.", "error");
-    } else if (
-      els.catStatus &&
-      els.catStatus.textContent === "Slug mora biti malim slovima."
-    ) {
-      setCategoryStatus("");
+  function syncSlugFromName() {
+    if (!els.catName || !els.catSlug) return true;
+    const slug = slugify(els.catName.value || "");
+    els.catSlug.value = slug;
+    if (els.catSave) {
+      els.catSave.disabled = false;
     }
-    return isValid;
+    setCategoryStatus("");
+    return true;
   }
 
   function applyDataLabels(tr, labels) {
@@ -396,12 +390,12 @@
   function fillCategoryForm(cat) {
     state.editingId = cat.id;
     els.catName.value = cat.name || "";
-    els.catSlug.value = cat.slug || "";
+    els.catSlug.value = slugify(cat.name || cat.slug || "");
     els.catDesc.value = cat.description || "";
     els.catVisible.checked = isVisibleForPublic(cat.is_visible_for_public);
     els.catSave.textContent = "Ažuriraj kategoriju";
     els.catCancel.hidden = false;
-    validateSlugInput();
+    syncSlugFromName();
   }
 
   function renderCategories(list) {
@@ -469,13 +463,10 @@
   async function saveCategory(event) {
     event.preventDefault();
     const name = els.catName.value.trim();
-    if (!validateSlugInput()) {
-      return;
-    }
-    const slugInput = els.catSlug.value.trim() || name;
+    const slugInput = slugify(name);
     const payload = {
       name: name,
-      slug: slugify(slugInput),
+      slug: slugInput,
       description: els.catDesc.value.trim() || null,
       is_visible_for_public: !!els.catVisible.checked,
     };
@@ -578,13 +569,11 @@
       });
     }
     if (els.catName && els.catSlug) {
+      els.catSlug.setAttribute("readonly", "readonly");
       els.catName.addEventListener("input", function () {
-        if (!state.editingId && !els.catSlug.value.trim()) {
-          els.catSlug.value = slugify(els.catName.value);
-        }
-        validateSlugInput();
+        syncSlugFromName();
       });
-      els.catSlug.addEventListener("input", validateSlugInput);
+      syncSlugFromName();
     }
     if (els.topStatusFilter) {
       els.topStatusFilter.addEventListener("change", function () {
