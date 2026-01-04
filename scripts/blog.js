@@ -1390,7 +1390,7 @@
             const chapterFlex = document.createElement("div");
             chapterFlex.className = "post-chapter post-chapter--image-flex";
             const layoutPos = (ch.layout_position || "RIGHT").toUpperCase();
-            if (layoutPos === "MIDDLE") {
+            if (layoutPos === "TOP-MIDDLE" || layoutPos === "BOTTOM-MIDDLE") {
               chapterFlex.classList.add("post-chapter--image-middle");
             }
 
@@ -1432,10 +1432,14 @@
               right.appendChild(figcap);
             }
 
-            if (layoutPos === "MIDDLE") {
+            if (layoutPos === "TOP-MIDDLE") {
               // Image above text
               chapterFlex.appendChild(right);
               chapterFlex.appendChild(left);
+            } else if (layoutPos === "BOTTOM-MIDDLE") {
+              // Image bellow text
+              chapterFlex.appendChild(left);
+              chapterFlex.appendChild(right);
             } else if (layoutPos === "LEFT") {
               // Image left, text right
               chapterFlex.appendChild(right);

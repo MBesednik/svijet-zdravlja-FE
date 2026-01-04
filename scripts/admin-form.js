@@ -531,9 +531,12 @@
             <option value="RIGHT" ${
               ch.layout_position === "RIGHT" ? "selected" : ""
             }>Right</option>
-            <option value="MIDDLE" ${
-              ch.layout_position === "MIDDLE" ? "selected" : ""
-            }>Middle</option>
+            <option value="TOP-MIDDLE" ${
+              ch.layout_position === "TOP-MIDDLE" ? "selected" : ""
+            }>Top Middle</option>
+            <option value="BOTTOM-MIDDLE" ${
+              ch.layout_position === "BOTTOM-MIDDLE" ? "selected" : ""
+            }>Bottom Middle</option>
           </select>
           <input type="text" placeholder="Opis slike (caption)" class="chapter-caption" data-id="${
             ch.id
