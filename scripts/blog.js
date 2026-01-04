@@ -208,7 +208,7 @@
       hero_media: p.hero_media,
       scheduled_for:
         p.scheduled_for || p.scheduledFor || p.scheduled_at || null,
-      reading_time_minutes: p.reading_time_minutes || 1,
+      reading_time_minutes: p.reading_time_minutes || null,
     };
   }
 
@@ -1082,12 +1082,13 @@
       console.log("Post reading time minutes:", post.reading_time_minutes);
       const rawMinutes = post.reading_time_minutes;
       const minutes =
-        typeof rawMinutes === "number"
-          ? rawMinutes
-          : parseInt(rawMinutes, 10);
+        typeof rawMinutes === "number" ? rawMinutes : parseInt(rawMinutes, 10);
       const hasMinutes = Number.isFinite(minutes);
       console.log("Calculated minutes:", minutes);
-      viewsText.textContent = hasMinutes ? minutes + " min" : "—";
+      if (!hasMinutes) {
+        viewsWrapper.style.display = "none";
+      }
+      viewsText.textContent = hasMinutes ? minutes + " min" : "";
       viewsText.style.fontWeight = "600";
       viewsText.style.color = "#3d4a2c";
       viewsText.style.fontSize = "12px";
@@ -1228,7 +1229,10 @@
         // Dodaj vrijeme čitanja desno od badge-a
         const readtime = document.createElement("span");
         readtime.className = "post-readtime";
-        const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        const icon = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "svg"
+        );
         icon.setAttribute("width", "18");
         icon.setAttribute("height", "18");
         icon.setAttribute("viewBox", "0 0 24 24");
@@ -1248,11 +1252,13 @@
         const hasMinutes = Number.isFinite(minutes);
         const text = document.createElement("span");
         text.className = "post-readtime__text";
-        text.textContent = hasMinutes ? minutes + " min" : "—";
+        text.textContent = hasMinutes ? minutes + " min" : "";
 
         readtime.appendChild(icon);
         readtime.appendChild(text);
-        wrap.appendChild(readtime);
+        if (hasMinutes) {
+          wrap.appendChild(readtime);
+        }
       }
     }
     document.title = post.title + " | Svijet Zdravlja";
