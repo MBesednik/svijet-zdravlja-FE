@@ -39,6 +39,7 @@
   let availableCategories = [];
   let pendingCategorySelection = null;
   let chapters = [];
+  let references = [];
 
   function trackApiError(endpoint, status, message) {
     if (!window.svzTrack) return;
@@ -241,6 +242,47 @@
       reader.onerror = () =>
         reject(new Error("Učitavanje slike nije uspjelo."));
       reader.readAsDataURL(file);
+    });
+  }
+
+  function addReference(name) {
+    const value = (name || "").trim();
+    if (!value) return;
+    const normalized = value.toLowerCase();
+    if (references.some((r) => (r || "").toLowerCase() === normalized)) return;
+    references.push(value);
+    updateSelectedReferences();
+  }
+
+  function updateSelectedReferences() {
+    const container = document.getElementById("post-references");
+    if (!container) return;
+    const selected = container.querySelector(".categories-selected");
+    if (!selected) return;
+
+    if (!references.length) {
+      selected.innerHTML = "";
+      return;
+    }
+
+    selected.innerHTML = references
+      .map(
+        (ref) => `
+        <div class="category-badge">
+          <span>${ref}</span>
+          <button type="button" class="category-badge__remove" data-ref="${ref}">×</button>
+        </div>
+      `
+      )
+      .join("");
+
+    selected.querySelectorAll(".category-badge__remove").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const ref = btn.dataset.ref;
+        references = references.filter((r) => r !== ref);
+        updateSelectedReferences();
+      });
     });
   }
 
@@ -702,6 +744,9 @@
         document.getElementById("post-meta-title").value.trim() || null,
       meta_description:
         document.getElementById("post-meta-description").value.trim() || null,
+      reference: references
+        .map((r) => (r || "").trim())
+        .filter((r) => r.length > 0),
       category_ids: selectedCategories
         .map((c) => c.id)
         .filter((id) => id != null),
@@ -912,6 +957,12 @@
   async function submitForm(e) {
     e.preventDefault();
 
+    const referencesInput = document.getElementById("references-input");
+    if (referencesInput && referencesInput.value.trim()) {
+      addReference(referencesInput.value);
+      referencesInput.value = "";
+    }
+
     if (!authToken) {
       showError("Niste prijavljeni. Molimo prijavite se prvo.");
       window.location.href = "/admin/login.html";
@@ -1054,6 +1105,12 @@
         applyPostCategories(currentPost.categories);
       }
 
+      // Reference
+      references = Array.isArray(currentPost.reference)
+        ? currentPost.reference.filter(Boolean)
+        : [];
+      updateSelectedReferences();
+
       // Naslovna slika
       const heroInput = document.getElementById("post-hero-image");
       if (currentPost.hero_media && currentPost.hero_media.storage_path) {
@@ -1178,6 +1235,21 @@
       });
     }
 
+    const referencesInput = document.getElementById("references-input");
+    if (referencesInput) {
+      const commitReference = () => {
+        addReference(referencesInput.value);
+        referencesInput.value = "";
+      };
+      referencesInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          commitReference();
+        }
+      });
+      referencesInput.addEventListener("blur", commitReference);
+    }
+
     const addChapterBtn = document.getElementById("add-chapter-btn");
     if (addChapterBtn) {
       addChapterBtn.addEventListener("click", (e) => {
@@ -1244,6 +1316,7 @@
 
     // Učitavanje kategorija
     loadCategories();
+    updateSelectedReferences();
 
     // Ako je edit mode, učitaj post
     const params = new URLSearchParams(window.location.search);
