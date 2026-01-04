@@ -202,7 +202,6 @@
       featuredImage:
         (p.hero_media && p.hero_media.storage_path) || p.featuredImage || "",
       published: p.status === "PUBLISHED" || p.published === true,
-      readTime: p.read_time || p.readTime || null,
       is_featured: p.is_featured || p.isFeatured || false,
       lang: p.lang || p.language || undefined,
       chapters: p.chapters || [],
@@ -210,6 +209,7 @@
       scheduled_for:
         p.scheduled_for || p.scheduledFor || p.scheduled_at || null,
       reading_time_minutes: p.reading_time_minutes || null,
+      references: p.reference || p.reference || [],
     };
   }
 
@@ -1316,9 +1316,6 @@
       if (dateValue) {
         bits.push(dateValue);
       }
-      if (post.readTime) {
-        bits.push(post.readTime + " min čitanja");
-      }
       if (post.categories && post.categories.length) {
         bits.push(post.categories.join(", "));
       }
@@ -1338,6 +1335,36 @@
       summaryEl.style.marginBottom = "2rem";
       summaryEl.style.fontSize = "1.15rem";
       summaryEl.style.color = "#5a5f56";
+    }
+
+    // Reference
+    const refSection = document.getElementById("post-references-section");
+    const refList = document.getElementById("post-references-list");
+    if (refSection && refList) {
+      const refs = Array.isArray(post.reference || post.references)
+        ? (post.reference || post.references).filter(Boolean)
+        : [];
+      refList.innerHTML = "";
+      if (refs.length) {
+        refs.forEach(function (ref) {
+          const li = document.createElement("li");
+          const text = (ref || "").toString().trim();
+          if (text.startsWith("http://") || text.startsWith("https://")) {
+            const link = document.createElement("a");
+            link.href = text;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.textContent = text;
+            li.appendChild(link);
+          } else {
+            li.textContent = text;
+          }
+          refList.appendChild(li);
+        });
+        refSection.hidden = false;
+      } else {
+        refSection.hidden = true;
+      }
     }
 
     // Dinamički postavi kategoriju i datum u meta bar

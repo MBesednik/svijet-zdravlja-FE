@@ -1106,9 +1106,8 @@
       }
 
       // Reference
-      references = Array.isArray(currentPost.reference)
-        ? currentPost.reference.filter(Boolean)
-        : [];
+      const refSource = currentPost.reference || currentPost.references;
+      references = Array.isArray(refSource) ? refSource.filter(Boolean) : [];
       updateSelectedReferences();
 
       // Naslovna slika
@@ -1337,4 +1336,3 @@
     showError,
   };
 })();
-
