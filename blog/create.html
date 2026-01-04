@@ -275,6 +275,21 @@
                 </span>
               </div>
 
+              <!-- NOVO: Vrijeme čitanja -->
+              <div class="form__group form__group--full">
+                <label for="post-reading-time">Vrijeme čitanja (minute)</label>
+                <input
+                  type="number"
+                  id="post-reading-time"
+                  name="reading_time_minutes"
+                  min="1"
+                  placeholder="Npr. 5"
+                />
+                <span class="form__hint"
+                  >Procijenjeno vrijeme čitanja objave u minutama.</span
+                >
+              </div>
+
               <div class="form__group form__group--full">
                 <label for="post-summary">Sažetak *</label>
                 <textarea
@@ -699,10 +714,27 @@
         var form = document.getElementById("post-form");
         if (form) {
           form.addEventListener("submit", function (e) {
-            // Ovdje pretpostavljamo da postoji AJAX/JS logika za spremanje
-            // Ovdje samo demo toast, makni e.preventDefault() ako backend postoji
             e.preventDefault();
-            // ...pozovi svoju logiku za spremanje...
+
+            // Prikupi podatke iz forme
+            const formData = new FormData(form);
+
+            // Dohvati vrijednost reading_time_minutes kao broj
+            const readingTime = formData.get("reading_time_minutes");
+            // Primjer: pripremi payload za slanje na backend
+            const payload = {
+              // ...ostala polja...
+              reading_time_minutes: readingTime ? Number(readingTime) : null,
+              // Dodaj ostala polja po potrebi, npr.:
+              title: formData.get("title"),
+              slug: formData.get("slug"),
+              summary: formData.get("summary"),
+              // itd.
+            };
+
+            // Demo: samo prikaži što bi se poslalo
+            console.log("Payload za slanje:", payload);
+
             showToast("Objava je uspješno spremljena.", "success");
           });
         }

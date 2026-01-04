@@ -691,6 +691,7 @@
   function buildPayload(options) {
     const includeChapterImageField =
       options && options.includeChapterImageField;
+    const readingTimeInput = document.getElementById("post-reading-time");
     const payload = {
       slug: slugify(document.getElementById("post-slug").value.trim()),
       title: document.getElementById("post-title").value.trim(),
@@ -724,6 +725,10 @@
         }
         return base;
       }),
+      reading_time_minutes: (() => {
+        const val = readingTimeInput ? readingTimeInput.value : "";
+        return val ? parseInt(val, 10) : null;
+      })(),
     };
 
     if (document.getElementById("post-status").value === "SCHEDULED") {
@@ -776,7 +781,7 @@
     if (heroInput && heroInput.files[0]) {
       const dataUrl = await fileToDataURL(heroInput.files[0]);
       payload.hero_image_data = dataUrl;
-      payload.hero_image_filename = heroInput.files[0].name || null;
+      payload.hero_image_filename = heroImage.files[0].name || null;
     } else if (
       !payload.hero_image_data &&
       currentPost &&
@@ -1259,3 +1264,4 @@
     showError,
   };
 })();
+
