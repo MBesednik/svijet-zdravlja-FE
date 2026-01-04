@@ -1869,6 +1869,7 @@ html.preloader-skip #preloader {
 .post-chapter--image-flex {
   display: flex;
   align-items: flex-start;
+  flex-direction: row;
   gap: 2.5rem;
   margin-bottom: 3rem;
   flex-wrap: wrap;
@@ -1876,8 +1877,13 @@ html.preloader-skip #preloader {
   margin-top: 0;
 }
 
+.post-chapter--image-flex.post-chapter--image-middle {
+  flex-direction: column;
+  align-items: stretch;
+}
+
 .post-chapter__left {
-  flex: 1 1 340px;
+  flex: 1 1 0;
   min-width: 0;
 }
 
@@ -1888,6 +1894,14 @@ html.preloader-skip #preloader {
   align-items: center;
   min-width: 220px;
   max-width: 420px;
+}
+.post-chapter--image-middle .post-chapter__right {
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 21 / 9;
+}
+.post-chapter--image-middle .post-chapter__left {
+  width: 100%;
 }
 
 .post-chapter__right .post-chapter__caption {
@@ -1902,6 +1916,14 @@ html.preloader-skip #preloader {
   margin-bottom: 0.5rem;
   object-fit: contain;
   background: #fff;
+}
+.post-chapter--image-middle .post-chapter__image {
+  max-width: none;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  border-radius: 1rem;
 }
 
 .post-chapter__caption {

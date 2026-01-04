@@ -1386,9 +1386,13 @@
               content.appendChild(heading);
             }
 
-            // Slika desno, tekst lijevo
+            // Slika + tekst layout (depends on layout_position)
             const chapterFlex = document.createElement("div");
             chapterFlex.className = "post-chapter post-chapter--image-flex";
+            const layoutPos = (ch.layout_position || "RIGHT").toUpperCase();
+            if (layoutPos === "MIDDLE") {
+              chapterFlex.classList.add("post-chapter--image-middle");
+            }
 
             // Lijeva strana: tekst + alt
             const left = document.createElement("div");
@@ -1428,8 +1432,19 @@
               right.appendChild(figcap);
             }
 
-            chapterFlex.appendChild(left);
-            chapterFlex.appendChild(right);
+            if (layoutPos === "MIDDLE") {
+              // Image above text
+              chapterFlex.appendChild(right);
+              chapterFlex.appendChild(left);
+            } else if (layoutPos === "LEFT") {
+              // Image left, text right
+              chapterFlex.appendChild(right);
+              chapterFlex.appendChild(left);
+            } else {
+              // Default/right: text left, image right
+              chapterFlex.appendChild(left);
+              chapterFlex.appendChild(right);
+            }
             content.appendChild(chapterFlex);
           } else if (ch.type === "VIDEO") {
             // VIDEO poglavlje
