@@ -262,10 +262,11 @@
       .post-card__image {
         width: 100%;
         height: 320px;
-        object-fit: cover;
+        object-fit: contain;
+        object-position: center;
         display: block;
         border-radius: 0;
-        background: #f4f6f2;
+        background: #ffffff;
       }
       .post-card__content {
         display: flex;
@@ -355,6 +356,36 @@
       }
       .post-card__read:hover {
         background: #dbe2d3;
+      }
+      .post-card__readtime {
+        margin-left: auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+        transform: translateY(-4px);
+      }
+      .post-card__readtime-icon {
+        width: 20px;
+        height: 20px;
+        display: block;
+        stroke: #3d4a2c;
+      }
+      .post-card__readtime-text {
+        font-weight: 600;
+        color: #3d4a2c;
+        font-size: 12px;
+        white-space: nowrap;
+      }
+      .post-card__meta-row {
+        display: flex;
+        align-items: center;
+        gap: 1em !important;
+        width: 100%;
+        margin-bottom: 0.5em !important;
+        min-height: 32px;
+        padding: 0 14px;
+        box-sizing: border-box;
       }
       .category-buttons-container {
         width: 100%;
@@ -481,7 +512,7 @@
           height: 200px;
         }
         .post-card__content {
-          padding: 18px 0 16px 0;
+          padding: 16px 14px 16px 14px;
         }
         .post-card__title,
         .post-card__excerpt,
@@ -502,7 +533,7 @@
           height: 140px;
         }
         .post-card__content {
-          padding: 10px 0 12px 0;
+          padding: 12px 12px 14px 12px;
         }
         .post-card__title,
         .post-card__excerpt,
@@ -510,6 +541,35 @@
         .post-card__categories,
         .post-card__read {
           width: 100%;
+        }
+        .post-card__meta-row {
+          gap: 0.55em !important;
+          padding: 0 12px;
+          margin-bottom: 0.35em !important;
+          min-height: 28px;
+        }
+        .post-card__readtime {
+          gap: 4px;
+          transform: translateY(0);
+        }
+        .post-card__readtime-icon {
+          width: 18px;
+          height: 18px;
+        }
+        .post-card__category-badge {
+          padding: 0.22em 0.85em;
+          font-size: 0.98rem;
+          margin-bottom: 0.2em;
+        }
+        .post-card__meta {
+          font-size: 1rem;
+          margin-bottom: 0;
+        }
+        .post-card__read {
+          padding: 0.55em 1.2em;
+          width: 100%;
+          border-radius: 10px;
+          margin-top: 1em;
         }
       }
       .blog__filter-field--category {

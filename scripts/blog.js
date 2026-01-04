@@ -208,6 +208,7 @@
       hero_media: p.hero_media,
       scheduled_for:
         p.scheduled_for || p.scheduledFor || p.scheduled_at || null,
+      reading_time_minutes: p.reading_time_minutes || 1,
     };
   }
 
@@ -318,7 +319,11 @@
     const url = API_BASE + path + encodeURIComponent(identifier);
     const parseResponse = async function (resp) {
       if (!resp.ok) {
-        trackApiError(path + encodeURIComponent(identifier), resp.status, "fetch");
+        trackApiError(
+          path + encodeURIComponent(identifier),
+          resp.status,
+          "fetch"
+        );
         return null;
       }
       const data = await resp.json();
@@ -441,7 +446,7 @@
         }
         if (item && typeof item === "object") {
           var rawVisible =
-          item.is_visible_for_public !== undefined
+            item.is_visible_for_public !== undefined
               ? item.is_visible_for_public
               : true;
           var isVisible =
@@ -1014,17 +1019,21 @@
 
       // 1. RED: kategorija (badge) + datum (horizontalno)
       const row1 = document.createElement("div");
+      row1.classList.add("post-card__meta-row");
       row1.style.display = "flex";
       row1.style.alignItems = "center";
+      row1.style.flexWrap = "nowrap";
       row1.style.gap = "1em";
       row1.style.width = "100%";
       row1.style.marginBottom = "0.5em";
+      row1.style.minHeight = "32px";
 
       // kategorija badge
       if (post.categories && post.categories.length) {
         post.categories.forEach(function (cat) {
           const badge = document.createElement("span");
           badge.className = "post-card__category-badge";
+          badge.style.alignSelf = "center";
           badge.textContent = (cat || "")
             .toString()
             .trim()
@@ -1035,11 +1044,57 @@
         });
       }
 
-      // datum
+      // datum + pregledi (desno)
       const date = document.createElement("span");
       date.className = "post-card__meta";
       date.textContent = formatDate(post.createdAt);
+      date.style.display = "inline-flex";
+      date.style.alignItems = "center";
+      date.style.alignSelf = "center";
       row1.appendChild(date);
+
+      const viewsWrapper = document.createElement("span");
+      viewsWrapper.className = "post-card__readtime";
+      viewsWrapper.style.marginLeft = "auto";
+      viewsWrapper.style.display = "inline-flex";
+      viewsWrapper.style.alignItems = "center";
+      viewsWrapper.style.alignSelf = "center";
+      viewsWrapper.style.gap = "6px";
+      viewsWrapper.style.flexShrink = "0";
+      const viewsIcon = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "svg"
+      );
+      viewsIcon.classList.add("post-card__readtime-icon");
+      viewsIcon.setAttribute("width", "20");
+      viewsIcon.setAttribute("height", "20");
+      viewsIcon.setAttribute("viewBox", "0 0 24 24");
+      viewsIcon.setAttribute("fill", "none");
+      viewsIcon.setAttribute("stroke", "#3d4a2c");
+      viewsIcon.setAttribute("stroke-width", "2");
+      viewsIcon.setAttribute("stroke-linecap", "round");
+      viewsIcon.setAttribute("stroke-linejoin", "round");
+      // Clock icon for reading time
+      viewsIcon.innerHTML =
+        '<circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline>';
+      const viewsText = document.createElement("span");
+      viewsText.classList.add("post-card__readtime-text");
+      console.log("Post reading time minutes:", post.reading_time_minutes);
+      const rawMinutes = post.reading_time_minutes;
+      const minutes =
+        typeof rawMinutes === "number"
+          ? rawMinutes
+          : parseInt(rawMinutes, 10);
+      const hasMinutes = Number.isFinite(minutes);
+      console.log("Calculated minutes:", minutes);
+      viewsText.textContent = hasMinutes ? minutes + " min" : "—";
+      viewsText.style.fontWeight = "600";
+      viewsText.style.color = "#3d4a2c";
+      viewsText.style.fontSize = "12px";
+      viewsText.style.whiteSpace = "nowrap";
+      viewsWrapper.appendChild(viewsIcon);
+      viewsWrapper.appendChild(viewsText);
+      row1.appendChild(viewsWrapper);
 
       contentDiv.appendChild(row1);
 
@@ -1151,6 +1206,8 @@
         // Ukloni postojeći badge ako postoji
         const oldBadge = document.querySelector(".post-featured");
         if (oldBadge) oldBadge.remove();
+        const oldReadtime = document.querySelector(".post-readtime");
+        if (oldReadtime) oldReadtime.remove();
 
         // Kreiraj badge i pozicioniraj ga desno od naslova
         const badge = document.createElement("span");
@@ -1167,6 +1224,35 @@
         }
         const wrap = titleEl.parentElement;
         wrap.appendChild(badge);
+
+        // Dodaj vrijeme čitanja desno od badge-a
+        const readtime = document.createElement("span");
+        readtime.className = "post-readtime";
+        const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        icon.setAttribute("width", "18");
+        icon.setAttribute("height", "18");
+        icon.setAttribute("viewBox", "0 0 24 24");
+        icon.setAttribute("fill", "none");
+        icon.setAttribute("stroke", "#3d4a2c");
+        icon.setAttribute("stroke-width", "2");
+        icon.setAttribute("stroke-linecap", "round");
+        icon.setAttribute("stroke-linejoin", "round");
+        icon.classList.add("post-readtime__icon");
+        icon.innerHTML =
+          '<circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline>';
+
+        const minutes =
+          typeof post.reading_time_minutes === "number"
+            ? post.reading_time_minutes
+            : parseInt(post.reading_time_minutes, 10);
+        const hasMinutes = Number.isFinite(minutes);
+        const text = document.createElement("span");
+        text.className = "post-readtime__text";
+        text.textContent = hasMinutes ? minutes + " min" : "—";
+
+        readtime.appendChild(icon);
+        readtime.appendChild(text);
+        wrap.appendChild(readtime);
       }
     }
     document.title = post.title + " | Svijet Zdravlja";
@@ -1620,6 +1706,7 @@
                 console.warn("Could not save API posts to local storage", e);
               }
             }
+            console.log("Rendering posts fetched from API:", apiPosts);
             renderList(apiPosts);
             renderedCount = apiPosts.length;
             return;

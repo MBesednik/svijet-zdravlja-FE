@@ -1780,14 +1780,19 @@ html.preloader-skip #preloader {
 .post-title-wrap {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+  justify-content: flex-start;
+  gap: 0;
   margin-bottom: 1rem;
+  flex-wrap: wrap;
 }
 
 .post-title-wrap h1,
 .post-title-wrap .post-featured {
   margin-bottom: 0;
+}
+
+.post-title-wrap h1 {
+  margin-right: 0;
 }
 
 .post-featured {
@@ -1799,8 +1804,29 @@ html.preloader-skip #preloader {
   padding: 0.5rem 1.5rem;
   border-radius: 9999px;
   margin-bottom: 1.5rem;
+  margin-left: auto;
   letter-spacing: 0.5px;
   text-transform: uppercase;
+}
+
+.post-readtime {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  color: #3d4a2c;
+  font-size: 0.95rem;
+  margin-left: 0.75rem;
+}
+
+.post-readtime__icon {
+  width: 18px;
+  height: 18px;
+  stroke: #3d4a2c;
+}
+
+.post-readtime__text {
+  white-space: nowrap;
 }
 
 /* === CHAPTER STYLES === */
@@ -1929,10 +1955,11 @@ html.preloader-skip #preloader {
 .post-detail__hero-wrap {
   position: relative;
   width: 100%;
-  height: 400px;
+  aspect-ratio: 21/9;
+  min-height: 200px;
   border-radius: 8px;
   overflow: hidden;
-  background: #f0f2ec;
+  background: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1956,7 +1983,9 @@ html.preloader-skip #preloader {
 .post-detail__hero {
   width: 100%;
   height: 100%;
-  /* object-fit: cover; */
+  object-fit: contain;
+  object-position: center;
+  background: #fff;
   border-radius: 8px;
   display: block;
   opacity: 0;
@@ -2118,19 +2147,27 @@ h3.post-chapter__title {
     overflow: hidden;
     box-sizing: border-box;
     max-width: 100vw !important;
-    padding-left: 16px !important;
-    padding-right: 16px !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
   }
   .post-detail__hero {
     width: 100% !important;
-    height: auto !important;
+    height: 320px !important;
     max-width: 100vw !important;
     display: block;
     border-radius: 16px !important;
     box-shadow: 0 8px 32px rgba(60, 60, 60, 0.18),
       0 1.5px 8px rgba(0, 0, 0, 0.1);
-    object-fit: cover;
+    object-fit: contain;
     background: #f8fafc;
+  }
+
+  @media (max-width: 600px) {
+    .post-detail__hero {
+      height: 240px !important;
+      object-position: center;
+      object-fit: contain;
+    }
   }
   /* Popravi margine na dnu */
   .featured-posts.section {
