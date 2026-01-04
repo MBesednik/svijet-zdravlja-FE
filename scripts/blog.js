@@ -1176,6 +1176,10 @@
     const editLink = document.getElementById("post-edit");
     const deleteButton = document.getElementById("post-delete");
 
+    // Dodaj referencu na eyebrow i updated
+    const eyebrowEl = article.querySelector(".blog__eyebrow");
+    let updatedEl = document.getElementById("post-updated");
+
     const post =
       postOverride || getPostById(identifier) || getPostBySlug(identifier);
 
@@ -1527,6 +1531,30 @@
       deleteButton.disabled = false;
     }
 
+    // Dodaj prikaz ažuriranog datuma ispod eyebrow
+    if (eyebrowEl) {
+      if (!updatedEl) {
+        updatedEl = document.createElement("p");
+        updatedEl.id = "post-updated";
+        updatedEl.className = "blog__updated";
+        updatedEl.style.marginTop = "-10px";
+        updatedEl.style.marginBottom = "0";
+        updatedEl.style.color = "#6b7a6b";
+        updatedEl.style.fontSize = "0.85rem";
+        eyebrowEl.insertAdjacentElement("afterend", updatedEl);
+      }
+      if (post && post.updatedAt) {
+        // Formatiraj datum kao "Ažurirano: 5.6.2024."
+        const date = new Date(post.updatedAt);
+        const formatted = `${date.getDate()}.${
+          date.getMonth() + 1
+        }.${date.getFullYear()}.`;
+        updatedEl.textContent = `Ažurirano: ${formatted}`;
+      } else {
+        updatedEl.textContent = "";
+      }
+    }
+
     window.svzStopTrace && window.svzStopTrace(postTrace);
     return post;
   }
@@ -1751,7 +1779,10 @@
             return local;
           })
           .catch(function (error) {
-            console.warn("Falling back to local posts after fetch error", error);
+            console.warn(
+              "Falling back to local posts after fetch error",
+              error
+            );
             const local = getPosts();
             allPostsCache = local;
             const message =
