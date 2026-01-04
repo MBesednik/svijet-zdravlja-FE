@@ -79,6 +79,7 @@
   let sortAliases = {};
   let adminTokenCache = null;
   let hiddenCategorySlugs = new Set();
+  let allPostsCache = null;
   let lastRenderedPosts = [];
   let lastCategoryOptions = [];
   const trackApiError = function (endpoint, status, message) {
@@ -495,7 +496,11 @@
     );
     container.innerHTML = "";
     if (!list.length) return;
-    const counts = (lastRenderedPosts || []).reduce(function (acc, post) {
+    const countSource =
+      (Array.isArray(allPostsCache) && allPostsCache.length
+        ? allPostsCache
+        : lastRenderedPosts) || [];
+    const counts = countSource.reduce(function (acc, post) {
       if (!Array.isArray(post.categories)) return acc;
       post.categories.forEach(function (c) {
         const key = (c || "").toString().trim().toLowerCase();
@@ -504,7 +509,7 @@
       });
       return acc;
     }, {});
-    const totalCount = (lastRenderedPosts || []).filter(function (post) {
+    const totalCount = countSource.filter(function (post) {
       if (!Array.isArray(post.categories)) return false;
       return post.categories.some(function (c) {
         const key = (c || "").toString().trim().toLowerCase();
@@ -1712,39 +1717,53 @@
       const listTrace =
         window.svzStartTrace && window.svzStartTrace("blog_list_render");
       let renderedCount = 0;
-      const renderLocalFallback = function () {
+      const renderFromBase = function (basePosts) {
         const local = filterPostsLocally(
-          getPosts(),
+          basePosts,
           targetFilters,
           categoryOptions
         );
         renderList(local);
         renderedCount = local.length;
       };
-      return fetchPostsFromApi(targetFilters)
-        .then(function (apiPosts) {
-          if (Array.isArray(apiPosts)) {
-            if (apiPosts.length) {
+
+      const getBasePosts = function () {
+        if (Array.isArray(allPostsCache) && allPostsCache.length) {
+          return Promise.resolve(allPostsCache);
+        }
+        const apiFilters = Object.assign({}, targetFilters || {});
+        // Always fetch full list; filter locally for category/search
+        delete apiFilters.category;
+        delete apiFilters.q;
+        return fetchPostsFromApi(apiFilters)
+          .then(function (apiPosts) {
+            if (Array.isArray(apiPosts) && apiPosts.length) {
+              allPostsCache = apiPosts;
               try {
                 savePosts(apiPosts);
               } catch (e) {
                 console.warn("Could not save API posts to local storage", e);
               }
+              return apiPosts;
             }
-            console.log("Rendering posts fetched from API:", apiPosts);
-            renderList(apiPosts);
-            renderedCount = apiPosts.length;
-            return;
-          }
-          renderLocalFallback();
-        })
-        .catch(function (error) {
-          renderLocalFallback();
-          const message =
-            (error && error.message) ||
-            "Ne možemo učitati objave. Pokušajte ponovno.";
-          showToast(message, "error");
-        })
+            const local = getPosts();
+            allPostsCache = local;
+            return local;
+          })
+          .catch(function (error) {
+            console.warn("Falling back to local posts after fetch error", error);
+            const local = getPosts();
+            allPostsCache = local;
+            const message =
+              (error && error.message) ||
+              "Ne možemo učitati objave. Pokušajte ponovno.";
+            showToast(message, "error");
+            return local;
+          });
+      };
+
+      return getBasePosts()
+        .then(renderFromBase)
         .finally(function () {
           window.svzStopTrace &&
             window.svzStopTrace(listTrace, { count: renderedCount });
