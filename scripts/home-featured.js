@@ -118,7 +118,7 @@
       const link = document.createElement("a");
       link.className = "post-card__read";
       link.href =
-        "blog/post.html?id=" + encodeURIComponent(post.id || post.slug || "");
+        "/blog/post.html?id=" + encodeURIComponent(post.id || post.slug || "");
       link.textContent = "Pročitaj više";
       link.addEventListener("click", function () {
         if (window.svzTrack) {

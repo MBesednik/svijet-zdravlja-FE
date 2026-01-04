@@ -523,6 +523,18 @@
               ch.id
             }">
           </div>
+          <select class="chapter-layout-position" data-id="${ch.id}">
+            <option value="">Odaberi poziciju slike</option>
+            <option value="LEFT" ${
+              ch.layout_position === "LEFT" ? "selected" : ""
+            }>Left</option>
+            <option value="RIGHT" ${
+              ch.layout_position === "RIGHT" ? "selected" : ""
+            }>Right</option>
+            <option value="MIDDLE" ${
+              ch.layout_position === "MIDDLE" ? "selected" : ""
+            }>Middle</option>
+          </select>
           <input type="text" placeholder="Opis slike (caption)" class="chapter-caption" data-id="${
             ch.id
           }" value="${ch.caption || ""}">
@@ -641,6 +653,15 @@
         }
       });
     });
+
+    // Dodaj event listener za layout_position dropdown
+    list.querySelectorAll(".chapter-layout-position").forEach((select) => {
+      select.addEventListener("change", (e) => {
+        const id = parseInt(e.target.dataset.id);
+        const chapter = chapters.find((c) => c.id === id);
+        if (chapter) chapter.layout_position = e.target.value || null;
+      });
+    });
   }
 
   /**
@@ -691,6 +712,10 @@
           external_video_url:
             ch.type === "VIDEO" ? ch.external_video_url : null,
         };
+        // Dodaj layout_position za IMAGE poglavlja
+        if (ch.type === "IMAGE") {
+          base.layout_position = ch.layout_position || null;
+        }
         if (includeChapterImageField && ch.type === "IMAGE" && ch.media_file) {
           base.chapter_image_field = `chapter_${idx}_image`;
         }
