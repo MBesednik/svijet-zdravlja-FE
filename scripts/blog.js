@@ -315,31 +315,21 @@
       return null;
     }
     const path = fetchById ? "/posts/id/" : "/posts/";
-    const headers = buildAuthHeaders();
-    try {
-      const resp = await fetch(
-        API_BASE + path + encodeURIComponent(identifier),
-        {
-          headers: headers,
-        }
-      );
+    const url = API_BASE + path + encodeURIComponent(identifier);
+    const parseResponse = async function (resp) {
       if (!resp.ok) {
-        trackApiError(
-          path + encodeURIComponent(identifier),
-          resp.status,
-          "fetch"
-        );
+        trackApiError(path + encodeURIComponent(identifier), resp.status, "fetch");
         return null;
       }
       const data = await resp.json();
-      if (window.svzTrack) {
+      if (window.svzTrack && data) {
         window.svzTrack("blog_post_view", {
           id: data.id || data.slug || identifier,
           slug: data.slug || identifier,
         });
       }
       // Track time-on-post when unloading the page
-      if (window.svzTrack) {
+      if (window.svzTrack && data) {
         const start = Date.now();
         const handler = function () {
           const durationMs = Date.now() - start;
@@ -360,6 +350,14 @@
         document.addEventListener("visibilitychange", visHandler);
       }
       return normalizeApiPost(data);
+    };
+    try {
+      return await fetchWithAuthFallback(
+        url,
+        parseResponse,
+        path + encodeURIComponent(identifier),
+        "Nismo mogli dohvatiti objavu. Pokušajte ponovno."
+      );
     } catch (err) {
       console.warn("Failed to fetch post from API", err);
       return null;
