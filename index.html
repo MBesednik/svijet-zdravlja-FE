@@ -143,7 +143,7 @@
               tako i društvenih poremećaja.
             </p>
             <div class="hero__buttons">
-              <a href="#kontakt" class="btn btn--secondary">
+              <a href="contact.html" class="btn btn--secondary">
                 Obratite nam se s povjerenjem
                 <svg
                   class="btn__icon"
@@ -316,39 +316,45 @@
 
         <!-- Content -->
         <div class="container">
-          <h2 class="section-title">Naše Usluge</h2>
+          <h2 class="section-title">Područja djelovanja</h2>
           <p class="section-subtitle">
-            Personalizirani pristup vašem zdravlju i prehrani
+            Na koji način stvaramo svijet zdravlja?
           </p>
 
           <div class="services-grid">
             <div class="service-card">
-              <h3>Personalizirani planovi prehrane</h3>
+              <h3>Zdravlje za sve</h3>
               <p>
-                Individualno prilagođeni planovi prehrane temeljeni na vašim
-                ciljevima, zdravstvenom stanju i životnom stilu. Detaljne upute,
-                recepti i kontinuirana podrška.
+                Pomažemo u rješavanju zdravstvenih problema primjenom
+                tradicionalnih i prirodnih metoda, ujedno znanstveno
+                utemeljenih. Dok se tradicija marginalizira, mi se vraćamo
+                upravo njoj te ju kroz znanost populariziramo i iznosimo na
+                svjetlo dana.
               </p>
             </div>
             <div class="service-card">
-              <h3>Savjetovanje o dodacima prehrani</h3>
+              <h3>Duhovno i umno uzdizanje</h3>
               <p>
-                Stručna procjena i preporuke za optimalan izbor dodataka
-                prehrani, vitamina i minerala. Analiza vaših potreba i sigurna
-                primjena suplementacije.
+                Osim tjelesnog aspekta, kroz korisne priče i zdrave rasprave
+                nastojimo educirati, otvarati vrata novim pitanjima i u
+                konačnici oplemeniti našu zajednicu na mentalnoj i duhovnoj
+                razini.
               </p>
             </div>
             <div class="service-card">
-              <h3>Prirodna medicina i fitoterapija</h3>
+              <h3>Altruizam i društveno koristan rad</h3>
               <p>
-                Primjena biljnih pripravaka i prirodnih metoda za prevenciju i
-                potporu zdravlju. Holistički pristup koji spaja znanost i
-                prirodu.
+                Za ostvarenje sjajnih stvari potreban je prvi korak. Platforma
+                Svijet zdravlja preuzima inicijativu za promjenu našeg društva –
+                na bolje. Kroz humanitarne programe i društvene inicijative
+                pružamo otvorene ruke za svaki oblik suradnje.
               </p>
             </div>
           </div>
           <div class="services-cta">
-            <a href="services.html" class="btn-primary">Pogledaj sve usluge</a>
+            <a href="services.html" class="btn-primary"
+              >Ništa ili nešto drugo po potrebi?</a
+            >
           </div>
         </div>
       </section>
@@ -420,14 +426,17 @@
             <div class="footer__column">
               <h4 class="footer__title">Kontakt</h4>
               <ul class="footer__list">
+                <!--
                 <li class="footer__list-item">
                   <a href="tel:+385123456789" class="footer__link"
-                    >+385 12 345 6789</a
-                  >
+                    >+385 12 345 6789</a>
                 </li>
+                -->
                 <li class="footer__list-item">
-                  <a href="mailto:info@svijet-zdravlja.hr" class="footer__link"
-                    >info@svijet-zdravlja.hr</a
+                  <a
+                    href="mailto:svijetzdravljahr@gmail.com"
+                    class="footer__link"
+                    >svijetzdravljahr@gmail.com</a
                   >
                 </li>
                 <li class="footer__list-item">
@@ -439,7 +448,7 @@
             <div class="footer__column">
               <h4 class="footer__title">Pratite nas</h4>
               <ul class="footer__social">
-                <li class="footer__social-item">
+                <!-- <li class="footer__social-item">
                   <a href="#" class="footer__social-link" aria-label="Facebook">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                       <path
@@ -451,10 +460,11 @@
                       />
                     </svg>
                   </a>
-                </li>
+                </li> -->
+
                 <li class="footer__social-item">
                   <a
-                    href="#"
+                    href="https://www.instagram.com/svijetzdravlja.hr/"
                     class="footer__social-link"
                     aria-label="Instagram"
                   >
@@ -481,25 +491,29 @@
                   </a>
                 </li>
                 <li class="footer__social-item">
-                  <a href="#" class="footer__social-link" aria-label="LinkedIn">
+                  <a
+                    href="https://www.youtube.com/@svijet_zdravlja_hr"
+                    class="footer__social-link"
+                    aria-label="YouTube"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                      <path
-                        d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                      <circle
-                        cx="4"
-                        cy="4"
-                        r="2"
+                      <rect
+                        x="2"
+                        y="6"
+                        width="20"
+                        height="12"
+                        rx="3"
+                        fill="none"
                         stroke="currentColor"
                         stroke-width="2"
                       />
+                      <polygon points="10,9 16,12 10,15" fill="currentColor" />
                     </svg>
                   </a>
                 </li>
+                <li class="footer__social-item"></li>
               </ul>
             </div>
           </div>
@@ -507,7 +521,8 @@
 
         <div class="footer__bottom">
           <p class="footer__copyright">
-            &copy; 2025 Svijet Zdravlja. Sva prava pridržana.
+            &copy; <span id="current-year"></span> Svijet Zdravlja. Sva prava
+            pridržana.
           </p>
         </div>
       </div>
@@ -517,6 +532,7 @@
     <script src="scripts/preloader.js" defer></script>
 
     <script src="scripts/main.js"></script>
+
     <script src="scripts/config.js"></script>
     <script src="scripts/home-featured.js"></script>
     <!-- Scroll animacije - dodaj samo ovu liniju -->

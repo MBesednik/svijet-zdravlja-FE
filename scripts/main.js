@@ -1,3 +1,11 @@
+// Dinamički postavi trenutnu godinu u copyright
+document.addEventListener("DOMContentLoaded", function () {
+  var yearSpan = document.getElementById("current-year");
+  if (yearSpan) {
+    yearSpan.textContent = new Date().getFullYear();
+  }
+});
+
 // Hamburger menu toggle
 const hamburger = document.querySelector(".header__hamburger");
 const nav = document.querySelector(".header__nav");
