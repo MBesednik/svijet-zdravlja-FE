@@ -443,6 +443,7 @@
             slug: item,
             name: item,
             is_visible_for_public: true,
+            post_count: 0,
           };
         }
         if (item && typeof item === "object") {
@@ -458,11 +459,18 @@
           const slug =
             item.slug || item.value || item.id || item.key || item.name;
           const name = item.name || item.label || item.title || slug;
+          var parsedCount =
+            item.post_count !== undefined ? Number(item.post_count) : 0;
+          if (!Number.isFinite(parsedCount)) {
+            parsedCount = 0;
+          }
+          var postCount = Math.max(0, parsedCount);
           if (slug) {
             return {
               slug: slug,
               name: name,
               is_visible_for_public: isVisible,
+              post_count: postCount,
             };
           }
         }
@@ -472,10 +480,14 @@
   }
 
   function filterVisibleCategories(categories) {
+    const hasToken = Boolean(getAdminToken());
     const hidden = hiddenCategorySlugs || new Set();
     return (categories || []).filter(function (category) {
       const slug = (category && category.slug) || "";
+      const count = Number(category && category.post_count);
       if (!slug) return false;
+      if (!Number.isFinite(count) || count <= 0) return false;
+      if (hasToken) return true;
       if (hidden.has(slug.toLowerCase())) return false;
       return category.is_visible_for_public !== false;
     });
@@ -486,46 +498,21 @@
     if (!container) return;
     const list = Array.isArray(categories) ? categories : [];
     const selected = (selectedSlug || "all").toString();
-    const hidden = hiddenCategorySlugs || new Set();
-    const visibleSlugs = new Set(
-      (lastCategoryOptions || [])
-        .map(function (c) {
-          return (c.slug || "").toString().toLowerCase();
-        })
-        .filter(Boolean)
-    );
     container.innerHTML = "";
     if (!list.length) return;
-    const countSource =
-      (Array.isArray(allPostsCache) && allPostsCache.length
-        ? allPostsCache
-        : lastRenderedPosts) || [];
-    const counts = countSource.reduce(function (acc, post) {
-      if (!Array.isArray(post.categories)) return acc;
-      post.categories.forEach(function (c) {
-        const key = (c || "").toString().trim().toLowerCase();
-        if (!key || hidden.has(key)) return;
-        acc[key] = (acc[key] || 0) + 1;
-      });
-      return acc;
-    }, {});
-    const totalCount = countSource.filter(function (post) {
-      if (!Array.isArray(post.categories)) return false;
-      return post.categories.some(function (c) {
-        const key = (c || "").toString().trim().toLowerCase();
-        if (!key) return false;
-        if (hidden.has(key)) return false;
-        return visibleSlugs.has(key);
-      });
-    }).length;
-    const withAll = [{ name: "Sve kategorije", slug: "all" }].concat(list);
+    const totalCount = list.reduce(function (acc, cat) {
+      const count = Number(cat && cat.post_count);
+      if (!Number.isFinite(count) || count <= 0) {
+        return acc;
+      }
+      return acc + count;
+    }, 0);
+    const withAll = [
+      { name: "Sve kategorije", slug: "all", post_count: totalCount },
+    ].concat(list);
     withAll.forEach(function (cat) {
       const slug = cat.slug || cat.name || "";
-      const key = slug.toString().trim().toLowerCase();
-      const count =
-        slug === "all" || cat.name === "Sve kategorije"
-          ? totalCount
-          : counts[key] || 0;
+      const count = Math.max(0, Number(cat.post_count) || 0);
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "category-btn" + (selected === slug ? " active" : "");
@@ -556,6 +543,7 @@
       const parseResponse = async function (resp) {
         const data = await resp.json();
         const normalized = normalizeCategoryOptions(data);
+        const hasToken = Boolean(getAdminToken());
         const hidden = normalized
           .filter(function (c) {
             return c.is_visible_for_public === false;
@@ -564,7 +552,7 @@
             return c.slug && c.slug.toLowerCase();
           })
           .filter(Boolean);
-        hiddenCategorySlugs = new Set(hidden);
+        hiddenCategorySlugs = hasToken ? new Set() : new Set(hidden);
         const visible = filterVisibleCategories(normalized);
         return visible.length ? visible : null;
       };
@@ -583,22 +571,30 @@
 
   function getCategoryOptionsFromPosts(posts) {
     const hidden = hiddenCategorySlugs || new Set();
-    const items = Array.from(
-      new Set(
-        (posts || []).flatMap(function (post) {
-          return Array.isArray(post.categories) ? post.categories : [];
-        })
-      )
-    )
-      .filter(function (name) {
-        return name && !hidden.has(name.toString().toLowerCase());
-      })
+    const counts = {};
+    (posts || []).forEach(function (post) {
+      if (!Array.isArray(post.categories)) return;
+      post.categories.forEach(function (cat) {
+        if (!cat) return;
+        const name = cat.toString().trim();
+        if (!name) return;
+        const lower = name.toLowerCase();
+        if (hidden.has(lower)) return;
+        counts[name] = (counts[name] || 0) + 1;
+      });
+    });
+    return Object.keys(counts)
       .sort(function (a, b) {
         return a.localeCompare(b, "hr");
+      })
+      .map(function (name) {
+        return {
+          slug: name,
+          name: name,
+          is_visible_for_public: true,
+          post_count: counts[name],
+        };
       });
-    return items.map(function (name) {
-      return { slug: name, name: name, is_visible_for_public: true };
-    });
   }
 
   function populateCategoryFilterOptions(categories, selectEl, currentValue) {

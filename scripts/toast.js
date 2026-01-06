@@ -17,31 +17,53 @@
   }
 
   window.showToast = function (message, options = {}) {
+    const duration = Number(options.duration) || 3000;
     const toast = document.createElement("div");
-    toast.textContent = message;
-    toast.style.background = options.background || "#222";
-    toast.style.color = options.color || "#fff";
-    toast.style.padding = "14px 24px";
-    toast.style.borderRadius = "8px";
-    toast.style.boxShadow = "0 4px 16px rgba(0,0,0,0.12)";
-    toast.style.fontSize = "1rem";
-    toast.style.fontWeight = "500";
-    toast.style.opacity = "0";
-    toast.style.transition = "opacity 0.3s";
+    toast.className = "toast";
+    toast.style.background = options.background || "rgba(79, 107, 58, 0.85)";
+    toast.style.color = options.color || "#f7f8f4";
+    toast.style.boxShadow =
+      options.shadow || "0 18px 35px rgba(79, 107, 58, 0.18)";
+
+    const text = document.createElement("div");
+    text.className = "toast__message";
+    text.textContent = message;
+
+    const closeBtn = document.createElement("button");
+    closeBtn.type = "button";
+    closeBtn.className = "toast__close";
+    closeBtn.setAttribute("aria-label", "Zatvori obavijest");
+    closeBtn.innerHTML = "&times;";
+
+    const progress = document.createElement("div");
+    progress.className = "toast__progress";
+    progress.style.background =
+      options.progressColor || "rgba(245, 249, 242, 0.9)";
+    progress.style.animationDuration = duration + "ms";
+
+    toast.appendChild(text);
+    toast.appendChild(closeBtn);
+    toast.appendChild(progress);
 
     container.appendChild(toast);
 
-    // Fade in
-    setTimeout(() => {
-      toast.style.opacity = "1";
-    }, 10);
-
-    // Auto remove after 3s
-    setTimeout(() => {
-      toast.style.opacity = "0";
-      setTimeout(() => {
+    const hideToast = function () {
+      toast.classList.add("toast--hide");
+      progress.style.animationPlayState = "paused";
+      setTimeout(function () {
         toast.remove();
       }, 300);
-    }, options.duration || 3000);
+    };
+
+    // Slide in
+    requestAnimationFrame(function () {
+      toast.classList.add("toast--visible");
+    });
+
+    const autoHide = setTimeout(hideToast, duration);
+    closeBtn.addEventListener("click", function () {
+      clearTimeout(autoHide);
+      hideToast();
+    });
   };
 })();
