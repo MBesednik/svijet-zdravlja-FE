@@ -2284,11 +2284,6 @@ h3.post-chapter__title {
   background: #fff;
 }
 
-.contact-form textarea {
-  min-height: 120px;
-  max-height: 240px;
-}
-
 /* .btn.btn--primary {
   width: 100%;
   margin-top: 8px;
@@ -2496,4 +2491,396 @@ h3.post-chapter__title {
 #post-references-list a:focus {
   color: #7a9b6e;
   text-decoration: underline;
+}
+
+/* === BIOGRAFIJA FILIP JUGOVIĆ === */
+.bio-section {
+  padding: 64px 0 32px 0;
+  display: block;
+  min-height: unset;
+}
+.bio-container {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 38px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.bio-image-col {
+  flex: 0 0 290px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 0;
+}
+.bio-image {
+  width: 290px;
+  height: 370px;
+  object-fit: cover;
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(60, 80, 40, 0.13),
+    0 2px 8px rgba(60, 80, 40, 0.08);
+  background: #fff;
+  transition: transform 0.28s cubic-bezier(0.4, 0.8, 0.6, 1),
+    box-shadow 0.28s cubic-bezier(0.4, 0.8, 0.6, 1),
+    border-color 0.22s cubic-bezier(0.4, 0.8, 0.6, 1),
+    filter 0.22s cubic-bezier(0.4, 0.8, 0.6, 1);
+}
+/* Moderan hover efekt */
+.bio-image:hover,
+.bio-image:focus {
+  transform: scale(1.045) rotate(-1.5deg);
+  box-shadow: 0 16px 48px 0 rgba(61, 74, 44, 0.22),
+    0 2px 8px 0 rgba(61, 74, 44, 0.12);
+
+  filter: brightness(1.04) saturate(1.08);
+  outline: none;
+}
+.bio-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 18px;
+  margin-bottom: 0;
+  gap: 0.3rem;
+}
+.bio-name {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #2a4326;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.bio-ig-link {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.3rem;
+  opacity: 0.85;
+  transition: opacity 0.18s;
+}
+.bio-ig-link:hover {
+  opacity: 1;
+}
+.bio-main-col {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  min-width: 0;
+  max-width: 700px;
+  gap: 0.5rem;
+}
+.bio-role {
+  font-size: 1rem;
+  color: #7a9b6e;
+  font-weight: 500;
+  margin-bottom: 1.1rem;
+  margin-top: 0.1rem;
+  letter-spacing: 0.01em;
+  display: block;
+}
+.bio-title {
+  display: none;
+}
+.bio-content-col {
+  display: none;
+}
+.bio-text-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0;
+}
+.bio-text {
+  font-size: 1.08rem;
+  color: #3d4a2c;
+  line-height: 1.8;
+  border-radius: 0;
+  padding: 0 0 0 0;
+  box-shadow: none;
+  margin-top: 0;
+  font-family: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont,
+    sans-serif;
+  background: none;
+}
+.bio-text-first {
+  margin-top: 0;
+}
+.bio-text-rest {
+  margin-top: 2.2rem;
+}
+@media (max-width: 900px) {
+  .bio-container,
+  .bio-text-container {
+    max-width: 98vw;
+    padding: 0 10px;
+  }
+  .bio-container {
+    flex-direction: column;
+    gap: 0;
+    align-items: center;
+  }
+  .bio-image-col {
+    align-items: center;
+    margin-bottom: 0;
+  }
+  .bio-main-col {
+    max-width: 100%;
+    width: 100%;
+    margin-top: 18px;
+    align-items: flex-start;
+  }
+  .bio-meta {
+    margin-top: 14px;
+  }
+  .bio-text-rest {
+    margin-top: 1.5rem;
+  }
+}
+@media (max-width: 600px) {
+  .bio-section {
+    padding: 24px 0 16px 0;
+  }
+  .bio-image {
+    width: 170px;
+    height: 210px;
+  }
+  .bio-name {
+    font-size: 1.05rem;
+  }
+  .bio-role {
+    font-size: 0.92rem;
+  }
+  .bio-text {
+    font-size: 0.98rem;
+  }
+  .bio-container {
+    flex-direction: column;
+    gap: 0;
+    align-items: center;
+  }
+  .bio-main-col {
+    margin-top: 14px;
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+/* === FILIP MODAL === */
+.filip-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 12, 7, 0.499);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.22s cubic-bezier(0.4, 0.8, 0.6, 1);
+  opacity: 0;
+  pointer-events: none;
+}
+.filip-modal-overlay[aria-hidden="false"] {
+  display: flex;
+  opacity: 1;
+  pointer-events: auto;
+  animation: filip-modal-fadein 0.22s cubic-bezier(0.4, 0.8, 0.6, 1);
+}
+@keyframes filip-modal-fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes filip-modal-fadeout {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+.filip-modal {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(61, 74, 44, 0.13),
+    0 2px 8px rgba(61, 74, 44, 0.08);
+  max-width: 680px;
+  width: 96vw;
+  padding: 0 0 2.2rem 0;
+  position: relative;
+  color: #3d4a2c;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  animation: filip-modal-in 0.22s cubic-bezier(0.4, 0.8, 0.6, 1);
+  transform: scale(0.98);
+  opacity: 0;
+  transition: opacity 0.22s, transform 0.22s;
+}
+.filip-modal-overlay[aria-hidden="false"] .filip-modal {
+  opacity: 1;
+  transform: scale(1);
+}
+.filip-modal.hide {
+  animation: filip-modal-out 0.18s cubic-bezier(0.4, 0.8, 0.6, 1);
+  opacity: 0;
+  transform: scale(0.98);
+}
+@keyframes filip-modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+@keyframes filip-modal-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+/* Header */
+.filip-modal-header {
+  background: #3d4a2c;
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+  padding: 1.2rem 2.2rem 1.2rem 2.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 4px solid #fff;
+}
+.filip-modal-title {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+.filip-modal-close {
+  background: none;
+  color: #fff;
+  border: none;
+  font-size: 2.2rem;
+  font-weight: 700;
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  cursor: pointer;
+  box-shadow: none;
+  transition: background 0.18s, color 0.18s, transform 0.18s;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 1rem;
+}
+.filip-modal-close:hover,
+.filip-modal-close:focus {
+  background: #3d4a2c;
+  color: #e6ede0;
+  transform: scale(1.08);
+  outline: none;
+}
+/* Modal content */
+.filip-modal-content {
+  font-size: 1.08rem;
+  color: #3d4a2c;
+  line-height: 1.8;
+  margin-top: 1.2rem;
+  font-family: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont,
+    sans-serif;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 0 2.2rem;
+}
+@media (max-width: 700px) {
+  .filip-modal {
+    max-width: 98vw;
+    padding: 0 0 1.2rem 0;
+  }
+  .filip-modal-header {
+    padding: 0.8rem 1rem 0.8rem 1rem;
+  }
+  .filip-modal-title {
+    font-size: 1.08rem;
+  }
+  .filip-modal-content {
+    font-size: 0.98rem;
+    max-height: 70vh;
+    padding: 0 1rem;
+  }
+  .filip-modal-close {
+    font-size: 1.5rem;
+    width: 32px;
+    height: 32px;
+    margin-left: 0.5rem;
+  }
+}
+
+/* NOVI STIL ZA TEKSTUALNE BLOKOVE MISIJA I VIZIJA */
+.mission-vision-row {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto 2.5rem auto;
+  padding: 0;
+  background: none;
+  border: none;
+  box-shadow: none;
+  display: block;
+}
+
+.mission-vision-title {
+  font-family: "Poppins", sans-serif;
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: #3d4a2c;
+  margin-bottom: 1.1rem;
+  letter-spacing: -1px;
+  text-align: left;
+}
+
+.mission-vision-text {
+  font-size: 1.15rem;
+  color: #5a5f56;
+  line-height: 1.8;
+  margin: 0 0 1.5rem 0;
+  font-family: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont,
+    sans-serif;
+  text-align: left;
+}
+
+/* Ukloni stare stilove za inline layout i ikone */
+.mission-vision-inline,
+.mission-vision-inline > .mission-vision-icon,
+.mission-vision-icon--large,
+.mission-vision-bg-circle {
+  display: none !important;
+}
+
+/* Responsive: smanji font na manjim ekranima */
+@media (max-width: 900px) {
+  .mission-vision-title {
+    font-size: 1.3rem;
+  }
+  .mission-vision-text {
+    font-size: 1rem;
+  }
+  .mission-vision-row {
+    margin-bottom: 1.2rem;
+  }
 }

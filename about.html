@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="hr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Svijet Zdravlja</title>
+    <link rel="stylesheet" href="styles/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Add Playfair Display for preloader -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script type="module" src="scripts/analytics.js"></script>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyAS9Oy88NY70Eo4lOpQDkYO0vD5FYHBUp8",
+        authDomain: "jugo-projekt.firebaseapp.com",
+        projectId: "jugo-projekt",
+        storageBucket: "jugo-projekt.firebasestorage.app",
+        messagingSenderId: "349150746918",
+        appId: "1:349150746918:web:20219a6eeacc2f955e49e7",
+        measurementId: "G-T903QB3RZZ",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      getAnalytics(app);
+    </script>
+    <script>
+      try {
+        if (sessionStorage.getItem("svz_preloader_seen") === "1") {
+          document.documentElement.classList.add("preloader-skip");
+        }
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <!-- HEADER -->
+    <header class="header">
+      <div class="header__container container">
+        <a href="/" class="header__logo">
+          <img
+            src="images/logo/SZ_cijelilogo_transparent.png"
+            alt="Svijet Zdravlja logo"
+            class="header__logo-img"
+          />
+        </a>
+
+        <nav class="header__nav">
+          <ul class="header__nav-list">
+            <li class="header__nav-item">
+              <a href="index.html" class="header__nav-link">Početna</a>
+            </li>
+            <li class="header__nav-item">
+              <a href="#" class="header__nav-link">O nama</a>
+            </li>
+            <!-- <li class="header__nav-item">
+              <a href="#" class="header__nav-link">Usluge</a>
+            </li> -->
+            <li class="header__nav-item">
+              <a href="blog/blog.html" class="header__nav-link">Blog</a>
+            </li>
+            <li class="header__nav-item">
+              <a href="contact.html" class="header__nav-link">Kontakt</a>
+            </li>
+          </ul>
+        </nav>
+
+        <button
+          class="header__hamburger"
+          aria-label="Toggle navigation"
+          aria-expanded="false"
+        >
+          <span class="header__hamburger-line"></span>
+          <span class="header__hamburger-line"></span>
+          <span class="header__hamburger-line"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+      <section class="bio-section">
+        <div class="container bio-container">
+          <div class="bio-image-col">
+            <img
+              src="images/filip_jugovic.jpg"
+              alt="Filip Jugović"
+              class="bio-image"
+            />
+            <div class="bio-meta">
+              <span class="bio-name">
+                Filip Jugović, mag. nutr.
+                <a
+                  href="https://instagram.com/jugo_official"
+                  target="_blank"
+                  rel="noopener"
+                  class="bio-ig-link"
+                  aria-label="Instagram Filip Jugović"
+                >
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    style="vertical-align: middle"
+                  >
+                    <rect
+                      x="2"
+                      y="2"
+                      width="20"
+                      height="20"
+                      rx="5"
+                      stroke="#7a9b6e"
+                      stroke-width="2"
+                    />
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="5"
+                      stroke="#7a9b6e"
+                      stroke-width="2"
+                    />
+                    <circle cx="17.5" cy="6.5" r="1.5" fill="#7a9b6e" />
+                  </svg>
+                </a>
+              </span>
+            </div>
+          </div>
+          <div class="bio-main-col">
+            <span class="bio-role"
+              >Osnivač i voditelj platforme „Svijet zdravlja“</span
+            >
+            <div class="bio-text bio-text-first">
+              Filip je rođen i živi u Zagrebu, u Hrvatskoj. Po završetku
+              srednjoškolskog gimnazijskog obrazovanja svoje formalno školovanje
+              nastavlja na Prehrambeno-biotehnološkom fakultetu Sveučilišta u
+              Zagrebu. Zbog novootkrivenog interesa prema prirodnim znanostima
+              koncem maturantske godine, a povučen intrigom zamršenog ljudskog
+              organizma, upisuje smjer Nutricionizam na preddiplomskom studiju
+              2019. godine. Tu je i službeno krenula Filipova potraga za znanjem
+              u području uzajamnog utjecaja, prije svega prehrambenih, ali
+              neminovno i drugih čimbenika na zdravlje čovjeka.
+            </div>
+            <button
+              id="filip-modal-btn"
+              class="btn btn--primary btn-filip-modal"
+            >
+              Više o Filipu
+            </button>
+          </div>
+        </div>
+        <div class="container bio-text-container" style="display: none">
+          <div class="bio-text bio-text-rest">
+            Tijekom akademskog školovanja Filip se isticao među svojim kolegama,
+            a kao dokaz upornosti i zalaganja dobio je mnoge nagrade i
+            priznanja. U više je navrata dobivao stipendiju za izvrsnost
+            Ministarstva znanosti i obrazovanja, Sveučilišta u Zagrebu te
+            zaklade Ivan Bulić. Dobitnik je Dekanove nagrade za izvrsnost za
+            vrijeme preddiplomskog studija, a svoje je znanje stjecao i van
+            akademskog okvira – volontiranjem u kliničkom okruženju,
+            prisustvovanjem stručnim kongresima te ljetnim školama u zemlji i
+            izvan granica Hrvatske. Za vrijeme preddiplomskog studija počeo se
+            više okretati sportskoj prehrani, svoj završni rad pod naslovom
+            „Količina, kvaliteta i vrsta proteina u prehrani bodybuildera“
+            napisao je 2022. godine te time postao sveučilišnim prvostupnikom
+            nutricionizma s velikom pohvalom (lat. magna cum laude). Filip je uz
+            tu počast prepoznat kao najbolji student generacije nutricionista,
+            za što je dodatno nagrađen drugom Dekanovom nagradom.
+            <br /><br />
+            Po završetku preddiplomskog studija Filip se profilira kao stručnjak
+            u području nutricionizma i dijetoterapije te svoj daljnji rad
+            usmjerava prema učenju prirodnih metoda za prevenciju bolesti i
+            liječenje, čime svoj interes širi i van granica same znanosti o
+            prehrani. S tim u vezi Filip nastavlja svoje formalno školovanje na
+            diplomskom studiju Nutricionizam na Prehrambeno-biotehnološkom
+            fakultetu Sveučilišta u Zagrebu te paralelno 2022. godine upisuje i
+            studij Prirodne medicine* na američkom University of Natural
+            Medicine, New York. Pri kraju svojeg formalnog obrazovanja Filip
+            dobiva vrijedno iskustvo rada na nekoliko stručnih projekata na
+            fakultetu te na razini Sveučilišta. S kolegama nutricionistima,
+            kineziolozima te liječnicima provodi javnozdravstvene akcije preko
+            društvenih mreža te uživo na terenu u Zagrebu i okolici, čime biva
+            nagrađen Rektorovom nagradom za društveno koristan rad u akademskoj
+            i široj zajednici.
+            <img
+              src="images/rektorova_nagrada.jpg"
+              alt="Rektorova nagrada"
+              class="modal-award-img"
+            />
+            2025. godine brani svoj diplomski rad pod temom „Usporedba kvalitete
+            prehrane žena koje slijede biljne obrasce prehrane i žena svejeda
+            upotrebom upitnika o kvaliteti prehrane (DQQ)“ te stječe akademski
+            naziv magistra nutricionizma.
+            <br /><br />
+            Filip danas radi u perspektivnom timu stručnjaka u području dodataka
+            prehrani, probiotika, fitoterapije i mikronutricije, s velikim
+            naglaskom na prirodna rješenja i individualni pristup. 2025. godine
+            nastavlja s užom specijalizacijom u području fitoterapije te upisuje
+            program u prestižnoj belgijskoj školi CERDEN.
+            <br /><br />
+            Filip slobodno vrijeme provodi aktivno – bilo mentalno ili fizički.
+            Mentalno slobodno vrijeme teško je razlučivo od poslovnog jer
+            stalnim traganjem i čitanjem Filip pronalazi svoj mir. Tjelesno voli
+            dokučiti svoje psihičke i fizičke granice pa nerijetko uživa u dugim
+            biciklističkim stazama, plivanju, tjelovježbi, planinarenju. Posebno
+            mjesto Filip od djetinjstva čuva za šah. Od 2021. godine do danas
+            dio je fakultetske sportske ekipe i aktivno predstavlja boje
+            fakulteta u timu šahista s kojima je u više navrata osvajao odličja
+            na međustudijskim natjecanjima.
+            <br /><br />
+            Uz brigu za ljudsko zdravlje, druga najveća Filipova ljubav je
+            povijest. Smatra kako je u najmanju ruku utrošio onoliko vremena za
+            izučavanje povijesnih tema, koliko je izdvojio vremena za formalno
+            visokoškolsko obrazovanje.
+            <br /><br />
+            Za Filipa je velika strast istraživanje istine i manje istraženih
+            tema, a svoju osobnu specijalnost kasnovečernjih istraživanja duguje
+            upravo tome. Smatra kako postoji veliki jaz između istine i
+            realnosti, a u moru laži i površnih informacija smatra se odgovornim
+            – prvo kao čovjek pa potom i kao stručnjak u zdravstvu da donese
+            svjetlo u mračne odaje domova običnih ljudi. S tim ciljem 2025.
+            godine Filip pokreće multimedijsku platformu Svijet zdravlja, svijet
+            u kojem se otvara dijalog za sve teme, razgovara se o svim
+            problemima i najvažnije, gradi se bolji svijet za sve nas – Svijet
+            zdravlja.
+          </div>
+        </div>
+        <!-- MODAL -->
+        <div
+          id="filip-modal-overlay"
+          class="filip-modal-overlay"
+          tabindex="-1"
+          aria-hidden="true"
+        >
+          <div
+            class="filip-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="filip-modal-title"
+          >
+            <div class="filip-modal-header" style="background-color: #3d4a2c">
+              <span class="filip-modal-title" id="filip-modal-title"
+                >Više o Filipu</span
+              >
+              <button
+                class="filip-modal-close"
+                id="filip-modal-close"
+                aria-label="Zatvori"
+              >
+                &times;
+              </button>
+            </div>
+            <div class="filip-modal-content">
+              Tijekom akademskog školovanja Filip se isticao među svojim
+              kolegama, a kao dokaz upornosti i zalaganja dobio je mnoge nagrade
+              i priznanja. U više je navrata dobivao stipendiju za izvrsnost
+              Ministarstva znanosti i obrazovanja, Sveučilišta u Zagrebu te
+              zaklade Ivan Bulić. Dobitnik je Dekanove nagrade za izvrsnost za
+              vrijeme preddiplomskog studija, a svoje je znanje stjecao i van
+              akademskog okvira – volontiranjem u kliničkom okruženju,
+              prisustvovanjem stručnim kongresima te ljetnim školama u zemlji i
+              izvan granica Hrvatske. Za vrijeme preddiplomskog studija počeo se
+              više okretati sportskoj prehrani, svoj završni rad pod naslovom
+              „Količina, kvaliteta i vrsta proteina u prehrani bodybuildera“
+              napisao je 2022. godine te time postao sveučilišnim prvostupnikom
+              nutricionizma s velikom pohvalom (lat. magna cum laude). Filip je
+              uz tu počast prepoznat kao najbolji student generacije
+              nutricionista, za što je dodatno nagrađen drugom Dekanovom
+              nagradom.
+              <br /><br />
+              Po završetku preddiplomskog studija Filip se profilira kao
+              stručnjak u području nutricionizma i dijetoterapije te svoj
+              daljnji rad usmjerava prema učenju prirodnih metoda za prevenciju
+              bolesti i liječenje, čime svoj interes širi i van granica same
+              znanosti o prehrani. S tim u vezi Filip nastavlja svoje formalno
+              školovanje na diplomskom studiju Nutricionizam na
+              Prehrambeno-biotehnološkom fakultetu Sveučilišta u Zagrebu te
+              paralelno 2022. godine upisuje i studij Prirodne medicine* na
+              američkom University of Natural Medicine, New York. Pri kraju
+              svojeg formalnog obrazovanja Filip dobiva vrijedno iskustvo rada
+              na nekoliko stručnih projekata na fakultetu te na razini
+              Sveučilišta. S kolegama nutricionistima, kineziolozima te
+              liječnicima provodi javnozdravstvene akcije preko društvenih mreža
+              te uživo na terenu u Zagrebu i okolici, čime biva nagrađen
+              Rektorovom nagradom za društveno koristan rad u akademskoj i široj
+              zajednici.
+              <img
+                src="images/rektorova_nagrada.jpg"
+                alt="Rektorova nagrada"
+                class="modal-award-img"
+              />
+              2025. godine brani svoj diplomski rad pod temom „Usporedba
+              kvalitete prehrane žena koje slijede biljne obrasce prehrane i
+              žena svejeda upotrebom upitnika o kvaliteti prehrane (DQQ)“ te
+              stječe akademski naziv magistra nutricionizma.
+              <br /><br />
+              Filip danas radi u perspektivnom timu stručnjaka u području
+              dodataka prehrani, probiotika, fitoterapije i mikronutricije, s
+              velikim naglaskom na prirodna rješenja i individualni pristup.
+              2025. godine nastavlja s užom specijalizacijom u području
+              fitoterapije te upisuje program u prestižnoj belgijskoj školi
+              CERDEN.
+              <br /><br />
+              Filip slobodno vrijeme provodi aktivno – bilo mentalno ili
+              fizički. Mentalno slobodno vrijeme teško je razlučivo od poslovnog
+              jer stalnim traganjem i čitanjem Filip pronalazi svoj mir.
+              Tjelesno voli dokučiti svoje psihičke i fizičke granice pa
+              nerijetko uživa u dugim biciklističkim stazama, plivanju,
+              tjelovježbi, planinarenju. Posebno mjesto Filip od djetinjstva
+              čuva za šah. Od 2021. godine do danas dio je fakultetske sportske
+              ekipe i aktivno predstavlja boje fakulteta u timu šahista s kojima
+              je u više navrata osvajao odličja na međustudijskim natjecanjima.
+              <br /><br />
+              Uz brigu za ljudsko zdravlje, druga najveća Filipova ljubav je
+              povijest. Smatra kako je u najmanju ruku utrošio onoliko vremena
+              za izučavanje povijesnih tema, koliko je izdvojio vremena za
+              formalno visokoškolsko obrazovanje.
+              <br /><br />
+              Za Filipa je velika strast istraživanje istine i manje istraženih
+              tema, a svoju osobnu specijalnost kasnovečernjih istraživanja
+              duguje upravo tome. Smatra kako postoji veliki jaz između istine i
+              realnosti, a u moru laži i površnih informacija smatra se
+              odgovornim – prvo kao čovjek pa potom i kao stručnjak u zdravstvu
+              da donese svjetlo u mračne odaje domova običnih ljudi. S tim
+              ciljem 2025. godine Filip pokreće multimedijsku platformu Svijet
+              zdravlja, svijet u kojem se otvara dijalog za sve teme, razgovara
+              se o svim problemima i najvažnije, gradi se bolji svijet za sve
+              nas – Svijet zdravlja.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SEKCIJA: Misija i Vizija -->
+      <section class="mission-vision-section">
+        <div class="container mission-vision-container">
+          <!-- PRVI RED: Misija -->
+          <div class="mission-vision-row">
+            <hr class="post-meta-bar__divider" />
+            <h2 class="mission-vision-title">Misija</h2>
+            <p class="mission-vision-text">
+              Svijet zdravlja platforma pruža edukativno-zabavne materijale na
+              društvenim mrežama namijenjene svim dobnim skupinama. Provjerenim
+              i znanstveno utemeljenim pristupom platforma pruža relevantne
+              informacije koje se lako primjenjuju u svakodnevnom životu
+              pojedinca. Osim toga, platforma individualnim pristupom pomaže
+              ljudima u rješavanju zdravstvenih i društvenih problema
+              edukacijama, individualnim i grupnim savjetovanjem te humanitarnim
+              radom.
+            </p>
+          </div>
+          <!-- DRUGI RED: Vizija -->
+          <div class="mission-vision-row">
+            <h2 class="mission-vision-title">Vizija</h2>
+            <p class="mission-vision-text">
+              Zamišljamo budućnost u kojoj će svi imati pristup točnim
+              informacijama, adekvatnoj zdravstvenoj skrbi i svim osnovnim
+              potrebama za dostojanstven i bezbolan život. Vidimo budućnost u
+              kojem će ljudi biti tjelesno i duhovno snažniji te neovisniji.
+              Zamišljamo funkcionalnu zajednicu koja će zajedno biti jača i koja
+              će moći stvarati bolji svijet za sve nas, Svijet zdravlja.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="footer__container container">
+        <div class="footer__content">
+          <div class="footer__brand">
+            <a href="/" class="footer__logo">
+              <img
+                src="images/logo/SZ_cijelilogo_transparent.png"
+                alt="Svijet Zdravlja logo"
+                class="footer__logo-img"
+              />
+            </a>
+            <p class="footer__description">
+              Vaš pouzdani partner za zdravlje i dobrobit.
+            </p>
+          </div>
+
+          <div class="footer__links">
+            <div class="footer__column">
+              <h4 class="footer__title">Navigacija</h4>
+              <ul class="footer__list">
+                <li class="footer__list-item">
+                  <a href="index.html" class="footer__link">Početna</a>
+                </li>
+                <li class="footer__list-item">
+                  <a href="#" class="footer__link">O nama</a>
+                </li>
+                <!-- <li class="footer__list-item">
+                  <a href="#" class="footer__link">Usluge</a>
+                </li> -->
+                <li class="footer__list-item">
+                  <a href="blog/blog.html" class="footer__link">Blog</a>
+                </li>
+                <li class="footer__list-item">
+                  <a href="contact.html" class="footer__link">Kontakt</a>
+                </li>
+              </ul>
+            </div>
+
+            <div class="footer__column">
+              <h4 class="footer__title">Kontakt</h4>
+              <ul class="footer__list">
+                <!--
+                <li class="footer__list-item">
+                  <a href="tel:+385123456789" class="footer__link"
+                    >+385 12 345 6789</a>
+                </li>
+                -->
+                <li class="footer__list-item">
+                  <a
+                    href="mailto:svijetzdravljahr@gmail.com"
+                    class="footer__link"
+                    >svijetzdravljahr@gmail.com</a
+                  >
+                </li>
+                <li class="footer__list-item">
+                  <span class="footer__text">Zagreb, Hrvatska</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="footer__column">
+              <h4 class="footer__title">Pratite nas</h4>
+              <ul class="footer__social">
+                <!-- <li class="footer__social-item">
+                  <a href="#" class="footer__social-link" aria-label="Facebook">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </a>
+                </li> -->
+
+                <li class="footer__social-item">
+                  <a
+                    href="https://www.instagram.com/svijetzdravlja.hr/"
+                    class="footer__social-link"
+                    aria-label="Instagram"
+                  >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <rect
+                        x="2"
+                        y="2"
+                        width="20"
+                        height="20"
+                        rx="5"
+                        ry="5"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      />
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="4"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      />
+                      <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" />
+                    </svg>
+                  </a>
+                </li>
+                <li class="footer__social-item">
+                  <a
+                    href="https://www.youtube.com/@svijet_zdravlja_hr"
+                    class="footer__social-link"
+                    aria-label="YouTube"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <rect
+                        x="2"
+                        y="6"
+                        width="20"
+                        height="12"
+                        rx="3"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      />
+                      <polygon points="10,9 16,12 10,15" fill="currentColor" />
+                    </svg>
+                  </a>
+                </li>
+                <li class="footer__social-item"></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer__bottom">
+          <p class="footer__copyright">
+            &copy; <span id="current-year"></span> Svijet Zdravlja. Sva prava
+            pridržana.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Preloader script (must run before main scripts) -->
+    <script src="scripts/preloader.js" defer></script>
+
+    <script src="scripts/main.js"></script>
+
+    <script src="scripts/config.js"></script>
+    <script src="scripts/home-featured.js"></script>
+    <!-- Scroll animacije - dodaj samo ovu liniju -->
+    <script src="animations.js"></script>
+    <script>
+      // filepath: c:\Web template\svijet-zdravlja-FE\about.html
+      const modalBtn = document.getElementById("filip-modal-btn");
+      const modalOverlay = document.getElementById("filip-modal-overlay");
+      const modalClose = document.getElementById("filip-modal-close");
+      const modalDialog = modalOverlay.querySelector(".filip-modal");
+
+      modalBtn.addEventListener("click", function () {
+        modalOverlay.style.display = "flex";
+        setTimeout(() => {
+          modalOverlay.setAttribute("aria-hidden", "false");
+          modalDialog.classList.remove("hide");
+        }, 10);
+        document.body.style.overflow = "hidden";
+      });
+
+      function closeModal() {
+        modalDialog.classList.add("hide");
+        setTimeout(() => {
+          modalOverlay.setAttribute("aria-hidden", "true");
+          modalOverlay.style.display = "none";
+          modalDialog.classList.remove("hide");
+          document.body.style.overflow = "";
+        }, 180);
+      }
+
+      modalClose.addEventListener("click", closeModal);
+
+      modalOverlay.addEventListener("click", function (e) {
+        if (e.target === modalOverlay) closeModal();
+      });
+
+      document.addEventListener("keydown", function (e) {
+        if (
+          modalOverlay.style.display === "flex" &&
+          (e.key === "Escape" || e.key === "Esc")
+        ) {
+          closeModal();
+        }
+      });
+    </script>
+  </body>
+</html>
