@@ -222,8 +222,9 @@
 
   function buildPostsQuery(filters) {
     const params = new URLSearchParams();
-    if (filters && filters.sort && filters.sort !== "newest") {
-      params.set("sort", resolveSortAlias(filters.sort));
+    const sortValue = resolveSortAlias((filters && filters.sort) || "newest");
+    if (sortValue) {
+      params.set("sort", sortValue);
     }
     if (filters && filters.category && filters.category !== "all") {
       params.set("category", filters.category);
@@ -1768,7 +1769,40 @@
       const listTrace =
         window.svzStartTrace && window.svzStartTrace("blog_list_render");
       let renderedCount = 0;
-      const renderFromBase = function (basePosts) {
+      const renderFromApi = function () {
+        return fetchPostsFromApi(targetFilters)
+          .then(function (apiPosts) {
+            if (Array.isArray(apiPosts)) {
+              allPostsCache = apiPosts;
+              try {
+                savePosts(apiPosts);
+              } catch (e) {
+                console.warn("Could not save API posts to local storage", e);
+              }
+              renderList(apiPosts);
+              renderedCount = apiPosts.length;
+              return true;
+            }
+            return false;
+          })
+          .catch(function (error) {
+            console.warn(
+              "Falling back to local posts after fetch error",
+              error
+            );
+            const message =
+              (error && error.message) ||
+              "Ne možemo učitati objave. Pokušajte ponovno.";
+            showToast(message, "error");
+            return false;
+          });
+      };
+
+      const renderFromLocal = function () {
+        const basePosts =
+          (Array.isArray(allPostsCache) && allPostsCache.length
+            ? allPostsCache
+            : null) || getPosts();
         const local = filterPostsLocally(
           basePosts,
           targetFilters,
@@ -1778,46 +1812,12 @@
         renderedCount = local.length;
       };
 
-      const getBasePosts = function () {
-        if (Array.isArray(allPostsCache) && allPostsCache.length) {
-          return Promise.resolve(allPostsCache);
-        }
-        const apiFilters = Object.assign({}, targetFilters || {});
-        // Always fetch full list; filter locally for category/search
-        delete apiFilters.category;
-        delete apiFilters.q;
-        return fetchPostsFromApi(apiFilters)
-          .then(function (apiPosts) {
-            if (Array.isArray(apiPosts) && apiPosts.length) {
-              allPostsCache = apiPosts;
-              try {
-                savePosts(apiPosts);
-              } catch (e) {
-                console.warn("Could not save API posts to local storage", e);
-              }
-              return apiPosts;
-            }
-            const local = getPosts();
-            allPostsCache = local;
-            return local;
-          })
-          .catch(function (error) {
-            console.warn(
-              "Falling back to local posts after fetch error",
-              error
-            );
-            const local = getPosts();
-            allPostsCache = local;
-            const message =
-              (error && error.message) ||
-              "Ne možemo učitati objave. Pokušajte ponovno.";
-            showToast(message, "error");
-            return local;
-          });
-      };
-
-      return getBasePosts()
-        .then(renderFromBase)
+      return renderFromApi()
+        .then(function (rendered) {
+          if (!rendered) {
+            renderFromLocal();
+          }
+        })
         .finally(function () {
           window.svzStopTrace &&
             window.svzStopTrace(listTrace, { count: renderedCount });
