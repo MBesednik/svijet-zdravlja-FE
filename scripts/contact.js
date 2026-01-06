@@ -47,8 +47,6 @@ if (contactForm) {
       .send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
       .then(
         function (response) {
-          console.log("SUCCESS!", response.status, response.text);
-
           if (typeof showToast === "function") {
             showToast(
               "Poruka je uspješno poslana! Odgovorit ćemo vam uskoro.",

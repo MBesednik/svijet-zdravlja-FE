@@ -838,7 +838,6 @@
   function getPostById(id) {
     return (
       getPosts().find(function (post) {
-        console.log("LOLOLO Comparing post id:", post.id, "with", id);
         return post.id == id;
       }) || null
     );
@@ -847,7 +846,6 @@
   function getPostBySlug(slug) {
     return (
       getPosts().find(function (post) {
-        console.log("LOLOLO Comparing post slug:", post.slug, "with", slug);
         return post.slug == slug;
       }) || null
     );
@@ -1081,12 +1079,10 @@
         '<circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline>';
       const viewsText = document.createElement("span");
       viewsText.classList.add("post-card__readtime-text");
-      console.log("Post reading time minutes:", post.reading_time_minutes);
       const rawMinutes = post.reading_time_minutes;
       const minutes =
         typeof rawMinutes === "number" ? rawMinutes : parseInt(rawMinutes, 10);
       const hasMinutes = Number.isFinite(minutes);
-      console.log("Calculated minutes:", minutes);
       if (!hasMinutes) {
         viewsWrapper.style.display = "none";
       }
@@ -1179,8 +1175,6 @@
 
     const post =
       postOverride || getPostById(identifier) || getPostBySlug(identifier);
-
-    console.log("Rendering post:", identifier, post);
 
     if (!post) {
       if (titleEl) {
