@@ -1208,63 +1208,67 @@
     article.dataset.id = post.id;
     if (titleEl) {
       titleEl.textContent = post.title;
-      // featured badge
-      if (post.is_featured) {
-        // Ukloni postojeći badge ako postoji
-        const oldBadge = document.querySelector(".post-featured");
-        if (oldBadge) oldBadge.remove();
-        const oldReadtime = document.querySelector(".post-readtime");
-        if (oldReadtime) oldReadtime.remove();
+      const ensureTitleWrap = function () {
+        if (
+          titleEl.parentElement &&
+          titleEl.parentElement.classList.contains("post-title-wrap")
+        ) {
+          return titleEl.parentElement;
+        }
+        const wrap = document.createElement("div");
+        wrap.className = "post-title-wrap";
+        titleEl.parentElement.insertBefore(wrap, titleEl);
+        wrap.appendChild(titleEl);
+        return wrap;
+      };
+      const wrap = ensureTitleWrap();
+      // remove previous badge/readtime if re-rendering
+      const oldBadge = wrap.querySelector(".post-featured");
+      if (oldBadge) oldBadge.remove();
+      const oldReadtime = wrap.querySelector(".post-readtime");
+      if (oldReadtime) oldReadtime.remove();
 
-        // Kreiraj badge i pozicioniraj ga desno od naslova
-        const badge = document.createElement("span");
+      // featured badge on the right cluster
+      let badge = null;
+      if (post.is_featured) {
+        badge = document.createElement("span");
         badge.className = "post-featured";
         badge.textContent = "Istaknuto";
-        // Ukloni inline stilove, koristi CSS
-        // Dodaj badge u wrapper oko naslova, ili ako nema wrappera, koristi flex
-        // Kreiraj wrapper ako ne postoji
-        if (!titleEl.parentElement.classList.contains("post-title-wrap")) {
-          const wrap = document.createElement("div");
-          wrap.className = "post-title-wrap";
-          titleEl.parentElement.insertBefore(wrap, titleEl);
-          wrap.appendChild(titleEl);
-        }
-        const wrap = titleEl.parentElement;
         wrap.appendChild(badge);
+      }
 
-        // Dodaj vrijeme čitanja desno od badge-a
-        const readtime = document.createElement("span");
-        readtime.className = "post-readtime";
-        const icon = document.createElementNS(
-          "http://www.w3.org/2000/svg",
-          "svg"
-        );
-        icon.setAttribute("width", "18");
-        icon.setAttribute("height", "18");
-        icon.setAttribute("viewBox", "0 0 24 24");
-        icon.setAttribute("fill", "none");
-        icon.setAttribute("stroke", "#3d4a2c");
-        icon.setAttribute("stroke-width", "2");
-        icon.setAttribute("stroke-linecap", "round");
-        icon.setAttribute("stroke-linejoin", "round");
-        icon.classList.add("post-readtime__icon");
-        icon.innerHTML =
-          '<circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline>';
+      // reading time badge (always shown when available)
+      const readtime = document.createElement("span");
+      readtime.className = "post-readtime";
+      const icon = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "svg"
+      );
+      icon.setAttribute("width", "18");
+      icon.setAttribute("height", "18");
+      icon.setAttribute("viewBox", "0 0 24 24");
+      icon.setAttribute("fill", "none");
+      icon.setAttribute("stroke", "#3d4a2c");
+      icon.setAttribute("stroke-width", "2");
+      icon.setAttribute("stroke-linecap", "round");
+      icon.setAttribute("stroke-linejoin", "round");
+      icon.classList.add("post-readtime__icon");
+      icon.innerHTML =
+        '<circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline>';
 
-        const minutes =
-          typeof post.reading_time_minutes === "number"
-            ? post.reading_time_minutes
-            : parseInt(post.reading_time_minutes, 10);
-        const hasMinutes = Number.isFinite(minutes);
-        const text = document.createElement("span");
-        text.className = "post-readtime__text";
-        text.textContent = hasMinutes ? minutes + " min" : "";
+      const minutes =
+        typeof post.reading_time_minutes === "number"
+          ? post.reading_time_minutes
+          : parseInt(post.reading_time_minutes, 10);
+      const hasMinutes = Number.isFinite(minutes);
+      const text = document.createElement("span");
+      text.className = "post-readtime__text";
+      text.textContent = hasMinutes ? minutes + " min" : "";
 
-        readtime.appendChild(icon);
-        readtime.appendChild(text);
-        if (hasMinutes) {
-          wrap.appendChild(readtime);
-        }
+      readtime.appendChild(icon);
+      readtime.appendChild(text);
+      if (hasMinutes) {
+        wrap.appendChild(readtime);
       }
     }
     document.title = post.title + " | Svijet Zdravlja";
