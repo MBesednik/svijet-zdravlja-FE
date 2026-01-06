@@ -430,6 +430,7 @@ body {
 .header-overlay.is-active {
   opacity: 1;
   visibility: visible;
+  z-index: 0;
 }
 @media (min-width: 768px) {
   .header-overlay {
