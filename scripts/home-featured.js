@@ -69,16 +69,28 @@
     container.setAttribute("aria-busy", "true");
     container.innerHTML = "";
 
-    if (!posts.length) {
+    // Limit to max 3 featured posts
+    const list = Array.isArray(posts) ? posts.slice(0, 3) : [];
+
+    const applyLayout = function (count) {
+      const capped = Math.max(1, Math.min(count || 0, 3));
+      container.classList.add("post-list--featured");
+      container.classList.remove("columns-1", "columns-2", "columns-3");
+      container.classList.add("columns-" + capped);
+    };
+
+    if (!list.length) {
       // hide entire section if nothing to show
       const section = container.closest(".featured-posts");
       if (section) section.style.display = "none";
       return;
     }
 
+    applyLayout(list.length);
+
     const frag = document.createDocumentFragment();
 
-    posts.forEach(function (post, index) {
+    list.forEach(function (post, index) {
       const article = document.createElement("article");
       article.className = "post-card";
       article.dataset.id = post.id || "";

@@ -1368,10 +1368,32 @@
     // Autor je statički "Filip Jugović" (već u HTML-u)
 
     if (categoryEl) {
-      if (post.categories && post.categories.length) {
-        categoryEl.textContent = Array.isArray(post.categories)
-          ? post.categories.join(", ")
-          : post.categories;
+      categoryEl.innerHTML = "";
+      const categories = Array.isArray(post.categories)
+        ? post.categories.filter(Boolean)
+        : post.categories
+        ? [post.categories]
+        : [];
+      if (categories.length) {
+        categories.forEach(function (cat, index) {
+          const label =
+            typeof cat === "string" ? cat : (cat && cat.name) || cat || "";
+          if (!label) {
+            return;
+          }
+          const slug = slugify(label);
+          const link = document.createElement("a");
+          link.className = "post-meta-bar__link";
+          link.href =
+            "../blog/blog.html" +
+            (slug ? "?category=" + encodeURIComponent(slug) : "");
+          link.textContent = label;
+          link.title = "Prikaži objave u kategoriji " + label;
+          categoryEl.appendChild(link);
+          if (index < categories.length - 1) {
+            categoryEl.appendChild(document.createTextNode(", "));
+          }
+        });
       } else {
         categoryEl.textContent = "";
       }
