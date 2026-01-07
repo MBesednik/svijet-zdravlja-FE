@@ -8,7 +8,7 @@
   "use strict";
 
   const API_BASE_URL = window.getSVZAdminApiBase();
-  const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2MB
+  const MAX_IMAGE_SIZE = 6 * 1024 * 1024; // 6MB
   const SUPPORTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
   /**
@@ -214,6 +214,38 @@
     } else {
       loader.classList.add("hidden");
       loader.setAttribute("aria-hidden", "true");
+    }
+  }
+
+  function setSubmittingState(isSubmitting) {
+    const saveBtn = document.getElementById("post-save");
+    const draftBtn = document.getElementById("post-save-draft");
+    const cancelBtn = document.getElementById("post-cancel");
+
+    const setButtonState = (btn, loadingText) => {
+      if (!btn) return;
+      if (isSubmitting) {
+        btn.dataset.originalText = btn.textContent;
+        btn.textContent = loadingText;
+        btn.disabled = true;
+      } else {
+        if (btn.dataset && btn.dataset.originalText) {
+          btn.textContent = btn.dataset.originalText;
+          delete btn.dataset.originalText;
+        }
+        btn.disabled = false;
+      }
+    };
+
+    setButtonState(saveBtn, "Spremamo...");
+    setButtonState(draftBtn, "Spremamo skicu...");
+
+    if (cancelBtn) {
+      if (isSubmitting) {
+        cancelBtn.setAttribute("aria-disabled", "true");
+      } else {
+        cancelBtn.removeAttribute("aria-disabled");
+      }
     }
   }
 
@@ -498,7 +530,8 @@
     // prihvati razne oblike povratnog polja
     return (
       ch &&
-      (ch.storage_path ||
+      (ch.preview_data_url ||
+        ch.storage_path ||
         (ch.media && ch.media.storage_path) ||
         (ch.image && ch.image.storage_path) ||
         ch.image_url ||
@@ -564,6 +597,7 @@
             <input type="file" accept="image/*" class="chapter-image" data-id="${
               ch.id
             }">
+            <div class="chapter-file-name" data-id="${ch.id}"></div>
           </div>
           <select class="chapter-layout-position" data-id="${ch.id}">
             <option value="">Odaberi poziciju slike</option>
@@ -676,25 +710,50 @@
         const preview = e.target
           .closest(".chapter-image-wrapper")
           ?.querySelector(".chapter-image-preview");
+        const fileNameEl = e.target
+          .closest(".chapter-image-wrapper")
+          ?.querySelector(".chapter-file-name");
         if (chapter && e.target.files[0]) {
-          chapter.media_file = e.target.files[0];
-          // remove references to old storage_path so update logic sends new image_data from file
-          delete chapter.storage_path;
-          if (chapter.media) delete chapter.media;
-          if (chapter.image) delete chapter.image;
-          // show preview of selected file
-          fileToDataURL(e.target.files[0])
+          const file = e.target.files[0];
+          chapter.media_file = file;
+          // instant preview via object URL to survive re-renders
+          try {
+            const objectUrl = URL.createObjectURL(file);
+            chapter.preview_data_url = objectUrl;
+            if (preview) {
+              preview.src = objectUrl;
+              preview.hidden = false;
+            }
+          } catch (err) {
+            chapter.preview_data_url = null;
+          }
+          // cache data URL so preview persists across re-renders
+          fileToDataURL(file)
             .then((dataUrl) => {
+              chapter.preview_data_url = dataUrl;
               if (preview) {
                 preview.src = dataUrl;
                 preview.hidden = false;
               }
+              if (fileNameEl) {
+                fileNameEl.textContent = `Odabrana datoteka: ${
+                  file.name || "datoteka"
+                }`;
+              }
             })
             .catch(() => {
+              chapter.preview_data_url = null;
               if (preview) preview.hidden = true;
+              if (fileNameEl) fileNameEl.textContent = "";
             });
+          // remove references to old storage_path so update logic sends new image_data from file
+          delete chapter.storage_path;
+          if (chapter.media) delete chapter.media;
+          if (chapter.image) delete chapter.image;
         } else if (chapter) {
           chapter.media_file = null;
+          chapter.preview_data_url = null;
+          if (fileNameEl) fileNameEl.textContent = "";
         }
       });
     });
@@ -706,6 +765,26 @@
         const chapter = chapters.find((c) => c.id === id);
         if (chapter) chapter.layout_position = e.target.value || null;
       });
+    });
+
+    // Re-apply previews after rerender to avoid losing chosen images in UI
+    list.querySelectorAll(".chapter-item").forEach((item) => {
+      const id = parseInt(item.dataset.id);
+      const chapter = chapters.find((c) => c.id === id);
+      const preview = item.querySelector(".chapter-image-preview");
+      const fileNameEl = item.querySelector(".chapter-file-name");
+      const src = getChapterImagePreviewUrl(chapter);
+      if (preview && src) {
+        preview.src = src;
+        preview.hidden = false;
+      }
+      if (fileNameEl) {
+        if (chapter && chapter.media_file && chapter.media_file.name) {
+          fileNameEl.textContent = `Odabrana datoteka: ${chapter.media_file.name}`;
+        } else {
+          fileNameEl.textContent = "";
+        }
+      }
     });
   }
 
@@ -971,15 +1050,18 @@
 
     if (!validateForm()) return;
 
+    setSubmittingState(true);
+    toggleFormLoader(true);
+    showFormStatus("Slanje objave...", "info");
+
     try {
       await ensureCategoriesExist();
     } catch (err) {
       showError(err.message || "Nije moguće kreirati kategoriju.");
+      toggleFormLoader(false);
+      setSubmittingState(false);
       return;
     }
-
-    toggleFormLoader(true);
-    showFormStatus("Slanje objave...", "info");
 
     try {
       const method = currentPost ? "PUT" : "POST";
@@ -1033,6 +1115,7 @@
       showError(error.message);
     } finally {
       toggleFormLoader(false);
+      setSubmittingState(false);
     }
   }
 
