@@ -1050,6 +1050,37 @@ body {
   font-size: 0.875rem;
   color: #9ca39a;
 }
+.post-card__meta-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: nowrap;
+}
+.post-card__meta-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+  flex: 0 1 auto;
+  white-space: nowrap;
+  min-width: 0;
+}
+.post-card__meta-row--stacked {
+  flex-wrap: wrap;
+  row-gap: 0.35rem;
+}
+
+.post-card__meta-row--stacked .post-card__meta-group {
+  flex-basis: 100%;
+  margin-left: 0;
+  justify-content: flex-start;
+}
+.post-card__readtime {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
 .post-card__read {
   margin-top: auto;
   padding: 1rem 1.5rem;

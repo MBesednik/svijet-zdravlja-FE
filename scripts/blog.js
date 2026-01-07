@@ -210,6 +210,7 @@
         p.scheduled_for || p.scheduledFor || p.scheduled_at || null,
       reading_time_minutes: p.reading_time_minutes || null,
       references: p.reference || p.reference || [],
+      author_display_name: p.author_display_name || null,
     };
   }
 
@@ -668,6 +669,46 @@
     return Math.max(1, minutes);
   }
 
+  function resolveReadingMinutes(post) {
+    if (!post) return null;
+    const candidates = [
+      post.reading_time_minutes,
+      post.read_time_minutes,
+      post.readTimeMinutes,
+      post.readTime,
+      post.read_time,
+    ];
+    for (let i = 0; i < candidates.length; i++) {
+      const value = candidates[i];
+      if (typeof value === "number" && Number.isFinite(value)) {
+        return value;
+      }
+      const parsed = parseInt(value, 10);
+      if (Number.isFinite(parsed)) {
+        return parsed;
+      }
+    }
+    if (post.content) {
+      return calculateReadTime(post.content);
+    }
+    return null;
+  }
+
+  function adjustMetaRowLayout(rowEl) {
+    if (!rowEl) return;
+    const metaGroup = rowEl.querySelector(".post-card__meta-group");
+    const shouldStack = rowEl.scrollWidth > (rowEl.clientWidth || 0) + 1;
+    if (shouldStack) {
+      rowEl.classList.add("post-card__meta-row--stacked");
+      if (metaGroup) metaGroup.style.marginLeft = "0";
+      rowEl.style.flexWrap = "wrap";
+    } else {
+      rowEl.classList.remove("post-card__meta-row--stacked");
+      if (metaGroup) metaGroup.style.marginLeft = "auto";
+      rowEl.style.flexWrap = "nowrap";
+    }
+  }
+
   let scrollDepthCleanup = null;
   function initPostScrollDepth(post) {
     if (!window.svzTrack || !post) return;
@@ -1022,7 +1063,6 @@
       row1.classList.add("post-card__meta-row");
       row1.style.display = "flex";
       row1.style.alignItems = "center";
-      row1.style.flexWrap = "nowrap";
       row1.style.gap = "1em";
       row1.style.width = "100%";
       row1.style.marginBottom = "0.5em";
@@ -1044,18 +1084,23 @@
         });
       }
 
-      // datum + pregledi (desno)
+      // datum + pregledi (grupirani)
+      const metaGroup = document.createElement("div");
+      metaGroup.className = "post-card__meta-group";
+      metaGroup.style.display = "inline-flex";
+      metaGroup.style.alignItems = "center";
+      metaGroup.style.gap = "0.75rem";
+      metaGroup.style.marginLeft = "auto";
+
       const date = document.createElement("span");
       date.className = "post-card__meta";
       date.textContent = formatDate(post.createdAt);
       date.style.display = "inline-flex";
       date.style.alignItems = "center";
       date.style.alignSelf = "center";
-      row1.appendChild(date);
 
       const viewsWrapper = document.createElement("span");
       viewsWrapper.className = "post-card__readtime";
-      viewsWrapper.style.marginLeft = "auto";
       viewsWrapper.style.display = "inline-flex";
       viewsWrapper.style.alignItems = "center";
       viewsWrapper.style.alignSelf = "center";
@@ -1079,9 +1124,7 @@
         '<circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline>';
       const viewsText = document.createElement("span");
       viewsText.classList.add("post-card__readtime-text");
-      const rawMinutes = post.reading_time_minutes;
-      const minutes =
-        typeof rawMinutes === "number" ? rawMinutes : parseInt(rawMinutes, 10);
+      const minutes = resolveReadingMinutes(post);
       const hasMinutes = Number.isFinite(minutes);
       if (!hasMinutes) {
         viewsWrapper.style.display = "none";
@@ -1093,9 +1136,15 @@
       viewsText.style.whiteSpace = "nowrap";
       viewsWrapper.appendChild(viewsIcon);
       viewsWrapper.appendChild(viewsText);
-      row1.appendChild(viewsWrapper);
+
+      metaGroup.appendChild(date);
+      metaGroup.appendChild(viewsWrapper);
+      row1.appendChild(metaGroup);
 
       contentDiv.appendChild(row1);
+      requestAnimationFrame(function () {
+        adjustMetaRowLayout(row1);
+      });
 
       // 2. RED: naslov
       const title = document.createElement("h3");
@@ -1365,6 +1414,7 @@
     // Dinamički postavi kategoriju i datum u meta bar
     const categoryEl = document.getElementById("post-category");
     const dateEl = document.getElementById("post-date");
+    const authorEl = document.getElementById("post-author");
     // Autor je statički "Filip Jugović" (već u HTML-u)
 
     if (categoryEl) {
@@ -1400,6 +1450,10 @@
     }
     if (dateEl) {
       dateEl.textContent = formatDate(post.createdAt);
+    }
+
+     if (authorEl) {
+      authorEl.textContent = post.author_display_name;
     }
 
     // Render content: if chapters exist, render them in order, otherwise use single content field
