@@ -1013,14 +1013,22 @@
 
       const result = await response.json();
 
-      showFormStatus(
-        currentPost ? "Objava je ažurirana!" : "Objava je uspješno kreirana!",
-        "success"
-      );
+      const successMessage = currentPost
+        ? "Objava je ažurirana!"
+        : "Objava je uspješno kreirana!";
+
+      showFormStatus(successMessage, "success");
+      if (typeof window.showToast === "function") {
+        window.showToast(successMessage, {
+          duration: 3000,
+          background: "rgba(62, 130, 86, 0.95)",
+          progressColor: "rgba(233, 245, 237, 0.95)",
+        });
+      }
 
       setTimeout(() => {
         window.location.replace(`post.html?id=${result.id}`);
-      }, 1500);
+      }, 3000);
     } catch (error) {
       showError(error.message);
     } finally {
