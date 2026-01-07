@@ -3,13 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kontakt | Svijet zdravlja</title>
     <link
       rel="icon"
       type="image/png"
       sizes="32x32"
       href="images/favicon-32x32.png"
     />
+
+    <title>Svijet Zdravlja</title>
     <link rel="stylesheet" href="styles/style.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -22,6 +23,24 @@
       href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap"
       rel="stylesheet"
     />
+    <script type="module" src="scripts/analytics.js"></script>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyAS9Oy88NY70Eo4lOpQDkYO0vD5FYHBUp8",
+        authDomain: "jugo-projekt.firebaseapp.com",
+        projectId: "jugo-projekt",
+        storageBucket: "jugo-projekt.firebasestorage.app",
+        messagingSenderId: "349150746918",
+        appId: "1:349150746918:web:20219a6eeacc2f955e49e7",
+        measurementId: "G-T903QB3RZZ",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      getAnalytics(app);
+    </script>
     <script>
       try {
         if (sessionStorage.getItem("svz_preloader_seen") === "1") {
@@ -29,12 +48,41 @@
         }
       } catch (e) {}
     </script>
-    <script
-      type="text/javascript"
-      src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"
-    ></script>
   </head>
   <body>
+    <!-- Preloader overlay -->
+    <div
+      id="preloader"
+      class="preloader"
+      role="status"
+      aria-label="Učitavanje stranice"
+      aria-hidden="false"
+    >
+      <div class="preloader__content">
+        <div
+          class="preloader__text"
+          aria-hidden="true"
+          style="white-space: nowrap"
+        >
+          <span class="preloader__word" style="--i: 0">Dobrodošli</span>
+          <span class="preloader__word" style="--i: 1">u</span>
+          <span class="preloader__word" style="--i: 2">Svijet</span>
+          <span class="preloader__word" style="--i: 3">Zdravlja!</span>
+        </div>
+
+        <div
+          class="preloader__logo"
+          data-svg-src="images/logo/animation_logo.svg"
+          aria-hidden="true"
+        >
+          <img
+            src="images/logo/animation_logo.svg"
+            alt="Svijet Zdravlja simbol"
+          />
+        </div>
+      </div>
+    </div>
+
     <!-- HEADER -->
     <header class="header">
       <div class="header__container container">
@@ -80,52 +128,31 @@
 
     <!-- MAIN CONTENT -->
     <main class="main">
-      <section class="contact-section">
-        <!-- Dekorativni krugovi u pozadini -->
-        <div class="circle-bg circle-bg--1 animate-left-right"></div>
-        <div class="circle-bg circle-bg--2 animate-zoom"></div>
-        <div class="circle-bg circle-bg--3 animate-up-down"></div>
-        <div class="circle-bg circle-bg--4 animate-zoom"></div>
-        <div class="circle-bg circle-bg--5 animate-left-right"></div>
-        <div class="circle-bg circle-bg--6 animate-up-down"></div>
+      <section class="disclaimer-section">
+        <h1 class="disclaimer-title">Odricanje od odgovornosti</h1>
 
-        <div class="contact-center-wrapper">
-          <div class="contact-container">
-            <h1 class="contact-title">Kontaktirajte nas</h1>
-            <form class="contact-form">
-              <div class="form-group">
-                <label for="name">Ime i prezime</label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  placeholder="Vaše ime i prezime"
-                  required
-                />
-              </div>
-              <div class="form-group">
-                <label for="email">Email adresa</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  placeholder="Vaš email"
-                  required
-                />
-              </div>
-              <div class="form-group">
-                <label for="message">Poruka</label>
-                <textarea
-                  id="message"
-                  name="message"
-                  rows="5"
-                  placeholder="Vaša poruka"
-                  required
-                ></textarea>
-              </div>
-              <button type="submit" class="btn btn--primary">Pošalji</button>
-            </form>
-          </div>
+        <div class="disclaimer-main-box">
+          <p class="disclaimer-main-text">
+            Programi, edukacije i savjetodavni sadržaji koji se spominju ili
+            provode putem platforme svijetzdravlja.hr i pripadajućeg YouTube
+            kanala „Zdrava TV“ nisu nužno akreditirani niti priznati kao
+            mjerodavni u smislu važećih propisa Republike Hrvatske koji uređuju
+            zdravstvenu djelatnost, dijagnostiku i liječenje bolesti.<br /><br />
+            Sav sadržaj objavljen na platformi svijetzdravlja.hr isključivo je
+            informativnog i edukativnog karaktera te je namijenjen općem
+            informiranju korisnika. Navedeni sadržaj ne predstavlja medicinski
+            savjet, dijagnozu niti terapiju i ne može niti smije zamijeniti
+            pregled, savjet ili liječenje koje provodi liječnik ili druga
+            zdravstvena osoba ovlaštena sukladno važećim zakonima Republike
+            Hrvatske.<br /><br />
+            Platforma svijetzdravlja.hr ne pruža zdravstvene usluge u smislu
+            Zakona o zdravstvenoj zaštiti te ne sudjeluje u dijagnosticiranju
+            ili liječenju. Korištenje informacija dostupnih na platformi
+            isključivo je na vlastitu odgovornost korisnika.<br /><br />
+            svijetzdravlja.hr ne snosi odgovornost za bilo kakvu štetu,
+            posljedice ili ishode koji mogu nastati izravno ili neizravno
+            korištenjem sadržaja objavljenog na ovoj platformi.
+          </p>
         </div>
       </section>
     </main>
@@ -166,18 +193,15 @@
                 <li class="footer__list-item">
                   <a href="contact.html" class="footer__link">Kontakt</a>
                 </li>
+                <li class="footer__list-item">
+                  <!-- Poveznica premještena u footer__bottom -->
+                </li>
               </ul>
             </div>
 
             <div class="footer__column">
               <h4 class="footer__title">Kontakt</h4>
               <ul class="footer__list">
-                <!--
-                <li class="footer__list-item">
-                  <a href="tel:+385123456789" class="footer__link"
-                    >+385 12 345 6789</a>
-                </li>
-                -->
                 <li class="footer__list-item">
                   <a
                     href="mailto:svijetzdravljahr@gmail.com"
@@ -210,6 +234,7 @@
                     </svg>
                   </a>
                 </li> -->
+
                 <li class="footer__social-item">
                   <a
                     href="https://www.instagram.com/svijetzdravlja.hr/"
@@ -268,19 +293,21 @@
         </div>
 
         <div class="footer__bottom">
-          <p class="footer__copyright">
-            &copy; <span id="current-year"></span> Svijet Zdravlja. Sva prava
-            pridržana.
+          <p class="footer__copyright" style="margin: 0; text-align: center;">
+            &copy; <span id="current-year"></span> Svijet Zdravlja. Sva prava pridržana.
           </p>
         </div>
       </div>
     </footer>
 
+    <!-- Preloader script (must run before main scripts) -->
+    <script src="scripts/preloader.js" defer></script>
+
     <script src="scripts/main.js"></script>
+
     <script src="scripts/config.js"></script>
     <script src="scripts/home-featured.js"></script>
-    <script src="scripts/toast.js"></script>
-    <script src="scripts/contact.js"></script>
+    <!-- Scroll animacije - dodaj samo ovu liniju -->
     <script src="animations.js"></script>
   </body>
 </html>

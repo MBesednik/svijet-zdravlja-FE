@@ -2963,3 +2963,29 @@ h3.post-chapter__title {
     transform: scaleX(0);
   }
 }
+
+/* Odricanje od odgovornosti sekcija */
+.disclaimer-section {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.disclaimer-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+.disclaimer-main-box {
+  background: #f8f8f8;
+  border-radius: 8px;
+  padding: 1.5rem 0rem 1.5rem 0rem;
+}
+
+.disclaimer-main-text {
+  margin: 0;
+  color: #222;
+  font-size: 1.1rem;
+  line-height: 1.7;
+}
