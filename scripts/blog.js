@@ -222,8 +222,9 @@
 
   function buildPostsQuery(filters) {
     const params = new URLSearchParams();
-    if (filters && filters.sort && filters.sort !== "newest") {
-      params.set("sort", resolveSortAlias(filters.sort));
+    const sortValue = resolveSortAlias((filters && filters.sort) || "newest");
+    if (sortValue) {
+      params.set("sort", sortValue);
     }
     if (filters && filters.category && filters.category !== "all") {
       params.set("category", filters.category);
@@ -837,7 +838,6 @@
   function getPostById(id) {
     return (
       getPosts().find(function (post) {
-        console.log("LOLOLO Comparing post id:", post.id, "with", id);
         return post.id == id;
       }) || null
     );
@@ -846,7 +846,6 @@
   function getPostBySlug(slug) {
     return (
       getPosts().find(function (post) {
-        console.log("LOLOLO Comparing post slug:", post.slug, "with", slug);
         return post.slug == slug;
       }) || null
     );
@@ -1080,12 +1079,10 @@
         '<circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline>';
       const viewsText = document.createElement("span");
       viewsText.classList.add("post-card__readtime-text");
-      console.log("Post reading time minutes:", post.reading_time_minutes);
       const rawMinutes = post.reading_time_minutes;
       const minutes =
         typeof rawMinutes === "number" ? rawMinutes : parseInt(rawMinutes, 10);
       const hasMinutes = Number.isFinite(minutes);
-      console.log("Calculated minutes:", minutes);
       if (!hasMinutes) {
         viewsWrapper.style.display = "none";
       }
@@ -1179,8 +1176,6 @@
     const post =
       postOverride || getPostById(identifier) || getPostBySlug(identifier);
 
-    console.log("Rendering post:", identifier, post);
-
     if (!post) {
       if (titleEl) {
         titleEl.textContent = "Objava nije pronađena";
@@ -1207,63 +1202,67 @@
     article.dataset.id = post.id;
     if (titleEl) {
       titleEl.textContent = post.title;
-      // featured badge
-      if (post.is_featured) {
-        // Ukloni postojeći badge ako postoji
-        const oldBadge = document.querySelector(".post-featured");
-        if (oldBadge) oldBadge.remove();
-        const oldReadtime = document.querySelector(".post-readtime");
-        if (oldReadtime) oldReadtime.remove();
+      const ensureTitleWrap = function () {
+        if (
+          titleEl.parentElement &&
+          titleEl.parentElement.classList.contains("post-title-wrap")
+        ) {
+          return titleEl.parentElement;
+        }
+        const wrap = document.createElement("div");
+        wrap.className = "post-title-wrap";
+        titleEl.parentElement.insertBefore(wrap, titleEl);
+        wrap.appendChild(titleEl);
+        return wrap;
+      };
+      const wrap = ensureTitleWrap();
+      // remove previous badge/readtime if re-rendering
+      const oldBadge = wrap.querySelector(".post-featured");
+      if (oldBadge) oldBadge.remove();
+      const oldReadtime = wrap.querySelector(".post-readtime");
+      if (oldReadtime) oldReadtime.remove();
 
-        // Kreiraj badge i pozicioniraj ga desno od naslova
-        const badge = document.createElement("span");
+      // featured badge on the right cluster
+      let badge = null;
+      if (post.is_featured) {
+        badge = document.createElement("span");
         badge.className = "post-featured";
         badge.textContent = "Istaknuto";
-        // Ukloni inline stilove, koristi CSS
-        // Dodaj badge u wrapper oko naslova, ili ako nema wrappera, koristi flex
-        // Kreiraj wrapper ako ne postoji
-        if (!titleEl.parentElement.classList.contains("post-title-wrap")) {
-          const wrap = document.createElement("div");
-          wrap.className = "post-title-wrap";
-          titleEl.parentElement.insertBefore(wrap, titleEl);
-          wrap.appendChild(titleEl);
-        }
-        const wrap = titleEl.parentElement;
         wrap.appendChild(badge);
+      }
 
-        // Dodaj vrijeme čitanja desno od badge-a
-        const readtime = document.createElement("span");
-        readtime.className = "post-readtime";
-        const icon = document.createElementNS(
-          "http://www.w3.org/2000/svg",
-          "svg"
-        );
-        icon.setAttribute("width", "18");
-        icon.setAttribute("height", "18");
-        icon.setAttribute("viewBox", "0 0 24 24");
-        icon.setAttribute("fill", "none");
-        icon.setAttribute("stroke", "#3d4a2c");
-        icon.setAttribute("stroke-width", "2");
-        icon.setAttribute("stroke-linecap", "round");
-        icon.setAttribute("stroke-linejoin", "round");
-        icon.classList.add("post-readtime__icon");
-        icon.innerHTML =
-          '<circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline>';
+      // reading time badge (always shown when available)
+      const readtime = document.createElement("span");
+      readtime.className = "post-readtime";
+      const icon = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "svg"
+      );
+      icon.setAttribute("width", "18");
+      icon.setAttribute("height", "18");
+      icon.setAttribute("viewBox", "0 0 24 24");
+      icon.setAttribute("fill", "none");
+      icon.setAttribute("stroke", "#3d4a2c");
+      icon.setAttribute("stroke-width", "2");
+      icon.setAttribute("stroke-linecap", "round");
+      icon.setAttribute("stroke-linejoin", "round");
+      icon.classList.add("post-readtime__icon");
+      icon.innerHTML =
+        '<circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline>';
 
-        const minutes =
-          typeof post.reading_time_minutes === "number"
-            ? post.reading_time_minutes
-            : parseInt(post.reading_time_minutes, 10);
-        const hasMinutes = Number.isFinite(minutes);
-        const text = document.createElement("span");
-        text.className = "post-readtime__text";
-        text.textContent = hasMinutes ? minutes + " min" : "";
+      const minutes =
+        typeof post.reading_time_minutes === "number"
+          ? post.reading_time_minutes
+          : parseInt(post.reading_time_minutes, 10);
+      const hasMinutes = Number.isFinite(minutes);
+      const text = document.createElement("span");
+      text.className = "post-readtime__text";
+      text.textContent = hasMinutes ? minutes + " min" : "";
 
-        readtime.appendChild(icon);
-        readtime.appendChild(text);
-        if (hasMinutes) {
-          wrap.appendChild(readtime);
-        }
+      readtime.appendChild(icon);
+      readtime.appendChild(text);
+      if (hasMinutes) {
+        wrap.appendChild(readtime);
       }
     }
     document.title = post.title + " | Svijet Zdravlja";
@@ -1768,7 +1767,40 @@
       const listTrace =
         window.svzStartTrace && window.svzStartTrace("blog_list_render");
       let renderedCount = 0;
-      const renderFromBase = function (basePosts) {
+      const renderFromApi = function () {
+        return fetchPostsFromApi(targetFilters)
+          .then(function (apiPosts) {
+            if (Array.isArray(apiPosts)) {
+              allPostsCache = apiPosts;
+              try {
+                savePosts(apiPosts);
+              } catch (e) {
+                console.warn("Could not save API posts to local storage", e);
+              }
+              renderList(apiPosts);
+              renderedCount = apiPosts.length;
+              return true;
+            }
+            return false;
+          })
+          .catch(function (error) {
+            console.warn(
+              "Falling back to local posts after fetch error",
+              error
+            );
+            const message =
+              (error && error.message) ||
+              "Ne možemo učitati objave. Pokušajte ponovno.";
+            showToast(message, "error");
+            return false;
+          });
+      };
+
+      const renderFromLocal = function () {
+        const basePosts =
+          (Array.isArray(allPostsCache) && allPostsCache.length
+            ? allPostsCache
+            : null) || getPosts();
         const local = filterPostsLocally(
           basePosts,
           targetFilters,
@@ -1778,46 +1810,12 @@
         renderedCount = local.length;
       };
 
-      const getBasePosts = function () {
-        if (Array.isArray(allPostsCache) && allPostsCache.length) {
-          return Promise.resolve(allPostsCache);
-        }
-        const apiFilters = Object.assign({}, targetFilters || {});
-        // Always fetch full list; filter locally for category/search
-        delete apiFilters.category;
-        delete apiFilters.q;
-        return fetchPostsFromApi(apiFilters)
-          .then(function (apiPosts) {
-            if (Array.isArray(apiPosts) && apiPosts.length) {
-              allPostsCache = apiPosts;
-              try {
-                savePosts(apiPosts);
-              } catch (e) {
-                console.warn("Could not save API posts to local storage", e);
-              }
-              return apiPosts;
-            }
-            const local = getPosts();
-            allPostsCache = local;
-            return local;
-          })
-          .catch(function (error) {
-            console.warn(
-              "Falling back to local posts after fetch error",
-              error
-            );
-            const local = getPosts();
-            allPostsCache = local;
-            const message =
-              (error && error.message) ||
-              "Ne možemo učitati objave. Pokušajte ponovno.";
-            showToast(message, "error");
-            return local;
-          });
-      };
-
-      return getBasePosts()
-        .then(renderFromBase)
+      return renderFromApi()
+        .then(function (rendered) {
+          if (!rendered) {
+            renderFromLocal();
+          }
+        })
         .finally(function () {
           window.svzStopTrace &&
             window.svzStopTrace(listTrace, { count: renderedCount });

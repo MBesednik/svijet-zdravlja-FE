@@ -40,13 +40,9 @@
   };
 
   function showToastMessage(message, type) {
-    if (typeof showToast === "function") {
-      showToast(message, {
-        background: type === "error" ? "#9b1c1c" : "#0b1f1a",
-      });
-    } else {
-      console.log(type || "info", message);
-    }
+    showToast(message, {
+      background: type === "error" ? "#9b1c1c" : "#0b1f1a",
+    });
   }
 
   function formatDateInput(date) {

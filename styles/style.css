@@ -1328,7 +1328,7 @@ body {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0;
-  margin-top: 2rem;
+  margin-top: 1rem;
   margin-bottom: 1.5rem;
   background: #f9faf8;
 }
@@ -1359,7 +1359,7 @@ body {
   margin-right: 0.25em;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  font-size: 1rem;
+  font-size: 0.875rem;
   display: inline;
 }
 
@@ -1367,7 +1367,7 @@ body {
   color: #222;
   font-weight: 700;
   letter-spacing: 0.08em;
-  font-size: 1.1rem;
+  font-size: 0.875rem;
   display: inline;
   text-transform: capitalize;
 }
@@ -1376,7 +1376,6 @@ body {
 @media (max-width: 700px) {
   .post-meta-bar--columns {
     grid-template-columns: 1fr;
-    row-gap: 0.5rem;
     justify-items: center;
     margin-left: 1rem;
     margin-right: 1rem;
@@ -1782,9 +1781,10 @@ html.preloader-skip #preloader {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 0;
+  gap: 0.5rem;
   margin-bottom: 1rem;
   flex-wrap: wrap;
+  width: 100%;
 }
 
 .post-title-wrap h1,
@@ -1817,7 +1817,11 @@ html.preloader-skip #preloader {
   font-weight: 600;
   color: #3d4a2c;
   font-size: 0.95rem;
-  margin-left: 0.75rem;
+  margin-left: auto;
+}
+
+.post-featured + .post-readtime {
+  margin-left: 0.5rem;
 }
 
 .post-readtime__icon {
@@ -2187,7 +2191,8 @@ h3.post-chapter__title {
 
   @media (max-width: 600px) {
     .post-detail__hero {
-      height: 240px !important;
+      height: 200px !important;
+      width: 100%;
       object-position: center;
       object-fit: contain;
     }
