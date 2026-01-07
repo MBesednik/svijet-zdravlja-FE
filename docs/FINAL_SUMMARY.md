@@ -63,7 +63,7 @@ Potpuno ažurirana admin forma s 6 glavnih sekcija:
 | Meta SEO       | ✅     | Opcionalno                                    |
 | Tekst          | ✅     | Min 50 znakova                                |
 | Poglavlja      | ✅     | TEXT, IMAGE, VIDEO                            |
-| Slike          | ✅     | Drag & drop, max 2MB                          |
+| Slike          | ✅     | Drag & drop, max 6MB                          |
 | Kategorije     | ✅     | Višestruki odabir                             |
 | Status         | ✅     | DRAFT, PUBLISHED, SCHEDULED, HIDDEN, ARCHIVED |
 | Zakazivanje    | ✅     | Datum/vrijeme za SCHEDULED                    |

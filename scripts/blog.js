@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2MB
+  const MAX_IMAGE_SIZE = 6 * 1024 * 1024; // 6MB
   const SUPPORTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
   const FALLBACK_IMAGE =
     'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="600" height="400" fill="%23f4f6f2"/><text x="50%" y="50%" fill="%235a5f56" font-size="24" font-family="Inter,Arial,sans-serif" text-anchor="middle">Svijet Zdravlja</text></svg>';

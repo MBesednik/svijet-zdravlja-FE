@@ -53,7 +53,7 @@ docs/
 
 - **Naslovna slika**: Drag & drop suport
 - Automatski pretpregled
-- Validacija veličine (max 2 MB)
+- Validacija veličine (max 6 MB)
 
 #### 5. Kategorije
 
@@ -100,7 +100,7 @@ http://localhost:5000/blog/create.html?id=123  # Uređivanje postojeće
 
    - Drag & drop ili klik
    - JPG, PNG ili WEBP format
-   - Max 2 MB
+   - Max 6 MB
 
 5. **Odaberite Kategorije**
 
@@ -169,7 +169,7 @@ FormData {
 - ✅ Sažetak: obavezno
 - ✅ Status: obavezno
 - ✅ Jezik: obavezno
-- ✅ Naslovna slika: obavezno (JPG/PNG/WEBP, max 2MB)
+- ✅ Naslovna slika: obavezno (JPG/PNG/WEBP, max 6)
 - ✅ Scheduled_for: obavezno ako je status SCHEDULED
 
 ## 🎯 Značajke

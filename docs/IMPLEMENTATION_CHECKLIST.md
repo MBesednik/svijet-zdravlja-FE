@@ -80,7 +80,7 @@
 - ✅ Drag & drop upload za naslovnu sliku
 - ✅ Klik za standardni file picker
 - ✅ Validacija tipa datoteke (JPG, PNG, WEBP)
-- ✅ Validacija veličine (max 2 MB)
+- ✅ Validacija veličine (max 6 MB)
 - ✅ Automatski pretpregled
 - ✅ Podrška za poglavlje slike
 
@@ -128,7 +128,7 @@ const authToken = localStorage.getItem("svz_admin_token");
 
 ### Ograničenja
 
-- Max veličina slike: 2 MB
+- Max veličina slike: 6 MB
 - Min karakteri naslova: 3
 - Min karakteri sadržaja: 50
 - Max karakteri meta naslova: 60
@@ -167,7 +167,7 @@ const authToken = localStorage.getItem("svz_admin_token");
 
 - [ ] Drag & drop slika na dropzone
 - [ ] Klik na dropzone otvara file picker
-- [ ] Validacija veličine (>2MB prikazuje grešku)
+- [ ] Validacija veličine (>6MB prikazuje grešku)
 - [ ] Validacija tipa (samo JPG/PNG/WEBP)
 - [ ] Pretpregled se pokazuje ispravno
 
