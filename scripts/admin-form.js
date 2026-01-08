@@ -753,9 +753,7 @@
       btn.addEventListener("click", (e) => {
         e.preventDefault();
         const id = parseInt(btn.dataset.id);
-        const input = list.querySelector(
-          '.chapter-alt[data-id="' + id + '"]'
-        );
+        const input = list.querySelector('.chapter-alt[data-id="' + id + '"]');
         if (input) {
           applyUnicodeStyle(input, "bold");
           const chapter = chapters.find((c) => c.id === id);
@@ -768,9 +766,7 @@
       btn.addEventListener("click", (e) => {
         e.preventDefault();
         const id = parseInt(btn.dataset.id);
-        const input = list.querySelector(
-          '.chapter-alt[data-id="' + id + '"]'
-        );
+        const input = list.querySelector('.chapter-alt[data-id="' + id + '"]');
         if (input) {
           applyUnicodeStyle(input, "italic");
           const chapter = chapters.find((c) => c.id === id);
@@ -1285,6 +1281,7 @@
       document.getElementById("post-title").value = currentPost.title || "";
       document.getElementById("post-slug").value = currentPost.slug || "";
       document.getElementById("post-summary").value = currentPost.summary || "";
+      document.getElementById("post-reading-time").value = currentPost.reading_time_minutes || null;
       document.getElementById("post-status").value =
         currentPost.status || "DRAFT";
       handleStatusChange(currentPost.status || "DRAFT");
@@ -1484,14 +1481,12 @@
     const summaryBoldBtn = document.getElementById("post-summary-bold");
     const summaryItalicBtn = document.getElementById("post-summary-italic");
     if (summaryInput) {
-      [summaryBoldBtn, summaryItalicBtn].forEach(
-        function (btn) {
-          if (!btn) return;
-          btn.addEventListener("mousedown", function (e) {
-            e.preventDefault(); // keep focus/selection on textarea
-          });
-        }
-      );
+      [summaryBoldBtn, summaryItalicBtn].forEach(function (btn) {
+        if (!btn) return;
+        btn.addEventListener("mousedown", function (e) {
+          e.preventDefault(); // keep focus/selection on textarea
+        });
+      });
       if (summaryBoldBtn) {
         summaryBoldBtn.addEventListener("click", function (e) {
           e.preventDefault();
