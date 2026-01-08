@@ -205,6 +205,18 @@
     console.error(message);
   }
 
+  function applyUnicodeStyle(textarea, style) {
+    if (!textarea || !window.svzTextFormatting) return;
+    const onNoSelection = function () {
+      showFormStatus("Označite tekst koji želite formatirati.", "info");
+    };
+    window.svzTextFormatting.applyStyleToSelection(
+      textarea,
+      style,
+      onNoSelection
+    );
+  }
+
   function toggleFormLoader(show) {
     const loader = document.getElementById("post-form-loader");
     if (!loader) return;
@@ -576,9 +588,19 @@
         ${
           ch.type === "TEXT"
             ? `
-          <textarea placeholder="Unesite tekst poglavlja..." class="chapter-text" data-id="${
-            ch.id
-          }" rows="4">${ch.text_content || ""}</textarea>
+          <div class="chapter-text-wrap">
+            <textarea placeholder="Unesite tekst poglavlja..." class="chapter-text" data-id="${
+              ch.id
+            }" rows="4">${ch.text_content || ""}</textarea>
+            <div class="form__actions-inline" style="gap: 0.35rem;">
+              <button type="button" class="btn btn--draft chapter-text-bold" data-id="${
+                ch.id
+              }" style="padding: 0.25rem 0.55rem; font-size: 0.9rem;" aria-label="Podebljaj" title="Podebljaj"><strong>B</strong></button>
+              <button type="button" class="btn btn--draft chapter-text-italic" data-id="${
+                ch.id
+              }" style="padding: 0.25rem 0.55rem; font-size: 0.9rem;" aria-label="Kurziv" title="Kurziv"><em>I</em></button>
+            </div>
+          </div>
         `
             : ""
         }
@@ -617,9 +639,19 @@
           <input type="text" placeholder="Opis slike (caption)" class="chapter-caption" data-id="${
             ch.id
           }" value="${ch.caption || ""}">
-          <input type="text" placeholder="Alt tekst (opcionalno)" class="chapter-alt" data-id="${
-            ch.id
-          }" value="${ch.alt_text || ""}">
+          <div class="chapter-alt-wrap">
+            <input type="text" placeholder="Alt tekst (opcionalno)" class="chapter-alt" data-id="${
+              ch.id
+            }" value="${ch.alt_text || ""}">
+            <div class="form__actions-inline" style="gap: 0.35rem;">
+              <button type="button" class="btn btn--draft chapter-alt-bold" data-id="${
+                ch.id
+              }" style="padding: 0.25rem 0.55rem; font-size: 0.9rem;" aria-label="Podebljaj" title="Podebljaj"><strong>B</strong></button>
+              <button type="button" class="btn btn--draft chapter-alt-italic" data-id="${
+                ch.id
+              }" style="padding: 0.25rem 0.55rem; font-size: 0.9rem;" aria-label="Kurziv" title="Kurziv"><em>I</em></button>
+            </div>
+          </div>
         `
             : ""
         }
@@ -630,9 +662,19 @@
           <input type="text" placeholder="URL video zapisa ili YouTube link" class="chapter-video-url" data-id="${
             ch.id
           }" value="${ch.external_video_url || ""}">
-          <input type="text" placeholder="Opis videa (caption)" class="chapter-caption" data-id="${
-            ch.id
-          }" value="${ch.caption || ""}">
+          <div class="chapter-caption-wrap">
+            <input type="text" placeholder="Opis videa (caption)" class="chapter-caption chapter-caption-video" data-id="${
+              ch.id
+            }" value="${ch.caption || ""}">
+            <div class="form__actions-inline" style="gap: 0.35rem;">
+              <button type="button" class="btn btn--draft chapter-caption-video-bold" data-id="${
+                ch.id
+              }" style="padding: 0.25rem 0.55rem; font-size: 0.9rem;" aria-label="Podebljaj" title="Podebljaj"><strong>B</strong></button>
+              <button type="button" class="btn btn--draft chapter-caption-video-italic" data-id="${
+                ch.id
+              }" style="padding: 0.25rem 0.55rem; font-size: 0.9rem;" aria-label="Kurziv" title="Kurziv"><em>I</em></button>
+            </div>
+          </div>
         `
             : ""
         }
@@ -660,6 +702,36 @@
         if (chapter) chapter.text_content = e.target.value;
       });
     });
+    list.querySelectorAll(".chapter-text-bold").forEach((btn) => {
+      btn.addEventListener("mousedown", (e) => e.preventDefault());
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const id = parseInt(btn.dataset.id);
+        const textarea = list.querySelector(
+          '.chapter-text[data-id="' + id + '"]'
+        );
+        if (textarea) {
+          applyUnicodeStyle(textarea, "bold");
+          const chapter = chapters.find((c) => c.id === id);
+          if (chapter) chapter.text_content = textarea.value;
+        }
+      });
+    });
+    list.querySelectorAll(".chapter-text-italic").forEach((btn) => {
+      btn.addEventListener("mousedown", (e) => e.preventDefault());
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const id = parseInt(btn.dataset.id);
+        const textarea = list.querySelector(
+          '.chapter-text[data-id="' + id + '"]'
+        );
+        if (textarea) {
+          applyUnicodeStyle(textarea, "italic");
+          const chapter = chapters.find((c) => c.id === id);
+          if (chapter) chapter.text_content = textarea.value;
+        }
+      });
+    });
 
     list.querySelectorAll(".chapter-title").forEach((input) => {
       input.addEventListener("change", (e) => {
@@ -676,6 +748,36 @@
         if (chapter) chapter.caption = e.target.value;
       });
     });
+    list.querySelectorAll(".chapter-alt-bold").forEach((btn) => {
+      btn.addEventListener("mousedown", (e) => e.preventDefault());
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const id = parseInt(btn.dataset.id);
+        const input = list.querySelector(
+          '.chapter-alt[data-id="' + id + '"]'
+        );
+        if (input) {
+          applyUnicodeStyle(input, "bold");
+          const chapter = chapters.find((c) => c.id === id);
+          if (chapter) chapter.alt_text = input.value;
+        }
+      });
+    });
+    list.querySelectorAll(".chapter-alt-italic").forEach((btn) => {
+      btn.addEventListener("mousedown", (e) => e.preventDefault());
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const id = parseInt(btn.dataset.id);
+        const input = list.querySelector(
+          '.chapter-alt[data-id="' + id + '"]'
+        );
+        if (input) {
+          applyUnicodeStyle(input, "italic");
+          const chapter = chapters.find((c) => c.id === id);
+          if (chapter) chapter.alt_text = input.value;
+        }
+      });
+    });
 
     list.querySelectorAll(".chapter-alt").forEach((input) => {
       input.addEventListener("change", (e) => {
@@ -690,6 +792,36 @@
         const id = parseInt(e.target.dataset.id);
         const chapter = chapters.find((c) => c.id === id);
         if (chapter) chapter.external_video_url = e.target.value;
+      });
+    });
+    list.querySelectorAll(".chapter-caption-video-bold").forEach((btn) => {
+      btn.addEventListener("mousedown", (e) => e.preventDefault());
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const id = parseInt(btn.dataset.id);
+        const input = list.querySelector(
+          '.chapter-caption-video[data-id="' + id + '"]'
+        );
+        if (input) {
+          applyUnicodeStyle(input, "bold");
+          const chapter = chapters.find((c) => c.id === id);
+          if (chapter) chapter.caption = input.value;
+        }
+      });
+    });
+    list.querySelectorAll(".chapter-caption-video-italic").forEach((btn) => {
+      btn.addEventListener("mousedown", (e) => e.preventDefault());
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const id = parseInt(btn.dataset.id);
+        const input = list.querySelector(
+          '.chapter-caption-video[data-id="' + id + '"]'
+        );
+        if (input) {
+          applyUnicodeStyle(input, "italic");
+          const chapter = chapters.find((c) => c.id === id);
+          if (chapter) chapter.caption = input.value;
+        }
       });
     });
 
@@ -1346,6 +1478,32 @@
         e.preventDefault();
         addChapter("TEXT");
       });
+    }
+
+    const summaryInput = document.getElementById("post-summary");
+    const summaryBoldBtn = document.getElementById("post-summary-bold");
+    const summaryItalicBtn = document.getElementById("post-summary-italic");
+    if (summaryInput) {
+      [summaryBoldBtn, summaryItalicBtn].forEach(
+        function (btn) {
+          if (!btn) return;
+          btn.addEventListener("mousedown", function (e) {
+            e.preventDefault(); // keep focus/selection on textarea
+          });
+        }
+      );
+      if (summaryBoldBtn) {
+        summaryBoldBtn.addEventListener("click", function (e) {
+          e.preventDefault();
+          applyUnicodeStyle(summaryInput, "bold");
+        });
+      }
+      if (summaryItalicBtn) {
+        summaryItalicBtn.addEventListener("click", function (e) {
+          e.preventDefault();
+          applyUnicodeStyle(summaryInput, "italic");
+        });
+      }
     }
 
     const statusSelect = document.getElementById("post-status");

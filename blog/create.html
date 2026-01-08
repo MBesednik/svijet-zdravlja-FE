@@ -162,6 +162,28 @@
                   rows="3"
                   placeholder="Kraći opis koji će se prikazati u pregledima..."
                 ></textarea>
+                <div class="form__actions-inline" style="gap: 0.5rem;">
+                  <button
+                    type="button"
+                    id="post-summary-bold"
+                    class="btn btn--draft"
+                    style="padding: 0.35rem 0.65rem; font-size: 0.9rem;"
+                    aria-label="Podebljaj odabrano"
+                    title="Podebljaj odabrano"
+                  >
+                    <strong>B</strong>
+                  </button>
+                  <button
+                    type="button"
+                    id="post-summary-italic"
+                    class="btn btn--draft"
+                    style="padding: 0.35rem 0.65rem; font-size: 0.9rem;"
+                    aria-label="Kurziv"
+                    title="Kurziv"
+                  >
+                    <em>I</em>
+                  </button>
+                </div>
                 <span class="form__hint"
                   >Prikazuje se kao pretpregled objave.</span
                 >
@@ -536,6 +558,7 @@
 
     <script src="../scripts/config.js"></script>
     <script src="../scripts/main.js"></script>
+    <script src="../scripts/text-formatting.js"></script>
     <script src="../scripts/toast.js"></script>
     <script src="../scripts/admin-form.js"></script>
   </body>
