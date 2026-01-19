@@ -831,16 +831,6 @@
       });
     });
 
-    list.querySelectorAll(".chapter-image-wrapper").forEach((wrapper) => {
-      const input = wrapper.querySelector(".chapter-image");
-      if (!input) return;
-      wrapper.addEventListener("click", (e) => {
-        if (e.target === input) return;
-        e.preventDefault();
-        input.click();
-      });
-    });
-
     list.querySelectorAll(".chapter-image").forEach((input) => {
       input.addEventListener("change", (e) => {
         const id = parseInt(e.target.dataset.id);
@@ -1542,6 +1532,11 @@
       // Drag and drop
       const dropzone = document.querySelector(".file-upload__dropzone");
       if (dropzone) {
+        dropzone.addEventListener("click", (e) => {
+          e.preventDefault();
+          heroImageInput.click();
+        });
+
         dropzone.addEventListener("dragover", (e) => {
           e.preventDefault();
           dropzone.style.borderColor = "#3d4a2c";

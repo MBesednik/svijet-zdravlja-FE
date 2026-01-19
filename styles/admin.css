@@ -354,10 +354,6 @@
   margin-bottom: 0.5rem;
 }
 
-.chapter-image-wrapper {
-  cursor: pointer;
-}
-
 .chapter-layout-position:focus {
   border-color: #3d4a2c;
   outline: none;
