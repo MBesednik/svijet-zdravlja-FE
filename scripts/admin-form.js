@@ -831,6 +831,16 @@
       });
     });
 
+    list.querySelectorAll(".chapter-image-wrapper").forEach((wrapper) => {
+      const input = wrapper.querySelector(".chapter-image");
+      if (!input) return;
+      wrapper.addEventListener("click", (e) => {
+        if (e.target === input) return;
+        e.preventDefault();
+        input.click();
+      });
+    });
+
     list.querySelectorAll(".chapter-image").forEach((input) => {
       input.addEventListener("change", (e) => {
         const id = parseInt(e.target.dataset.id);
