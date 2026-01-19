@@ -1033,7 +1033,7 @@
     if (heroInput && heroInput.files[0]) {
       const dataUrl = await fileToDataURL(heroInput.files[0]);
       payload.hero_image_data = dataUrl;
-      payload.hero_image_filename = heroImage.files[0].name || null;
+      payload.hero_image_filename = heroInput.files[0].name || null;
     } else if (
       !payload.hero_image_data &&
       currentPost &&
