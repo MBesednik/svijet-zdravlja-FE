@@ -640,9 +640,9 @@
             ch.id
           }" value="${ch.caption || ""}">
           <div class="chapter-alt-wrap">
-            <input type="text" placeholder="Alt tekst (opcionalno)" class="chapter-alt" data-id="${
+            <textarea rows="2" placeholder="Alt tekst (opcionalno)" class="chapter-alt" data-id="${
               ch.id
-            }" value="${ch.alt_text || ""}">
+            }">${ch.alt_text || ""}</textarea>
             <div class="form__actions-inline" style="gap: 0.35rem;">
               <button type="button" class="btn btn--draft chapter-alt-bold" data-id="${
                 ch.id
